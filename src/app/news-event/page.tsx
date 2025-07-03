@@ -1,14 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 
 import Breadcrumb from '@/components/Breadcrumb';
+import CategoryFilter from '@/components/CategoryFilter';
+import LoadingIndicator from '@/components/LoadingIndicator';
+import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
+import Pagination from '@/components/Pagination';
 import { newsEvents } from '@/data/newsevent';
-import type { NewsEvent, NewsEventComment } from '@/types';
-import { Calendar } from 'lucide-react';
+import type { NewsEventComment } from '@/types';
+
+const ITEMS_PER_PAGE = 5;
 
 const NewsEvent = () => {
+  // UI states
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Comments state
   const [commentsData, setCommentsData] = useState<Record<number, NewsEventComment[]>>(() => {
     const initial: Record<number, NewsEventComment[]> = {};
     newsEvents.forEach(item => {
@@ -17,7 +28,52 @@ const NewsEvent = () => {
     return initial;
   });
 
-  const handleAddComment = (eventId: number, name: string, comment: string) => {
+  // Filter categories
+  const filterCategories = [
+    { label: 'Semua', value: 'all' },
+    { label: 'Berita', value: 'news' },
+    { label: 'Acara', value: 'event' },
+  ];
+  
+  // Filtered and paginated data
+  const filteredItems = useMemo(() => {
+    return selectedType === 'all' 
+      ? newsEvents 
+      : newsEvents.filter(item => item.type === selectedType);
+  }, [selectedType]);
+  
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredItems, currentPage]);
+  
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  }, [filteredItems]);
+  
+  // Handle filter change
+  const handleFilterChange = useCallback(async (value: string) => {
+    setIsLoading(true);
+    setSelectedType(value);
+    setCurrentPage(1); // Reset to first page when filter changes
+    
+    // Simulate API call with a small delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    setIsLoading(false);
+  }, []);
+  
+  // Handle pagination
+  const handlePageChange = useCallback(async (page: number) => {
+    setIsLoading(true);
+    setCurrentPage(page);
+    
+    // Simulate API call with a small delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    setIsLoading(false);
+  }, []);
+  
+  // Handle comment addition
+  const handleAddComment = useCallback(async (eventId: number, name: string, comment: string) => {
     if (!name || !comment) {
       return;
     }
@@ -32,11 +88,18 @@ const NewsEvent = () => {
       createdBy: name,
     };
 
+    setIsLoading(true);
+    
+    // Simulate API call with a small delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     setCommentsData(prev => ({
       ...prev,
       [eventId]: [...(prev[eventId] || []), newComment],
     }));
-  };
+    
+    setIsLoading(false);
+  }, [commentsData]);
 
   return (
     <PageContent>
@@ -48,76 +111,30 @@ const NewsEvent = () => {
       />
       <section id="menu" className="flex flex-col gap-4">
         <h2 className="font-sans text-3xl font-bold uppercase">📰 Berita & Acara</h2>
+        <CategoryFilter 
+          categories={filterCategories}
+          selectedCategory={selectedType}
+          onSelect={handleFilterChange}
+        />
       </section>
       <section className="flex flex-col gap-4">
-        {newsEvents.map(item => (
-          <div key={`item-${item.id}`} className="bg-qwhite border-tanakayu-accent rounded border p-3">
-            <h2 className="flex items-center text-lg font-semibold">
-              <Calendar className="text-tanaka-highlight mr-2 h-5 w-5" />[{item.type === 'news' ? 'Berita' : 'Acara'}]{' '}
-              {item.title}
-            </h2>
-            <p className="mb-2 text-xs text-gray-600">{item.createdBy}</p>
-            <p className="text-sm text-gray-700">{item.content}</p>
-            <hr className="my-2" />
-            <details>
-              <summary className="text-tanaka-dark cursor-pointer text-sm font-medium">
-                💬 Lihat & Tambah Komentar
-              </summary>
-
-              <div className="flex flex-col gap-4 py-2">
-                {commentsData[item.id].length > 0 ? (
-                  <div className="flex flex-col gap-1">
-                    {(commentsData[item.id] || []).map((c, index) => (
-                      <div key={index} className="rounded bg-gray-100 p-2 text-sm">
-                        <span className="text-tanaka-dark">{c.createdBy}</span>: {c.comment}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-800 italic">Belum ada komentar</p>
-                )}
-
-                <div className="border-tanakayu-dark/35 border-t py-2">
-                  <h3 className="mb-2 text-sm font-semibold text-gray-800">Tulis Komentar</h3>
-                  <form
-                    onSubmit={e => {
-                      e.preventDefault();
-                      const form = e.target as HTMLFormElement;
-                      const name = form.name.trim();
-                      const comment = form.comment.value.trim();
-                      if (name && comment) {
-                        handleAddComment(item.id, name, comment);
-                        form.reset();
-                      }
-                    }}
-                    className="flex flex-col gap-2"
-                  >
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      placeholder="Nama Anda"
-                      className="rounded border p-2 text-sm"
-                    />
-                    <textarea
-                      name="comment"
-                      required
-                      rows={2}
-                      placeholder="Tulis komentar..."
-                      className="rounded border p-2 text-sm"
-                    ></textarea>
-                    <button
-                      type="submit"
-                      className="bg-tanakayu-highlight text-tanakayu-bg w-full rounded py-1 font-bold"
-                    >
-                      Kirim
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </details>
-          </div>
+        <LoadingIndicator isLoading={isLoading} />
+        
+        {paginatedItems.map(item => (
+          <NewsEventCard 
+            key={`item-${item.id}`}
+            item={item}
+            comments={commentsData[item.id] || []}
+            onAddComment={handleAddComment}
+            isLoading={isLoading}
+          />
         ))}
+        
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </section>
     </PageContent>
   );
