@@ -7,6 +7,8 @@ export const newsEvents: NewsEvent[] = [
     title: 'Perbaikan Lampu Jalan Blok B',
     content:
       '6 titik lampu jalan yang sebelumnya mati telah diperbaiki. Kini area lebih terang dan aman untuk dilalui malam hari.',
+    startDatetime: null,
+    endDatetime: null,
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [],
@@ -17,6 +19,8 @@ export const newsEvents: NewsEvent[] = [
     title: 'Pembukaan Taman Bermain Anak',
     content:
       'Taman bermain di Blok A resmi dibuka dengan fasilitas ayunan, perosotan, dan gazebo. Yuk ajak si kecil bermain!',
+    startDatetime: null,
+    endDatetime: null,
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [{ id: 1, createdBy: 'Ayu', createdAt: new Date(), comment: 'Anak saya senang banget main di sini!' }],
@@ -26,6 +30,8 @@ export const newsEvents: NewsEvent[] = [
     type: 'news',
     title: 'Penambahan CCTV di Pintu Masuk',
     content: 'Demi meningkatkan keamanan, telah dipasang CCTV tambahan di dua titik akses utama cluster.',
+    startDatetime: null,
+    endDatetime: null,
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [],
@@ -36,6 +42,8 @@ export const newsEvents: NewsEvent[] = [
     type: 'event',
     title: 'Senam Pagi Mingguan',
     content: 'Yuk ikuti senam bersama setiap Minggu pagi pukul 07.00 WIB di Lapangan Blok C. Terbuka untuk semua usia!',
+    startDatetime: new Date('2025-07-07T07:00:00Z'),
+    endDatetime: new Date('2025-07-07T10:00:00Z'),
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [
@@ -49,6 +57,8 @@ export const newsEvents: NewsEvent[] = [
     title: 'Bazar Kuliner Tanakayu',
     content:
       'Ajak keluarga untuk hadir di Bazar Kuliner Tanakayu, Sabtu, 13 Juli 2025 mulai pukul 16.00 di area parkir utama.',
+    startDatetime: new Date('2025-07-07T07:00:00Z'),
+    endDatetime: new Date('2025-07-07T10:00:00Z'),
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [{ id: 1, createdBy: 'Maya', createdAt: new Date(), comment: 'Ada tenant makanan Korea gak ya? 😋' }],
@@ -59,6 +69,8 @@ export const newsEvents: NewsEvent[] = [
     title: 'Rapat Koordinasi RT 05',
     content:
       'Rapat bulanan warga RT 05 akan dilaksanakan pada Jumat malam pukul 19.30 di rumah Pak Ketua RT. Mohon kehadiran semua warga.',
+    startDatetime: new Date('2025-07-07T07:00:00Z'),
+    endDatetime: new Date('2025-07-07T10:00:00Z'),
     createdAt: new Date(),
     createdBy: 'Sodjo Hadipranoto',
     comments: [],

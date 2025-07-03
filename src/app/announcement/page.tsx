@@ -23,7 +23,7 @@ const Announcement = () => {
       <Breadcrumb
         items={[
           { label: 'Home', link: '/' },
-          { label: 'Announcement', link: '/announcement' },
+          { label: 'Pengumuman', link: '/announcement' },
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">

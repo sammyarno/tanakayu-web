@@ -27,7 +27,18 @@ export interface NewsEvent {
   title: string;
   type: 'news' | 'event';
   content: string;
+  startDatetime: Date | null;
+  endDatetime: Date | null;
   createdAt: Date;
   createdBy: string;
   comments: NewsEventComment[];
+}
+
+export interface Contact {
+  id: number;
+  name: string;
+  role: string;
+  category: 'pengurus' | 'satpam';
+  image: string;
+  phone: string;
 }

@@ -38,7 +38,10 @@ export default function RootLayout({
       </head>
       <body className="mx-auto w-full max-w-lg p-2 antialiased">
         {/* banner */}
-        <section id="bannner" className="bg-tanakayu-dark text-tanakayu-accent rounded p-5 text-center">
+        <section
+          id="bannner"
+          className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
+        >
           <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
           <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
         </section>
