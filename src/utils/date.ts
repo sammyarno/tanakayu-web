@@ -1,7 +1,11 @@
 import dayjs, { type ConfigType } from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
+import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(advancedFormat);
+dayjs.extend(timezone);
+
+dayjs.tz.setDefault('Asia/Jakarta');
 
 export const formatDateRange = (start: ConfigType, end: ConfigType) => {
   if (!start || !end) return 'No Date';

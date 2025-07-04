@@ -1,15 +1,17 @@
 import { FC, memo } from 'react';
+
+import type { NewsEventWithComment } from '@/types';
 import { Calendar } from 'lucide-react';
-import type { NewsEvent, NewsEventComment } from '@/types';
 
 interface NewsEventCardProps {
-  item: NewsEvent;
-  comments: NewsEventComment[];
-  onAddComment: (eventId: number, name: string, comment: string) => void;
+  item: NewsEventWithComment;
+  onAddComment: (eventId: string, name: string, comment: string) => void;
   isLoading?: boolean;
 }
 
-const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, comments, onAddComment, isLoading = false }) => {
+const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoading = false }) => {
+  const comments = item.comments;
+
   return (
     <div className="bg-qwhite border-tanakayu-accent rounded border p-3">
       <h2 className="flex items-center text-lg font-semibold">
@@ -20,9 +22,7 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, comments, onAddComme
       <p className="text-sm text-gray-700">{item.content}</p>
       <hr className="my-2" />
       <details>
-        <summary className="text-tanaka-dark cursor-pointer text-sm font-medium">
-          💬 Lihat & Tambah Komentar
-        </summary>
+        <summary className="text-tanaka-dark cursor-pointer text-sm font-medium">💬 Lihat & Tambah Komentar</summary>
 
         <div className="flex flex-col gap-4 py-2">
           {comments.length > 0 ? (
@@ -54,13 +54,7 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, comments, onAddComme
               }}
               className="flex flex-col gap-2"
             >
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Nama Anda"
-                className="rounded border p-2 text-sm"
-              />
+              <input type="text" name="name" required placeholder="Nama Anda" className="rounded border p-2 text-sm" />
               <textarea
                 name="comment"
                 required
@@ -71,7 +65,7 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, comments, onAddComme
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`bg-tanakayu-highlight text-tanakayu-bg w-full rounded py-1 font-bold ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`bg-tanakayu-highlight text-tanakayu-bg w-full rounded py-1 font-bold ${isLoading ? 'cursor-not-allowed opacity-70' : ''}`}
               >
                 {isLoading ? 'Mengirim...' : 'Kirim'}
               </button>

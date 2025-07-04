@@ -15,23 +15,32 @@ export interface Category {
   textColor?: string;
 }
 
-export interface NewsEventComment {
-  id: number;
+export interface NewsEvent {
+  id: string;
+  title: string;
+  type: string;
+  content: string;
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface Comment {
+  id: string;
   comment: string;
-  createdAt: Date;
+  createdAt: string;
   createdBy: string;
 }
 
-export interface NewsEvent {
-  id: number;
+export interface NewsEventWithComment {
+  id: string;
   title: string;
-  type: 'news' | 'event';
+  type: string;
   content: string;
-  startDatetime: Date | null;
-  endDatetime: Date | null;
-  createdAt: Date;
+  startDate: string | null;
+  endDate: string | null;
+  createdAt: string;
   createdBy: string;
-  comments: NewsEventComment[];
+  comments: Comment[];
 }
 
 export interface Contact {

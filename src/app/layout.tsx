@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import Providers from '@/components/Providers';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 import './globals.css';
@@ -46,7 +47,7 @@ export default function RootLayout({
           <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
         </section>
 
-        {children}
+        <Providers>{children}</Providers>
 
         {/* footer */}
         <footer className="bg-tanakayu-dark rounded p-2 text-center text-white shadow-sm">
