@@ -1,6 +1,4 @@
-import type { FC } from 'react';
-
-import { Category } from '@/types';
+import type { Category } from '@/types';
 
 interface Props {
   categories: Category[];
@@ -8,15 +6,15 @@ interface Props {
   onSelect: (value: string) => void;
 }
 
-const CategoryFilter: FC<Props> = ({ categories, selectedCategory, onSelect }) => {
+const CategoryFilter = ({ categories, selectedCategory, onSelect }: Props) => {
   return (
     <section className="flex items-center gap-2">
       {categories.map((cat, index) => (
         <div
-          key={`${cat.value}-${index}`}
-          onClick={() => onSelect(cat.value)}
+          key={`${cat.code}-${index}`}
+          onClick={() => onSelect(cat.code)}
           className={`cursor-pointer rounded border px-2 py-1 text-sm tracking-wide ${
-            selectedCategory === cat.value ? 'bg-tanakayu-dark text-tanakayu-accent' : 'bg-tanakayu-light'
+            selectedCategory === cat.label ? 'bg-tanakayu-dark text-tanakayu-accent' : 'bg-tanakayu-light'
           }`}
         >
           {cat.label}

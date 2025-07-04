@@ -9,6 +9,7 @@ import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
+import { Category } from '@/types';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -18,10 +19,10 @@ const NewsEvent = () => {
   const { data, isFetching: isLoading } = useNewsEvents();
 
   // Filter categories
-  const filterCategories = [
-    { label: 'Semua', value: '' },
-    { label: 'Berita', value: 'news' },
-    { label: 'Acara', value: 'event' },
+  const filterCategories: Category[] = [
+    { label: 'Semua', code: '', id: 'semua' },
+    { label: 'Berita', code: 'news', id: 'berita' },
+    { label: 'Acara', code: 'event', id: 'acara' },
   ];
 
   // Filtered and paginated data

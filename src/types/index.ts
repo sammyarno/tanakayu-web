@@ -1,18 +1,24 @@
-export interface Announcement {
-  id: number;
-  title: string;
-  content: string;
-  categories: string[];
-  createdAt: Date;
-  createdBy: string;
-}
+import type { ReactNode } from 'react';
 
 export interface Category {
+  id: string;
   label: string;
-  value: string;
-  icon?: React.ReactElement;
-  bgColor?: string;
-  textColor?: string;
+  code: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+  categories: Category[];
+}
+
+export interface CategoryDisplay {
+  icon: ReactNode;
+  bgColor: string;
+  textColor: string;
 }
 
 export interface NewsEvent {
