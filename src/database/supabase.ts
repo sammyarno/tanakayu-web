@@ -195,48 +195,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          created_at: string
-          created_by: string
-          email: string
-          id: string
-          is_active: boolean | null
-          modified_at: string | null
-          modified_by: string | null
-          name: string
-          password: string | null
-          phone: string
-          role: string
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          email: string
-          id?: string
-          is_active?: boolean | null
-          modified_at?: string | null
-          modified_by?: string | null
-          name: string
-          password?: string | null
-          phone: string
-          role?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          email?: string
-          id?: string
-          is_active?: boolean | null
-          modified_at?: string | null
-          modified_by?: string | null
-          name?: string
-          password?: string | null
-          phone?: string
-          role?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
