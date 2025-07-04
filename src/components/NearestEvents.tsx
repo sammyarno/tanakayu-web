@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useNearestEvents } from '@/hooks/useNearestEvents';
 import { formatDateRange } from '@/utils/date';
 
@@ -20,7 +22,9 @@ const NearestEvents = () => {
           </div>
         ))}
       </div>
-      <button className="bg-tanakayu-highlight w-full py-1 font-semibold text-white">Lihat Semua Acara</button>
+      <Link href="/news-event">
+        <button className="bg-tanakayu-highlight w-full py-1 font-semibold text-white">Lihat Semua Acara</button>
+      </Link>
     </section>
   );
 };
