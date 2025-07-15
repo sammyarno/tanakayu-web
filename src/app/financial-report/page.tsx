@@ -1,5 +1,8 @@
+'use client';
+
 import Breadcrumb from '@/components/Breadcrumb';
 import PageContent from '@/components/PageContent';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const FinancialReport = () => {
   return (
@@ -13,11 +16,16 @@ const FinancialReport = () => {
       <section id="menu" className="flex flex-col gap-4">
         <h2 className="font-sans text-3xl font-bold uppercase">💰 Laporan Keuangan</h2>
         <div className="flex items-center">
-          <div className="h-full flex-3/5">
-            <select className="border-tanakayu-accent h-full w-full rounded border">
-              <option value="012025">January 2025</option>
-              <option value="022025">February 2025</option>
-            </select>
+          <div className="relative h-full w-[200px]">
+            <Select onValueChange={value => console.log(value)}>
+              <SelectTrigger className="h-full flex-3/5">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="012025">January 2025</SelectItem>
+                <SelectItem value="022025">February 2025</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-2/5 flex-col">
             <p className="text-right text-sm">Saldo</p>

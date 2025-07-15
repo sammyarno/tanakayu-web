@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import Providers from '@/components/Providers';
+import '@/styles/globals.css';
 import { GoogleAnalytics } from '@next/third-parties/google';
-
-import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Tanakayu Community',
@@ -38,24 +37,26 @@ export default function RootLayout({
 
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
       </head>
-      <body className="mx-auto w-full max-w-lg p-2 antialiased">
-        {/* banner */}
-        <Link href="/">
-          <section
-            id="bannner"
-            className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
-          >
-            <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
-            <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
-          </section>
-        </Link>
+      <body>
+        <main className="mx-auto w-full max-w-lg p-2 antialiased">
+          {/* banner */}
+          <Link href="/">
+            <section
+              id="bannner"
+              className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
+            >
+              <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
+              <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
+            </section>
+          </Link>
 
-        <Providers>{children}</Providers>
+          <Providers>{children}</Providers>
 
-        {/* footer */}
-        <footer className="bg-tanakayu-dark rounded p-2 text-center text-white shadow-sm">
-          <p className="text-xs">Copyright © {new Date().getFullYear()} Tanakayu. All Rights Reserved.</p>
-        </footer>
+          {/* footer */}
+          <footer className="bg-tanakayu-dark rounded p-2 text-center text-white shadow-sm">
+            <p className="text-xs">Copyright © {new Date().getFullYear()} Tanakayu. All Rights Reserved.</p>
+          </footer>
+        </main>
       </body>
     </html>
   );
