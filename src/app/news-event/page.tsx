@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useSearchParams } from 'next/navigation';
 
 import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
@@ -17,13 +19,18 @@ const NewsEvent = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { data, isFetching: isLoading } = useNewsEvents();
+  const searchParams = useSearchParams();
+  const filterParams = searchParams.get('filter');
 
   // Filter categories
-  const filterCategories: Category[] = [
-    { label: 'Semua', code: '', id: 'semua' },
-    { label: 'Berita', code: 'news', id: 'berita' },
-    { label: 'Acara', code: 'event', id: 'acara' },
-  ];
+  const filterCategories: Category[] = useMemo(
+    () => [
+      { label: 'Semua', code: '', id: 'semua' },
+      { label: 'Berita', code: 'news', id: 'berita' },
+      { label: 'Acara', code: 'event', id: 'acara' },
+    ],
+    []
+  );
 
   // Filtered and paginated data
   const filteredItems = useMemo(() => {
@@ -61,6 +68,12 @@ const NewsEvent = () => {
     console.log('addComment', eventId, name, comment);
   };
 
+  useEffect(() => {
+    if (filterParams) {
+      handleFilterChange(filterParams);
+    }
+  }, [filterParams, handleFilterChange]);
+
   return (
     <PageContent>
       <Breadcrumb
@@ -69,6 +82,7 @@ const NewsEvent = () => {
           { label: 'Berita & Acara', link: '/news-event' },
         ]}
       />
+      {/* {JSON.stringify(searchParams)} */}
       <section id="menu" className="flex flex-col gap-4">
         <h2 className="font-sans text-3xl font-bold uppercase">📰 Berita & Acara</h2>
         <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />

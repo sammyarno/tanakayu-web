@@ -22,7 +22,7 @@ const NearestEvents = () => {
           </div>
         ))}
       </div>
-      <Link href="/news-event">
+      <Link href="/news-event?filter=event">
         <button className="bg-tanakayu-highlight w-full py-1 font-semibold text-white">Lihat Semua Acara</button>
       </Link>
     </section>
