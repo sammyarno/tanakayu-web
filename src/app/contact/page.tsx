@@ -1,10 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-
-import AnnouncementCard from '@/components/AnnouncementCard';
 import Breadcrumb from '@/components/Breadcrumb';
-import CategoryFilter from '@/components/CategoryFilter';
 import PageContent from '@/components/PageContent';
 import { contacts } from '@/data/contacts';
 import type { Contact } from '@/types';

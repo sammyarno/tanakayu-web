@@ -27,13 +27,10 @@ const NewsEvent = () => {
 
   // Filtered and paginated data
   const filteredItems = useMemo(() => {
-    console.log('memo', selectedType, data);
     if (!data) return [];
 
     return selectedType === '' ? data : data.filter(item => item.type === selectedType);
   }, [selectedType, data]);
-
-  console.log('data', data);
 
   const paginatedItems = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
