@@ -1,16 +1,34 @@
-import { FC, memo } from 'react';
+import { FC, FormEvent, memo } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import type { NewsEventWithComment } from '@/types';
 import { Calendar } from 'lucide-react';
 
 interface NewsEventCardProps {
   item: NewsEventWithComment;
-  onAddComment: (eventId: string, name: string, comment: string) => void;
+  onAddComment: (item: NewsEventWithComment, name: string, comment: string) => void;
   isLoading?: boolean;
 }
 
 const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoading = false }) => {
   const comments = item.comments;
+
+  const handleCommentSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const nameInput = form.elements.namedItem('name') as HTMLInputElement;
+    const commentInput = form.elements.namedItem('comment') as HTMLTextAreaElement;
+    const name = nameInput.value.trim();
+    const comment = commentInput.value.trim();
+
+    if (name && comment) {
+      onAddComment(item, name, comment);
+      form.reset();
+    }
+  };
 
   return (
     <div className="bg-qwhite border-tanakayu-accent rounded border p-3">
@@ -39,36 +57,22 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoad
 
           <div className="border-tanakayu-dark/35 border-t py-2">
             <h3 className="mb-2 text-sm font-semibold text-gray-800">Tulis Komentar</h3>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                const form = e.target as HTMLFormElement;
-                const nameInput = form.elements.namedItem('name') as HTMLInputElement;
-                const commentInput = form.elements.namedItem('comment') as HTMLTextAreaElement;
-                const name = nameInput.value.trim();
-                const comment = commentInput.value.trim();
-                if (name && comment) {
-                  onAddComment(item.id, name, comment);
-                  form.reset();
-                }
-              }}
-              className="flex flex-col gap-2"
-            >
-              <input type="text" name="name" required placeholder="Nama Anda" className="rounded border p-2 text-sm" />
-              <textarea
+            <form onSubmit={handleCommentSubmit} className="flex flex-col gap-2">
+              <Input type="text" name="name" required placeholder="Nama Anda" className="rounded border p-2 text-sm" />
+              <Textarea
                 name="comment"
                 required
                 rows={2}
                 placeholder="Tulis komentar..."
                 className="rounded border p-2 text-sm"
-              ></textarea>
-              <button
+              />
+              <Button
                 type="submit"
                 disabled={isLoading}
                 className={`bg-tanakayu-highlight text-tanakayu-bg w-full rounded py-1 font-bold ${isLoading ? 'cursor-not-allowed opacity-70' : ''}`}
               >
                 {isLoading ? 'Mengirim...' : 'Kirim'}
-              </button>
+              </Button>
             </form>
           </div>
         </div>

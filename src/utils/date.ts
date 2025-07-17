@@ -26,4 +26,6 @@ export const formatDate = (date: ConfigType) => {
   return dayjs(date).format('DD MMMM YYYY HH:mm');
 };
 
+export const getNowDate = () => dayjs().toISOString();
+
 export default dayjs;

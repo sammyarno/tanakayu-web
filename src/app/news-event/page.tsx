@@ -11,16 +11,22 @@ import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
-import { Category } from '@/types';
+import { PostCommentRequest, usePostComment } from '@/hooks/usePostComment';
+import { Category, NewsEventWithComment } from '@/types';
+import { X } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 5;
 
 const NewsEvent = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { data, isFetching: isLoading } = useNewsEvents();
+  const { data, isFetching: isFetchLoading } = useNewsEvents();
+  const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
   const searchParams = useSearchParams();
   const filterParams = searchParams.get('filter');
+
+  const isLoading = isFetchLoading || isPostLoading;
 
   // Filter categories
   const filterCategories: Category[] = useMemo(
@@ -60,12 +66,28 @@ const NewsEvent = () => {
   }, []);
 
   // Handle comment addition
-  const handleAddComment = (eventId: string, name: string, comment: string) => {
+  const handleAddComment = async (item: NewsEventWithComment, name: string, comment: string) => {
     if (!name || !comment) {
       return;
     }
 
-    console.log('addComment', eventId, name, comment);
+    const payload: PostCommentRequest = {
+      actor: name,
+      comment,
+      targetID: item.id,
+      targetType: 'news_event',
+    };
+
+    await postComment(payload);
+
+    toast('Your comment has been submitted and is pending admin approval.', {
+      duration: 5000,
+      position: 'top-center',
+      action: {
+        label: <X />,
+        onClick: () => toast.dismiss(),
+      },
+    });
   };
 
   useEffect(() => {
@@ -82,7 +104,6 @@ const NewsEvent = () => {
           { label: 'Berita & Acara', link: '/news-event' },
         ]}
       />
-      {/* {JSON.stringify(searchParams)} */}
       <section id="menu" className="flex flex-col gap-4">
         <h2 className="font-sans text-3xl font-bold uppercase">📰 Berita & Acara</h2>
         <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />

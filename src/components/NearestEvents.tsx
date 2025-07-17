@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { useNearestEvents } from '@/hooks/useNearestEvents';
 import { formatDateRange } from '@/utils/date';
 
@@ -22,9 +23,9 @@ const NearestEvents = () => {
           </div>
         ))}
       </div>
-      <Link href="/news-event?filter=event">
-        <button className="bg-tanakayu-highlight w-full py-1 font-semibold text-white">Lihat Semua Acara</button>
-      </Link>
+      <Button asChild className="bg-tanakayu-highlight w-full py-1 font-semibold text-white">
+        <Link href="/news-event?filter=event">Lihat Semua Acara</Link>
+      </Button>
     </section>
   );
 };

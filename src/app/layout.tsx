@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Providers from '@/components/Providers';
 import '@/styles/globals.css';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Tanakayu Community',
@@ -57,6 +58,7 @@ export default function RootLayout({
             <p className="text-xs">Copyright © {new Date().getFullYear()} Tanakayu. All Rights Reserved.</p>
           </footer>
         </main>
+        <Toaster />
       </body>
     </html>
   );
