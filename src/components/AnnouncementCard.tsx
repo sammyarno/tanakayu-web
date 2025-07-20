@@ -4,6 +4,8 @@ import { formatDate } from '@/utils/date';
 import { AlertDialogAction, AlertDialogCancel } from '@radix-ui/react-alert-dialog';
 import { Edit2Icon, Trash } from 'lucide-react';
 
+import CategorySelector from './CategorySelector';
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -63,20 +65,6 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
 };
 
 const EditDialog = ({ announcement }: { announcement: Announcement }) => {
-  const dummyOptions = [
-    {
-      value: 'listrik',
-      label: 'Listrik',
-    },
-    {
-      value: 'lingkungan',
-      label: 'Lingkungan',
-    },
-    {
-      value: 'komunitas',
-      label: 'Komunitas',
-    },
-  ];
 
   return (
     <Dialog>
@@ -95,15 +83,10 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
               <Label htmlFor="title">Title</Label>
               <Input id="title" name="title" autoFocus={false} defaultValue={announcement.title} />
             </div>
-            <div className="grid gap-3">
-              <Label htmlFor="category">Category</Label>
-              <MultiSelect
-                name="category"
-                options={dummyOptions}
-                defaultValue={announcement.categories.map(x => x.code)}
-                onValueChange={value => console.log(value)}
-              />
-            </div>
+            <CategorySelector
+              defaultValue={announcement.categories.map(x => x.code)}
+              onValueChange={value => console.log(value)}
+            />
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
               <Input id="content" name="content" defaultValue={announcement.content} />
