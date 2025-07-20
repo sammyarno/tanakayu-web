@@ -139,6 +139,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     };
 
     const toggleOption = (option: string) => {
+      console.log('toggleOption', option);
       const newSelectedValues = selectedValues.includes(option)
         ? selectedValues.filter(value => value !== option)
         : [...selectedValues, option];
@@ -197,13 +198,6 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                       >
                         {IconComponent && <IconComponent className="mr-2 h-4 w-4" />}
                         {option?.label}
-                        <XCircle
-                          className="ml-2 h-4 w-4 cursor-pointer text-red-600"
-                          onClick={event => {
-                            event.stopPropagation();
-                            toggleOption(value);
-                          }}
-                        />
                       </Badge>
                     );
                   })}

@@ -50,24 +50,18 @@ export type Database = {
           category_id: string
           created_at: string
           created_by: string
-          modified_at: string | null
-          modified_by: string | null
         }
         Insert: {
           announcement_id: string
           category_id: string
           created_at?: string
           created_by: string
-          modified_at?: string | null
-          modified_by?: string | null
         }
         Update: {
           announcement_id?: string
           category_id?: string
           created_at?: string
           created_by?: string
-          modified_at?: string | null
-          modified_by?: string | null
         }
         Relationships: [
           {

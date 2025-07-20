@@ -1,5 +1,7 @@
 import type { Category } from '@/types';
 
+import { Skeleton } from './ui/skeleton';
+
 interface Props {
   categories: Category[];
   selectedCategory: string;
@@ -9,6 +11,13 @@ interface Props {
 const CategoryFilter = ({ categories, selectedCategory, onSelect }: Props) => {
   return (
     <section className="flex items-center gap-2">
+      {categories.length === 0 && (
+        <>
+          <Skeleton className="h-7 w-28" />
+          <Skeleton className="h-7 w-28" />
+          <Skeleton className="h-7 w-28" />
+        </>
+      )}
       {categories.map((cat, index) => (
         <div
           key={`${cat.code}-${index}`}

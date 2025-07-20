@@ -1,11 +1,16 @@
+import { type FormEvent, useEffect, useState } from 'react';
+
 import { categoryDisplayMap } from '@/data/announcements';
+import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
+import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
+import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import type { Announcement } from '@/types';
 import { formatDate } from '@/utils/date';
 import { AlertDialogAction, AlertDialogCancel } from '@radix-ui/react-alert-dialog';
-import { Edit2Icon, Trash } from 'lucide-react';
+import { AlertCircleIcon, Edit2Icon, Trash } from 'lucide-react';
 
 import CategorySelector from './CategorySelector';
-
+import { Alert, AlertTitle } from './ui/alert';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -27,7 +32,7 @@ import {
 } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { MultiSelect } from './ui/multi-select';
+import { Textarea } from './ui/textarea';
 
 interface Props {
   announcement: Announcement;
@@ -35,10 +40,22 @@ interface Props {
 }
 
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { mutateAsync, isPending: isLoading } = useDeleteAnnouncement();
+
+  const handleDelete = async () => {
+    await mutateAsync({
+      id: announcement.id,
+      actor: 'system', // get from user store
+    });
+
+    setIsOpen(false);
+  };
+
   return (
-    <AlertDialog>
+    <AlertDialog open={isOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+        <Button variant="destructive" onClick={() => setIsOpen(true)}>
           <Trash /> Delete
         </Button>
       </AlertDialogTrigger>
@@ -49,12 +66,12 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
               Cancel
             </Button>
           </AlertDialogCancel>
           <AlertDialogAction>
-            <Button variant="destructive" className="w-full">
+            <Button variant="destructive" className="w-full" onClick={handleDelete} disabled={isLoading}>
               <Trash /> Delete
             </Button>
           </AlertDialogAction>
@@ -65,44 +82,109 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
 };
 
 const EditDialog = ({ announcement }: { announcement: Announcement }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
+  const { mutateAsync, isPending } = useEditAnnouncement();
+  const { data: categories } = useAnnouncementCategories();
+
+  const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(undefined);
+    const formData = new FormData(e.currentTarget);
+
+    const title = formData.get('title')?.toString();
+    const content = formData.get('content')?.toString();
+    const categoryCodes = tempCategories;
+
+    if (!title || !content || !categoryCodes.length) {
+      setErrorMessage('Please fill in all required fields');
+      return;
+    }
+
+    const categoryIds = categoryCodes.map(x => categories?.find(c => c.code === x)?.id || '');
+
+    try {
+      await mutateAsync({
+        id: announcement.id,
+        title,
+        content,
+        categories: categoryIds,
+        actor: 'system', // get from user store
+      });
+
+      setIsOpen(false);
+      setErrorMessage(undefined);
+    } catch (error) {
+      setErrorMessage('Failed to update announcement');
+      console.error(error);
+    }
+  };
+
+  const handleFormError = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage('Invalid form submission');
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setTempCategories(announcement.categories.map(x => x.code));
+  }, [isOpen, announcement]);
 
   return (
-    <Dialog>
-      <form>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button>
+          <Button onClick={() => setIsOpen(true)}>
             <Edit2Icon /> Edit
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Announcement</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" autoFocus={false} defaultValue={announcement.title} />
+
+          <form onSubmit={handleEditSubmission} onError={handleFormError}>
+            <div className="grid gap-4">
+              {errorMessage && (
+                <Alert variant="destructive" className="border-red-600 bg-red-300/40">
+                  <AlertCircleIcon />
+                  <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
+                </Alert>
+              )}
+              <div className="grid gap-3">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  autoFocus={false}
+                  defaultValue={announcement.title}
+                  disabled={isPending}
+                />
+              </div>
+              <CategorySelector
+                name="categories"
+                defaultValue={tempCategories}
+                onValueChange={setTempCategories}
+                disabled={isPending}
+              />
+              <div className="grid gap-3">
+                <Label htmlFor="content">Content</Label>
+                <Textarea id="content" name="content" defaultValue={announcement.content} disabled={isPending} />
+              </div>
             </div>
-            <CategorySelector
-              defaultValue={announcement.categories.map(x => x.code)}
-              onValueChange={value => console.log(value)}
-            />
-            <div className="grid gap-3">
-              <Label htmlFor="content">Content</Label>
-              <Input id="content" name="content" defaultValue={announcement.content} />
-            </div>
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button>
-              <Edit2Icon /> Edit
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="mt-4">
+              <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                <Edit2Icon /> Edit
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
-      </form>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };
 

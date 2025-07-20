@@ -1,13 +1,16 @@
-import { useAnnouncementCategories } from '@/store/announcementCategoriesStore';
 import { useEffect, useState } from 'react';
-import { MultiSelect } from './ui/multi-select';
+
+import { useAnnouncementCategories } from '@/store/announcementCategoriesStore';
+
 import { Label } from './ui/label';
+import { MultiSelect } from './ui/multi-select';
 
 interface CategorySelectorProps {
   defaultValue?: string[];
   onValueChange?: (value: string[]) => void;
   label?: string;
   name?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -19,6 +22,7 @@ const CategorySelector = ({
   onValueChange,
   label = 'Category',
   name = 'category',
+  disabled = false,
 }: CategorySelectorProps) => {
   const { getCategoryOptions, fetchCategories, isLoading } = useAnnouncementCategories();
   const [value, setValue] = useState<string[]>(defaultValue);
@@ -39,12 +43,13 @@ const CategorySelector = ({
     <div className="grid gap-3">
       <Label htmlFor={name}>{label}</Label>
       <MultiSelect
+        id={name}
         name={name}
         options={getCategoryOptions()}
         value={value}
         defaultValue={defaultValue}
         onValueChange={handleValueChange}
-        disabled={isLoading}
+        disabled={isLoading || disabled}
       />
     </div>
   );

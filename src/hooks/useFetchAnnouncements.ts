@@ -23,6 +23,7 @@ export const fetchAnnouncements = async () => {
         )
       `
     )
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);
