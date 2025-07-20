@@ -18,7 +18,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -26,6 +25,7 @@ import {
 } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { MultiSelect } from './ui/multi-select';
 
 interface Props {
   announcement: Announcement;
@@ -63,6 +63,21 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
 };
 
 const EditDialog = ({ announcement }: { announcement: Announcement }) => {
+  const dummyOptions = [
+    {
+      value: 'listrik',
+      label: 'Listrik',
+    },
+    {
+      value: 'lingkungan',
+      label: 'Lingkungan',
+    },
+    {
+      value: 'komunitas',
+      label: 'Komunitas',
+    },
+  ];
+
   return (
     <Dialog>
       <form>
@@ -79,6 +94,15 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
               <Input id="title" name="title" autoFocus={false} defaultValue={announcement.title} />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="category">Category</Label>
+              <MultiSelect
+                name="category"
+                options={dummyOptions}
+                defaultValue={announcement.categories.map(x => x.code)}
+                onValueChange={value => console.log(value)}
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>

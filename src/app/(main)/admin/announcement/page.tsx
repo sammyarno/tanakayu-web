@@ -10,6 +10,7 @@ import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import { Button } from '@/components/ui/button';
+import type { MultiSelectOption } from '@/components/ui/multi-select';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
 import type { Announcement } from '@/types';
