@@ -9,16 +9,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useSignIn } from '@/hooks/auth/useSignIn';
+import { useUserAuthStore } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { mutateAsync: signIn, isPending: isLoading, error: signInError, isSuccess, isError } = useSignIn();
+  const { signIn, isLoading, error, user, clearError } = useUserAuthStore();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage(undefined);
+    clearError();
 
     const formData = new FormData(e.currentTarget);
 
@@ -29,7 +31,7 @@ const Login = () => {
       return;
     }
 
-    await signIn({ email, password });
+    await signIn(email, password);
   };
 
   const handleFormError = (e: FormEvent<HTMLFormElement>) => {
@@ -39,16 +41,16 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (isError && signInError) {
-      setErrorMessage(signInError.message);
+    if (error) {
+      setErrorMessage(error);
     }
-  }, [signInError]);
+  }, [error]);
 
   useEffect(() => {
-    if (isSuccess && !isError) {
+    if (user) {
       router.push('/admin/dashboard');
     }
-  }, [isSuccess]);
+  }, [user, router]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">
@@ -68,7 +70,7 @@ const Login = () => {
             {errorMessage && (
               <Alert variant="destructive" className="border-red-600 bg-red-300/40">
                 <AlertCircleIcon />
-                <AlertTitle className="font-semibold tracking-wider capitalize">{errorMessage}</AlertTitle>
+                <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
               </Alert>
             )}
             <form onSubmit={handleSignIn} onError={handleFormError}>

@@ -1,27 +1,46 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { useMutation } from '@tanstack/react-query';
+import { useUserAuthStore } from '@/store/userAuthStore';
+import { useState } from 'react';
 
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-const postSignIn = async (payload: LoginRequest) => {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client.auth.signInWithPassword({
-    email: payload.email,
-    password: payload.password,
-  });
-
-  if (error) throw new Error(error.message);
-
-  return data;
+// This hook maintains backward compatibility with the previous React Query implementation
+// while using the new Zustand store under the hood
+export const useSignIn = () => {
+  const { signIn, isLoading, error, clearError } = useUserAuthStore();
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  
+  const mutateAsync = async (payload: LoginRequest) => {
+    setIsSuccess(false);
+    setIsError(false);
+    clearError();
+    
+    try {
+      const user = await signIn(payload.email, payload.password);
+      setIsSuccess(!!user);
+      setIsError(!user);
+      return { user };
+    } catch (e) {
+      setIsError(true);
+      throw e;
+    }
+  };
+  
+  return {
+    mutateAsync,
+    isPending: isLoading,
+    isLoading,
+    error: error ? new Error(error) : null,
+    isSuccess,
+    isError,
+  };
 };
 
-export const useSignIn = () => {
-  return useMutation({
-    mutationKey: ['sign-in'],
-    mutationFn: postSignIn,
-  });
+// Keep the original function for direct API calls if needed
+export const postSignIn = async (payload: LoginRequest) => {
+  const { signIn } = useUserAuthStore.getState();
+  return { user: await signIn(payload.email, payload.password) };
 };

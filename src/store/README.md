@@ -6,6 +6,16 @@ This directory contains Zustand stores for state management across the applicati
 
 ## Stores
 
+### UserAuthStore
+
+The `userAuthStore.ts` implements a store for managing user authentication with the following features:
+
+- **User Management**: Stores and provides access to the authenticated user
+- **Authentication Actions**: Provides signIn, signOut, and fetchUser methods
+- **Caching**: Implements a 5-minute cache to prevent unnecessary API calls
+- **Persistence**: Stores user data in localStorage to survive page refreshes
+- **Loading States**: Tracks loading and error states
+
 ### AnnouncementCategoriesStore
 
 The `announcementCategoriesStore.ts` implements a store for managing announcement categories with the following features:
@@ -18,7 +28,48 @@ The `announcementCategoriesStore.ts` implements a store for managing announcemen
 
 ## Usage Examples
 
-### Basic Usage
+### User Authentication
+
+```tsx
+import { useUserAuthStore } from '@/store/userAuthStore';
+
+const LoginComponent = () => {
+  const { signIn, isLoading, error } = useUserAuthStore();
+  
+  const handleLogin = async (email, password) => {
+    await signIn(email, password);
+  };
+  
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+      handleLogin(email, password);
+    }}>
+      {error && <div>Error: {error}</div>}
+      <input name="email" type="email" />
+      <input name="password" type="password" />
+      <button type="submit" disabled={isLoading}>Login</button>
+    </form>
+  );
+};
+
+const ProfileComponent = () => {
+  const { user, signOut } = useUserAuthStore();
+  
+  if (!user) return <div>Not logged in</div>;
+  
+  return (
+    <div>
+      <p>Welcome, {user.email}</p>
+      <button onClick={signOut}>Sign Out</button>
+    </div>
+  );
+};
+```
+
+### Announcement Categories Usage
 
 ```tsx
 import { useAnnouncementCategories } from '@/store/announcementCategoriesStore';
@@ -89,3 +140,5 @@ This store replaces the previous React Query implementation in `useFetchAnnounce
 - Add synchronization between tabs using Zustand's broadcast channel middleware
 - Implement optimistic updates for write operations
 - Add devtools integration for debugging
+- Enhance security for the user authentication store
+- Add refresh token handling for the authentication store

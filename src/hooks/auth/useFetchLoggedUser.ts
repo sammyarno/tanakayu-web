@@ -1,22 +1,25 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useUserAuthStore } from '@/store/userAuthStore';
+import { useEffect } from 'react';
 
-export const fetchLoggedUser = async () => {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client.auth.getUser();
-
-  if (error) throw new Error(error.message);
-
-  return data.user;
+// This hook maintains backward compatibility with the previous React Query implementation
+// while using the new Zustand store under the hood
+export const useFetchLoggedUser = () => {
+  const { user, fetchUser, isLoading, error } = useUserAuthStore();
+  
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+  
+  return {
+    data: user,
+    isLoading,
+    error,
+    refetch: fetchUser,
+  };
 };
 
-export const useFetchLoggedUser = () => {
-  return useQuery({
-    queryKey: ['logged-user'],
-    queryFn: () => fetchLoggedUser(),
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-  });
+// Keep the original function for direct API calls if needed
+export const fetchLoggedUser = async () => {
+  const { fetchUser } = useUserAuthStore.getState();
+  return fetchUser();
 };

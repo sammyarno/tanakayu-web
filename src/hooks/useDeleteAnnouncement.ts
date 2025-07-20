@@ -14,7 +14,7 @@ const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
     .from('announcements')
     .update({
       deleted_at: getNowDate(),
-      deleted_by: payload.id,
+      deleted_by: payload.actor,
     })
     .eq('id', payload.id)
     .select('id');
