@@ -14,6 +14,7 @@ interface PersistedState {
 
 interface UserAuthState extends PersistedState {
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
   user: User | null;
   fetchUser: (isLoginPage?: boolean) => Promise<User | null>;
@@ -57,11 +58,31 @@ const encryptedStorage = {
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
     (set, get) => {
-      const initializeUser = () => {
+      const initializeUser = async () => {
         const { storedUserData } = get();
         if (storedUserData) {
           const user = fromLimitedUserData(storedUserData) as User | null;
-          set({ user });
+          set({ user, isInitialized: true });
+        } else {
+          // Check current session with Supabase when no cached data
+          try {
+            const client = getSupabaseClient();
+            const { data, error } = await client.auth.getUser();
+            
+            if (data.user && !error) {
+              const limitedData = toLimitedUserData(data.user);
+              set({
+                storedUserData: limitedData,
+                user: data.user,
+                lastFetched: getCurrentTimestamp(),
+                isInitialized: true,
+              });
+            } else {
+              set({ isInitialized: true });
+            }
+          } catch (error) {
+            set({ isInitialized: true });
+          }
         }
       };
 
@@ -72,6 +93,7 @@ export const useUserAuthStore = create<UserAuthState>()(
         storedUserData: null,
         lastFetched: null,
         isLoading: false,
+        isInitialized: false,
         error: null,
         user: null,
 
@@ -185,6 +207,7 @@ export const useUserAuthStore = create<UserAuthState>()(
 export const useUser = () => useUserAuthStore(state => state.user);
 export const useAuthLoading = () => useUserAuthStore(state => state.isLoading);
 export const useAuthError = () => useUserAuthStore(state => state.error);
+export const useAuthInitialized = () => useUserAuthStore(state => state.isInitialized);
 
 export const useStoredUserData = () => useUserAuthStore(state => state.storedUserData);
 export const useStoredUserId = () => useUserAuthStore(state => state.storedUserData?.id);

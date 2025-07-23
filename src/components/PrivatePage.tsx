@@ -4,19 +4,21 @@ import { type ReactNode, useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useAuthInitialized, useUserAuthStore } from '@/store/userAuthStore';
 
 const PrivatePage = ({ children }: { children: ReactNode }) => {
   const { user, isLoading } = useUserAuthStore();
+  const isInitialized = useAuthInitialized();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
+    if (isInitialized && !user && !isLoading) {
+      console.log('privatePage', isInitialized, user, isLoading);
       router.push('/login');
     }
-  }, [user]);
+  }, [user, isLoading, isInitialized, router]);
 
-  if (isLoading) return <></>;
+  if (!isInitialized || isLoading) return <></>;
 
   return children;
 };
