@@ -16,7 +16,7 @@ export const fetchNewsEvents = async (isAdmin = false) => {
 
   let commentsQuery = client
     .from('comments')
-    .select('id, comment, target_id, created_at, created_by, approved_at, approved_by')
+    .select('id, comment, target_id, created_at, created_by, approved_at, approved_by, rejected_at, rejected_by')
     .eq('target_type', 'news_event');
 
   // For non-admin users, only show approved comments
@@ -44,6 +44,8 @@ export const fetchNewsEvents = async (isAdmin = false) => {
             createdBy: c.created_by,
             approvedAt: c.approved_at || undefined,
             approvedBy: c.approved_by || undefined,
+            rejectedAt: c.rejected_at || undefined,
+            rejectedBy: c.rejected_by || undefined,
           })
         ),
     })
