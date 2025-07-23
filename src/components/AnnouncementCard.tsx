@@ -7,7 +7,6 @@ import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategorie
 import { useUserId } from '@/store/userAuthStore';
 import type { Announcement } from '@/types';
 import { formatDate } from '@/utils/date';
-import { AlertDialogAction, AlertDialogCancel } from '@radix-ui/react-alert-dialog';
 import { AlertCircleIcon, Edit2Icon, Trash } from 'lucide-react';
 
 import CategorySelector from './CategorySelector';
@@ -60,16 +59,12 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
           <AlertDialogDescription>{announcement.title}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>
-            <Button className="w-full" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
-              Cancel
-            </Button>
-          </AlertDialogCancel>
-          <AlertDialogAction>
-            <Button variant="destructive" className="w-full" onClick={handleDelete} disabled={isLoading}>
-              <Trash /> Delete
-            </Button>
-          </AlertDialogAction>
+          <Button variant="outline" disabled={isLoading} onClick={() => setIsOpen(false)} type="button">
+            Cancel
+          </Button>
+          <Button variant="destructive" className="w-full" onClick={handleDelete} disabled={isLoading}>
+            <Trash /> Delete
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
