@@ -11,11 +11,11 @@ const AdminTitleSign = () => {
   const displayText = displayName || email;
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-4">
+    <div className="flex w-full flex-col items-end justify-center gap-2">
       <h1 className="text-center text-xl font-bold">
         Welcome back, {displayText ? displayText : <Skeleton className="h-7 w-24" />}!
       </h1>
-      <SignOutButton size="sm" />
+      <SignOutButton size="sm" variant="ghost" />
     </div>
   );
 };

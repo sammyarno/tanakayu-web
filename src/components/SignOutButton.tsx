@@ -10,22 +10,12 @@ interface SignOutButtonProps {
   className?: string;
 }
 
-const SignOutButton = ({ 
-  variant = 'outline', 
-  size = 'default',
-  className = ''
-}: SignOutButtonProps) => {
+const SignOutButton = ({ variant = 'outline', size = 'default', className = '' }: SignOutButtonProps) => {
   const { signOut, isLoading } = useSignOut();
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={signOut}
-      disabled={isLoading}
-      className={className}
-    >
-      <LogOut className="mr-2 h-4 w-4" />
+    <Button variant={variant} size={size} onClick={signOut} disabled={isLoading} className={className}>
+      <LogOut className="h-4 w-4" />
       Sign Out
     </Button>
   );
