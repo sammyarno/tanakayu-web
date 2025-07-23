@@ -35,6 +35,8 @@ export interface Comment {
   comment: string;
   createdAt: string;
   createdBy: string;
+  approvedAt?: string;
+  approvedBy?: string;
 }
 
 export interface NewsEventWithComment {

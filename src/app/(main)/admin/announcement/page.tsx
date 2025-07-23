@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateAnnouncement } from '@/hooks/useCreateAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
-import { useUserId } from '@/store/userAuthStore';
+import { useStoredUserId } from '@/store/userAuthStore';
 import type { Announcement } from '@/types';
 import { AlertCircleIcon, PlusIcon } from 'lucide-react';
 
@@ -74,7 +74,7 @@ const CreateDialog = () => {
   const [tempCategories, setTempCategories] = useState<string[]>([]);
   const { mutateAsync, isPending } = useCreateAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const userId = useUserId();
+  const userId = useStoredUserId();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

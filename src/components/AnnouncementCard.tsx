@@ -4,7 +4,7 @@ import { categoryDisplayMap } from '@/data/announcements';
 import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
-import { useUserId } from '@/store/userAuthStore';
+import { useStoredUserId } from '@/store/userAuthStore';
 import type { Announcement } from '@/types';
 import { formatDate } from '@/utils/date';
 import { AlertCircleIcon, Edit2Icon, Trash } from 'lucide-react';
@@ -35,7 +35,7 @@ interface Props {
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync, isPending: isLoading } = useDeleteAnnouncement();
-  const userId = useUserId();
+  const userId = useStoredUserId();
 
   const handleDelete = async () => {
     await mutateAsync({
@@ -77,7 +77,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
   const { mutateAsync, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const userId = useUserId();
+  const userId = useStoredUserId();
 
   const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

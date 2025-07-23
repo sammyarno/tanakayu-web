@@ -5,7 +5,7 @@ import PageContent from '@/components/PageContent';
 
 const Dashboard = () => {
   return (
-    <PageContent>
+    <PageContent isAdmin>
       <AdminTitleSign />
       <Link
         href="/admin/news-event"
