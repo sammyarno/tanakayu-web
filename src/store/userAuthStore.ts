@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
 import { LimitedUserData, fromLimitedUserData, toLimitedUserData } from '@/types/auth';
-import { encryptData, decryptData } from '@/utils/encryption';
+import { decryptData, encryptData } from '@/utils/encryption';
 import { User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -18,7 +18,7 @@ interface UserAuthState extends PersistedState {
   // Runtime-only state (not persisted)
   isLoading: boolean;
   error: string | null;
-  
+
   // Computed property to provide compatibility with existing code
   user: User | null;
 
@@ -29,15 +29,14 @@ interface UserAuthState extends PersistedState {
   clearError: () => void;
 }
 
-// Cache duration in milliseconds (5 minutes)
-const CACHE_DURATION = 5 * 60 * 1000;
+const CACHE_DURATION = parseInt(process.env.NEXT_PUBLIC_AUTH_CACHE_DURATION || '300000', 10);
 
 // Custom storage with encryption
 const encryptedStorage = {
   getItem: async (name: string): Promise<string | null> => {
     const str = localStorage.getItem(name);
     if (!str) return str;
-    
+
     try {
       // For persisted state, decrypt it
       const data = await decryptData<PersistedState>(str);
@@ -47,7 +46,7 @@ const encryptedStorage = {
       return null;
     }
   },
-  
+
   setItem: async (name: string, value: string): Promise<void> => {
     try {
       const data = JSON.parse(value) as PersistedState;
@@ -58,10 +57,10 @@ const encryptedStorage = {
       localStorage.setItem(name, value);
     }
   },
-  
+
   removeItem: (name: string): void => {
     localStorage.removeItem(name);
-  }
+  },
 };
 
 export const useUserAuthStore = create<UserAuthState>()(
@@ -70,11 +69,11 @@ export const useUserAuthStore = create<UserAuthState>()(
       // Persisted state
       userData: null,
       lastFetched: null,
-      
+
       // Runtime-only state
       isLoading: false,
       error: null,
-      
+
       // Computed property that converts limited data to User object for compatibility
       get user() {
         return fromLimitedUserData(get().userData) as User | null;
@@ -88,7 +87,7 @@ export const useUserAuthStore = create<UserAuthState>()(
         if (userData && lastFetched && currentTime - lastFetched < CACHE_DURATION) {
           return fromLimitedUserData(userData) as User | null;
         }
-        
+
         // If we're on the login page, just return the current user state without fetching
         if (isLoginPage) {
           return fromLimitedUserData(userData) as User | null;
@@ -104,7 +103,7 @@ export const useUserAuthStore = create<UserAuthState>()(
 
           // Convert to limited user data
           const limitedData = toLimitedUserData(data.user);
-          
+
           set({
             userData: limitedData,
             lastFetched: getCurrentTimestamp(),
@@ -133,7 +132,7 @@ export const useUserAuthStore = create<UserAuthState>()(
 
           // Convert to limited user data
           const limitedData = toLimitedUserData(data.user);
-          
+
           set({
             userData: limitedData,
             lastFetched: getCurrentTimestamp(),
