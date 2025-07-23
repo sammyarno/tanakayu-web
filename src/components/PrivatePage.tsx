@@ -18,7 +18,7 @@ const PrivatePage = ({ children }: { children: ReactNode }) => {
     }
   }, [user, isLoading, isInitialized, router]);
 
-  if (!isInitialized || isLoading) return <></>;
+  if (!isInitialized || isLoading || (!user && isInitialized)) return <></>;
 
   return children;
 };
