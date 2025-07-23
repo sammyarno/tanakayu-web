@@ -1,5 +1,6 @@
 import type { Category } from '@/types';
 
+import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 
 interface Props {
@@ -19,15 +20,14 @@ const CategoryFilter = ({ categories, selectedCategory, onSelect }: Props) => {
         </>
       )}
       {categories.map((cat, index) => (
-        <div
+        <Badge
           key={`${cat.code}-${index}`}
           onClick={() => onSelect(cat.code)}
-          className={`cursor-pointer rounded border px-2 py-1 text-sm tracking-wide ${
-            selectedCategory === cat.code ? 'bg-tanakayu-dark text-tanakayu-accent' : 'bg-tanakayu-light'
-          }`}
+          variant={selectedCategory === cat.code ? 'default' : 'secondary'}
+          className="text-sm tracking-wide"
         >
           {cat.label}
-        </div>
+        </Badge>
       ))}
     </section>
   );

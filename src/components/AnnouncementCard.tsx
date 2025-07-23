@@ -2,9 +2,9 @@ import { type FormEvent, useEffect, useState } from 'react';
 
 import { categoryDisplayMap } from '@/data/announcements';
 import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
-import { useUserId } from '@/store/userAuthStore';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
+import { useUserId } from '@/store/userAuthStore';
 import type { Announcement } from '@/types';
 import { formatDate } from '@/utils/date';
 import { AlertDialogAction, AlertDialogCancel } from '@radix-ui/react-alert-dialog';
@@ -21,16 +21,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from './ui/alert-dialog';
+import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from './ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
@@ -57,7 +50,7 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" onClick={() => setIsOpen(true)}>
+        <Button size="sm" variant="destructive" onClick={() => setIsOpen(true)}>
           <Trash /> Delete
         </Button>
       </AlertDialogTrigger>
@@ -138,7 +131,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button onClick={() => setIsOpen(true)}>
+          <Button size="sm" onClick={() => setIsOpen(true)}>
             <Edit2Icon /> Edit
           </Button>
         </DialogTrigger>
@@ -199,13 +192,14 @@ const AnnouncementCard = ({ announcement, editable = false }: Props) => {
           const catDisplay = categoryDisplayMap[cat.code];
 
           return (
-            <span
+            <Badge
               key={`${announcement.id}-${cat.id}`}
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs tracking-wide ${catDisplay?.bgColor} ${catDisplay?.textColor}`}
+              variant="default"
+              className={`${catDisplay?.bgColor} ${catDisplay?.textColor}`}
             >
               {catDisplay?.icon}
               {cat.label}
-            </span>
+            </Badge>
           );
         })}
       </div>
