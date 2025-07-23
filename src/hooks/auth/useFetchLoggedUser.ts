@@ -1,10 +1,13 @@
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useUserAuthStore, useUser, useAuthLoading, useAuthError } from '@/store/userAuthStore';
 import { useEffect } from 'react';
 
 // This hook maintains backward compatibility with the previous React Query implementation
 // while using the new Zustand store under the hood
 export const useFetchLoggedUser = () => {
-  const { user, fetchUser, isLoading, error } = useUserAuthStore();
+  const { fetchUser } = useUserAuthStore();
+  const user = useUser();
+  const isLoading = useAuthLoading();
+  const error = useAuthError();
   
   useEffect(() => {
     fetchUser();

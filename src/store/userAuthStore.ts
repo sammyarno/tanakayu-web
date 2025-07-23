@@ -1,15 +1,26 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
+import { LimitedUserData, fromLimitedUserData, toLimitedUserData } from '@/types/auth';
+import { encryptData, decryptData } from '@/utils/encryption';
 import { User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { getCurrentTimestamp } from './utils';
 
-interface UserAuthState {
-  user: User | null;
+// State that will be persisted (encrypted)
+interface PersistedState {
+  userData: LimitedUserData | null;
+  lastFetched: number | null;
+}
+
+// Full state including non-persisted elements
+interface UserAuthState extends PersistedState {
+  // Runtime-only state (not persisted)
   isLoading: boolean;
   error: string | null;
-  lastFetched: number | null;
+  
+  // Computed property to provide compatibility with existing code
+  user: User | null;
 
   // Actions
   fetchUser: (isLoginPage?: boolean) => Promise<User | null>;
@@ -21,32 +32,66 @@ interface UserAuthState {
 // Cache duration in milliseconds (5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000;
 
+// Custom storage with encryption
+const encryptedStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    const str = localStorage.getItem(name);
+    if (!str) return str;
+    
+    try {
+      // For persisted state, decrypt it
+      const data = await decryptData<PersistedState>(str);
+      return data ? JSON.stringify(data) : null;
+    } catch (e) {
+      console.error('Failed to decrypt storage', e);
+      return null;
+    }
+  },
+  
+  setItem: async (name: string, value: string): Promise<void> => {
+    try {
+      const data = JSON.parse(value) as PersistedState;
+      const encrypted = await encryptData(data);
+      localStorage.setItem(name, encrypted);
+    } catch (e) {
+      console.error('Failed to encrypt storage', e);
+      localStorage.setItem(name, value);
+    }
+  },
+  
+  removeItem: (name: string): void => {
+    localStorage.removeItem(name);
+  }
+};
+
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
     (set, get) => ({
-      user: null,
+      // Persisted state
+      userData: null,
+      lastFetched: null,
+      
+      // Runtime-only state
       isLoading: false,
       error: null,
-      lastFetched: null,
+      
+      // Computed property that converts limited data to User object for compatibility
+      get user() {
+        return fromLimitedUserData(get().userData) as User | null;
+      },
 
       fetchUser: async (isLoginPage = false) => {
-        const { lastFetched, user } = get();
+        const { lastFetched, userData } = get();
         const currentTime = getCurrentTimestamp();
 
         // Return cached user if still valid
-        console.log(
-          'isValid',
-          lastFetched && lastFetched,
-          currentTime,
-          lastFetched && currentTime - lastFetched < CACHE_DURATION
-        );
-        if (user && lastFetched && currentTime - lastFetched < CACHE_DURATION) {
-          return user;
+        if (userData && lastFetched && currentTime - lastFetched < CACHE_DURATION) {
+          return fromLimitedUserData(userData) as User | null;
         }
-
+        
         // If we're on the login page, just return the current user state without fetching
         if (isLoginPage) {
-          return user;
+          return fromLimitedUserData(userData) as User | null;
         }
 
         set({ isLoading: true, error: null });
@@ -57,8 +102,11 @@ export const useUserAuthStore = create<UserAuthState>()(
 
           if (error) throw new Error(error.message);
 
+          // Convert to limited user data
+          const limitedData = toLimitedUserData(data.user);
+          
           set({
-            user: data.user,
+            userData: limitedData,
             lastFetched: getCurrentTimestamp(),
             isLoading: false,
           });
@@ -66,7 +114,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           return data.user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
-          set({ error: errorMessage, isLoading: false, user: null });
+          set({ error: errorMessage, isLoading: false, userData: null });
           return null;
         }
       },
@@ -83,8 +131,11 @@ export const useUserAuthStore = create<UserAuthState>()(
 
           if (error) throw new Error(error.message);
 
+          // Convert to limited user data
+          const limitedData = toLimitedUserData(data.user);
+          
           set({
-            user: data.user,
+            userData: limitedData,
             lastFetched: getCurrentTimestamp(),
             isLoading: false,
           });
@@ -107,7 +158,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           if (error) throw new Error(error.message);
 
           set({
-            user: null,
+            userData: null,
             lastFetched: null,
             isLoading: false,
           });
@@ -115,7 +166,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
           set({ error: errorMessage, isLoading: false });
           // Still clear user data even if there's an error with the API
-          set({ user: null, lastFetched: null });
+          set({ userData: null, lastFetched: null });
         }
       },
 
@@ -123,8 +174,8 @@ export const useUserAuthStore = create<UserAuthState>()(
     }),
     {
       name: 'user-auth-storage',
-      storage: createJSONStorage(() => localStorage),
-      partialize: state => ({ user: state.user, lastFetched: state.lastFetched }),
+      storage: createJSONStorage(() => encryptedStorage),
+      partialize: state => ({ userData: state.userData, lastFetched: state.lastFetched }),
     }
   )
 );
@@ -133,3 +184,9 @@ export const useUserAuthStore = create<UserAuthState>()(
 export const useUser = () => useUserAuthStore(state => state.user);
 export const useAuthLoading = () => useUserAuthStore(state => state.isLoading);
 export const useAuthError = () => useUserAuthStore(state => state.error);
+
+// New hooks for accessing the limited user data directly
+export const useLimitedUserData = () => useUserAuthStore(state => state.userData);
+export const useUserId = () => useUserAuthStore(state => state.userData?.id);
+export const useUserEmail = () => useUserAuthStore(state => state.userData?.email);
+export const useUserDisplayName = () => useUserAuthStore(state => state.userData?.display_name);

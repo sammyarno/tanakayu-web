@@ -9,13 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useAuthError, useAuthLoading, useUser, useUserAuthStore } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { signIn, isLoading, error, user, clearError } = useUserAuthStore();
+  const { signIn, clearError } = useUserAuthStore();
+  const isLoading = useAuthLoading();
+  const error = useAuthError();
+  const user = useUser();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +35,7 @@ const Login = () => {
     }
 
     await signIn(email, password);
+    router.push('/admin/dashboard');
   };
 
   const handleFormError = (e: FormEvent<HTMLFormElement>) => {

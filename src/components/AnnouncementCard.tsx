@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react';
 
 import { categoryDisplayMap } from '@/data/announcements';
 import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useUserId } from '@/store/userAuthStore';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import type { Announcement } from '@/types';
@@ -43,12 +43,12 @@ interface Props {
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync, isPending: isLoading } = useDeleteAnnouncement();
-  const user = useUserAuthStore(state => state.user);
+  const userId = useUserId();
 
   const handleDelete = async () => {
     await mutateAsync({
       id: announcement.id,
-      actor: user?.id || 'system',
+      actor: userId || 'system',
     });
 
     setIsOpen(false);
@@ -89,7 +89,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
   const { mutateAsync, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const user = useUserAuthStore(state => state.user);
+  const userId = useUserId();
 
   const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -113,7 +113,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
         title,
         content,
         categories: categoryIds,
-        actor: user?.id || 'system',
+        actor: userId || 'system',
       });
 
       setIsOpen(false);

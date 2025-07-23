@@ -1,4 +1,4 @@
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useUserAuthStore, useAuthLoading, useAuthError } from '@/store/userAuthStore';
 import { useState } from 'react';
 
 export interface LoginRequest {
@@ -9,7 +9,9 @@ export interface LoginRequest {
 // This hook maintains backward compatibility with the previous React Query implementation
 // while using the new Zustand store under the hood
 export const useSignIn = () => {
-  const { signIn, isLoading, error, clearError } = useUserAuthStore();
+  const { signIn, clearError } = useUserAuthStore();
+  const isLoading = useAuthLoading();
+  const error = useAuthError();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   

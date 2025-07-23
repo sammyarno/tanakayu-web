@@ -1,21 +1,19 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/skeleton';
 import SignOutButton from '@/components/SignOutButton';
-import { useUserAuthStore } from '@/store/userAuthStore';
-import { useEffect } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useUserDisplayName, useUserEmail } from '@/store/userAuthStore';
 
 const AdminTitleSign = () => {
-  const { user, fetchUser, isLoading } = useUserAuthStore();
-  
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  const email = useUserEmail();
+  const displayName = useUserDisplayName();
+
+  const displayText = displayName || email;
 
   return (
     <div className="flex w-full flex-col items-center justify-center gap-4">
       <h1 className="text-center text-xl font-bold">
-        Welcome back, {user ? user.email : <Skeleton className="h-7 w-36" />}!
+        Welcome back, {displayText ? displayText : <Skeleton className="h-7 w-24" />}!
       </h1>
       <SignOutButton size="sm" />
     </div>
