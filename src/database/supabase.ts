@@ -123,6 +123,8 @@ export type Database = {
           comment: string
           created_at: string
           created_by: string
+          deleted_at: string | null
+          deleted_by: string | null
           id: string
           rejected_at: string | null
           rejected_by: string | null
@@ -135,6 +137,8 @@ export type Database = {
           comment: string
           created_at?: string
           created_by: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
           rejected_at?: string | null
           rejected_by?: string | null
@@ -147,6 +151,8 @@ export type Database = {
           comment?: string
           created_at?: string
           created_by?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
           rejected_at?: string | null
           rejected_by?: string | null

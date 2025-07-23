@@ -39,6 +39,8 @@ export interface Comment {
   approvedBy?: string;
   rejectedAt?: string;
   rejectedBy?: string;
+  deletedAt?: string;
+  deletedBy?: string;
 }
 
 export interface NewsEventWithComment {

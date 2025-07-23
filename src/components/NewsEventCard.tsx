@@ -1,21 +1,91 @@
-import { FC, FormEvent, memo } from 'react';
+import { type FormEvent, memo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
+import { useModerateComment } from '@/hooks/useModerateComment';
+import { usePostComment } from '@/hooks/usePostComment';
+import { useStoredUserEmail } from '@/store/userAuthStore';
 import type { NewsEventWithComment } from '@/types';
-import { Calendar } from 'lucide-react';
+import { Calendar, Check, Trash, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface NewsEventCardProps {
   item: NewsEventWithComment;
-  onAddComment: (item: NewsEventWithComment, name: string, comment: string) => void;
-  isLoading?: boolean;
+  editable?: boolean;
 }
 
-const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoading = false }) => {
-  const comments = item.comments;
+const NewsEventCard = memo(({ item, editable = false }: NewsEventCardProps) => {
+  const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
+  const { mutateAsync: moderateComment, isPending: isModerateLoading } = useModerateComment();
+  const { mutateAsync: editNewsEvent, isPending: isEditLoading } = useEditNewsEvent();
 
-  const handleCommentSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const userEmail = useStoredUserEmail();
+  const comments = item.comments;
+  const isLoading = isPostLoading || isModerateLoading || isEditLoading;
+
+  const handleApproveComment = async (commentId: string) => {
+    if (!userEmail) return;
+    try {
+      await moderateComment({
+        commentId,
+        action: 'approve',
+        actor: userEmail,
+      });
+      toast.success('Comment approved successfully', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    } catch (error) {
+      toast.error('Failed to approve comment', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    }
+  };
+
+  const handleRejectComment = async (commentId: string) => {
+    if (!userEmail) return;
+    try {
+      await moderateComment({
+        commentId,
+        action: 'reject',
+        actor: userEmail,
+      });
+      toast.success('Comment rejected successfully', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    } catch (error) {
+      toast.error('Failed to reject comment', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!userEmail) return;
+    try {
+      await moderateComment({
+        commentId,
+        action: 'delete',
+        actor: userEmail,
+      });
+      toast.success('Comment deleted successfully', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    } catch (error) {
+      toast.error('Failed to delete comment', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    }
+  };
+
+  const handlePostComment = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = e.target as HTMLFormElement;
@@ -25,8 +95,21 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoad
     const comment = commentInput.value.trim();
 
     if (name && comment) {
-      onAddComment(item, name, comment);
+      await postComment({
+        actor: name,
+        comment,
+        targetID: item.id,
+        targetType: 'news_event',
+      });
       form.reset();
+      toast('Your comment has been submitted and is pending admin approval.', {
+        duration: 5000,
+        position: 'top-center',
+        action: {
+          label: <X />,
+          onClick: () => toast.dismiss(),
+        },
+      });
     }
   };
 
@@ -46,18 +129,52 @@ const NewsEventCard: FC<NewsEventCardProps> = memo(({ item, onAddComment, isLoad
           {comments.length > 0 ? (
             <div className="flex flex-col gap-1">
               {comments.map((c, index) => (
-                <div key={index} className="rounded bg-gray-100 p-2 text-sm">
-                  <span className="text-tanaka-dark">{c.createdBy}</span>: {c.comment}
+                <div key={index} className="flex items-center justify-between rounded bg-gray-100 px-2 py-1 text-sm">
+                  <p className="text-tanaka-dark">
+                    {c.createdBy}: {c.comment}
+                  </p>
+                  {editable && (
+                    <div className="flex items-center gap-1">
+                      {!c.approvedAt && !c.rejectedAt && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            className="!px-1 text-green-500"
+                            onClick={() => handleApproveComment(c.id)}
+                            disabled={isLoading}
+                          >
+                            <Check />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            className="!px-1 text-red-500"
+                            onClick={() => handleRejectComment(c.id)}
+                            disabled={isLoading}
+                          >
+                            <X />
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        variant="ghost"
+                        className="!px-1 text-red-500"
+                        onClick={() => handleDeleteComment(c.id)}
+                        disabled={isLoading}
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           ) : (
             <p className="text-xs text-gray-800 italic">Belum ada komentar</p>
           )}
-
+          {/* Comment form */}
           <div className="border-tanakayu-dark/35 border-t py-2">
             <h3 className="mb-2 text-sm font-semibold text-gray-800">Tulis Komentar</h3>
-            <form onSubmit={handleCommentSubmit} className="flex flex-col gap-2">
+            <form onSubmit={handlePostComment} className="flex flex-col gap-2">
               <Input type="text" name="name" required placeholder="Nama Anda" className="rounded border p-2 text-sm" />
               <Textarea
                 name="comment"

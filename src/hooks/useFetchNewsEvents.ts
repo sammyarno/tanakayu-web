@@ -16,12 +16,14 @@ export const fetchNewsEvents = async (isAdmin = false) => {
 
   let commentsQuery = client
     .from('comments')
-    .select('id, comment, target_id, created_at, created_by, approved_at, approved_by, rejected_at, rejected_by')
-    .eq('target_type', 'news_event');
+    .select(
+      'id, comment, target_id, created_at, created_by, approved_at, approved_by, rejected_at, rejected_by, deleted_at, deleted_by'
+    )
+    .eq('target_type', 'news_event')
+    .is('deleted_at', null);
 
-  // For non-admin users, only show approved comments
   if (!isAdmin) {
-    commentsQuery = commentsQuery.not('approved_at', 'is', null).not('approved_by', 'is', null);
+    commentsQuery = commentsQuery.not('approved_at', 'is', null);
   }
 
   const { data: comments, error: commentError } = await commentsQuery;
@@ -40,6 +42,10 @@ export const fetchNewsEvents = async (isAdmin = false) => {
         .map(
           (c): Comment => ({
             ...c,
+            id: c.id,
+            comment: c.comment,
+            deletedAt: c.deleted_at || undefined,
+            deletedBy: c.deleted_by || undefined,
             createdAt: c.created_at,
             createdBy: c.created_by,
             approvedAt: c.approved_at || undefined,
@@ -61,26 +67,6 @@ export const useNewsEvents = () => {
   return useQuery({
     queryKey: ['news-events', { isAdmin }],
     queryFn: () => fetchNewsEvents(isAdmin),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
-  });
-};
-
-// Special hook for admin view that always shows all comments
-export const useAdminNewsEvents = () => {
-  return useQuery({
-    queryKey: ['admin-news-events'],
-    queryFn: () => fetchNewsEvents(true),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
-  });
-};
-
-// Special hook for guest view that always shows only approved comments
-export const useGuestNewsEvents = () => {
-  return useQuery({
-    queryKey: ['guest-news-events'],
-    queryFn: () => fetchNewsEvents(false),
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
   });
