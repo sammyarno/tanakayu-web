@@ -19,7 +19,7 @@ import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategorie
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
 import { useStoredUserId } from '@/store/userAuthStore';
 import type { Announcement } from '@/types';
-import { AlertCircleIcon, PlusIcon } from 'lucide-react';
+import { AlertCircleIcon } from 'lucide-react';
 
 const Announcement = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -42,7 +42,7 @@ const Announcement = () => {
   }, [categories]);
 
   return (
-    <PageContent>
+    <PageContent isAdmin>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin/dashboard' },
@@ -117,63 +117,62 @@ const CreateDialog = () => {
   useEffect(() => {
     if (!isOpen) {
       setTempCategories([]);
+      setErrorMessage(undefined);
     }
   }, [isOpen]);
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
-            Tambah Pengumuman
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Announcement</DialogTitle>
-          </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
+          Tambah Pengumuman
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Announcement</DialogTitle>
+        </DialogHeader>
 
-          <form onSubmit={handleCreateSubmission} onError={handleFormError}>
-            <div className="grid gap-4">
-              {errorMessage && (
-                <Alert variant="destructive" className="border-red-600 bg-red-300/40">
-                  <AlertCircleIcon />
-                  <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
-                </Alert>
-              )}
-              <div className="grid gap-3">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  autoFocus={true}
-                  placeholder="Enter announcement title"
-                  disabled={isPending}
-                />
-              </div>
-              <CategorySelector
-                name="categories"
-                defaultValue={tempCategories}
-                onValueChange={setTempCategories}
+        <form onSubmit={handleCreateSubmission} onError={handleFormError}>
+          <div className="grid gap-4">
+            {errorMessage && (
+              <Alert variant="destructive" className="border-red-600 bg-red-300/40">
+                <AlertCircleIcon />
+                <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
+              </Alert>
+            )}
+            <div className="grid gap-3">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                name="title"
+                autoFocus={true}
+                placeholder="Enter announcement title"
                 disabled={isPending}
               />
-              <div className="grid gap-3">
-                <Label htmlFor="content">Content</Label>
-                <Textarea id="content" name="content" placeholder="Enter announcement content" disabled={isPending} />
-              </div>
             </div>
-            <DialogFooter className="mt-4">
-              <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                Create
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+            <CategorySelector
+              name="categories"
+              defaultValue={tempCategories}
+              onValueChange={setTempCategories}
+              disabled={isPending}
+            />
+            <div className="grid gap-3">
+              <Label htmlFor="content">Content</Label>
+              <Textarea id="content" name="content" placeholder="Enter announcement content" disabled={isPending} />
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              Create
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

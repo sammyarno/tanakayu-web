@@ -58,8 +58,6 @@ export const useNewsEvents = () => {
   const user = useUser();
   const isAdmin = !!user; // If user exists, they're an admin
 
-  console.log('user', user);
-
   return useQuery({
     queryKey: ['news-events', { isAdmin }],
     queryFn: () => fetchNewsEvents(isAdmin),

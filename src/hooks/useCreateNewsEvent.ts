@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface CreateNewsEventRequest {
   title: string;
@@ -33,8 +33,13 @@ const createNewsEvent = async (payload: CreateNewsEventRequest) => {
 };
 
 export const useCreateNewsEvent = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ['create-news-event'],
     mutationFn: createNewsEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news-events'] });
+    },
   });
 };
