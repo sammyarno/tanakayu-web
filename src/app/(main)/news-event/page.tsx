@@ -11,10 +11,8 @@ import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
-import { PostCommentRequest, usePostComment } from '@/hooks/usePostComment';
-import { Category, NewsEventWithComment } from '@/types';
-import { X } from 'lucide-react';
-import { toast } from 'sonner';
+import { usePostComment } from '@/hooks/usePostComment';
+import { Category } from '@/types';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -65,31 +63,6 @@ const NewsEvent = () => {
     setCurrentPage(page);
   }, []);
 
-  // Handle comment addition
-  const handleAddComment = async (item: NewsEventWithComment, name: string, comment: string) => {
-    if (!name || !comment) {
-      return;
-    }
-
-    const payload: PostCommentRequest = {
-      actor: name,
-      comment,
-      targetID: item.id,
-      targetType: 'news_event',
-    };
-
-    await postComment(payload);
-
-    toast('Your comment has been submitted and is pending admin approval.', {
-      duration: 5000,
-      position: 'top-center',
-      action: {
-        label: <X />,
-        onClick: () => toast.dismiss(),
-      },
-    });
-  };
-
   useEffect(() => {
     if (filterParams) {
       handleFilterChange(filterParams);
@@ -112,12 +85,7 @@ const NewsEvent = () => {
         <LoadingIndicator isLoading={isLoading} />
 
         {paginatedItems.map(item => (
-          <NewsEventCard
-            key={`event-card-${item.id}`}
-            item={item}
-            onAddComment={handleAddComment}
-            isLoading={isLoading}
-          />
+          <NewsEventCard key={`event-card-${item.id}`} item={item} />
         ))}
 
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />

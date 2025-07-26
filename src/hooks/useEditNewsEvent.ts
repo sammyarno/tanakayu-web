@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
 import { getNowDate } from '@/utils/date';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface EditNewsEventRequest {
   id: string;
@@ -20,12 +20,26 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
     modified_at: getNowDate(),
   };
 
-  // Only include fields that are provided
-  if (payload.title !== undefined) updateData.title = payload.title;
-  if (payload.content !== undefined) updateData.content = payload.content;
-  if (payload.type !== undefined) updateData.type = payload.type;
-  if (payload.startDate !== undefined) updateData.start_date = payload.startDate;
-  if (payload.endDate !== undefined) updateData.end_date = payload.endDate;
+  // Check if this is a soft delete operation (only id and actor provided)
+  const isDeleteOperation =
+    payload.title === undefined &&
+    payload.content === undefined &&
+    payload.type === undefined &&
+    payload.startDate === undefined &&
+    payload.endDate === undefined;
+
+  if (isDeleteOperation) {
+    // Soft delete: set deleted_at and deleted_by
+    updateData.deleted_at = getNowDate();
+    updateData.deleted_by = payload.actor;
+  } else {
+    // Regular edit: only include fields that are provided
+    if (payload.title !== undefined) updateData.title = payload.title;
+    if (payload.content !== undefined) updateData.content = payload.content;
+    if (payload.type !== undefined) updateData.type = payload.type;
+    if (payload.startDate !== undefined) updateData.start_date = payload.startDate;
+    if (payload.endDate !== undefined) updateData.end_date = payload.endDate;
+  }
 
   const { data, error } = await client.from('news_events').update(updateData).eq('id', payload.id).select('id');
 
@@ -35,8 +49,13 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
 };
 
 export const useEditNewsEvent = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ['edit-news-event'],
     mutationFn: editNewsEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['news-events'] });
+    },
   });
 };

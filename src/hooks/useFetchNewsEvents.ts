@@ -9,6 +9,7 @@ export const fetchNewsEvents = async (isAdmin = false) => {
   const { data: newsEvents, error: newsEventsError } = await client
     .from('news_events')
     .select('id, title, type, content, start_date, end_date, created_at, created_by')
+    .is('deleted_at', null)
     .order('created_at', {
       ascending: false,
     });

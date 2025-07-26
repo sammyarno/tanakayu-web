@@ -21,6 +21,7 @@ interface UserAuthState extends PersistedState {
   signIn: (email: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   clearError: () => void;
+  updateUser: (user: User) => void;
 }
 
 const CACHE_DURATION = parseInt(process.env.NEXT_PUBLIC_AUTH_CACHE_DURATION || '300000', 10);
@@ -194,6 +195,15 @@ export const useUserAuthStore = create<UserAuthState>()(
         },
 
         clearError: () => set({ error: null }),
+
+        updateUser: (user: User) => {
+          const limitedData = toLimitedUserData(user);
+          set({
+            storedUserData: limitedData,
+            user,
+            lastFetched: getCurrentTimestamp(),
+          });
+        },
       };
     },
     {

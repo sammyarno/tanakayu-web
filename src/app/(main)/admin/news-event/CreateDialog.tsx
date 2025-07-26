@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreateNewsEvent } from '@/hooks/useCreateNewsEvent';
-import { useStoredUserId } from '@/store/userAuthStore';
+import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -17,7 +17,7 @@ const CreateDialog = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [selectedType, setSelectedType] = useState<string>('');
   const { mutateAsync, isPending } = useCreateNewsEvent();
-  const userId = useStoredUserId();
+  const displayName = useStoredUserDisplayName();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +41,7 @@ const CreateDialog = () => {
         type: selectedType,
         startDate: startDate || null,
         endDate: endDate || null,
-        actor: userId || '',
+        actor: displayName || '',
       });
 
       setIsOpen(false);
