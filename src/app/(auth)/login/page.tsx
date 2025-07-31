@@ -47,7 +47,7 @@ const Login = () => {
   }, [error]);
 
   useEffect(() => {
-    if (user) {
+    if (user && !error) {
       router.push('/admin/dashboard');
     }
   }, [user, router]);

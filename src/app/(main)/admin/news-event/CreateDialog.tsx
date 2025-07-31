@@ -114,11 +114,11 @@ const CreateDialog = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Label htmlFor="startDate">Start Date (Optional)</Label>
-                <Input id="startDate" name="startDate" type="date" disabled={isPending} />
+                <Input id="startDate" name="startDate" type="date" min={new Date().toISOString().split('T')[0]} disabled={isPending} />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="endDate">End Date (Optional)</Label>
-                <Input id="endDate" name="endDate" type="date" disabled={isPending} />
+                <Input id="endDate" name="endDate" type="date" min={new Date().toISOString().split('T')[0]} disabled={isPending} />
               </div>
             </div>
             <div className="grid gap-3">
