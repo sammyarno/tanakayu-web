@@ -6,11 +6,13 @@ import { dehydrate, useQuery } from '@tanstack/react-query';
 
 export const fetchNearestEvents = async (supaClient?: SupabaseClient) => {
   const client = supaClient ?? getSupabaseClient();
+  const today = new Date().toISOString().split('T')[0];
 
   const { data, error } = await client
     .from('news_events')
     .select('id,title,type,content,start_date,end_date')
     .eq('type', 'event')
+    .gte('start_date', today)
     .limit(2)
     .order('start_date', {
       ascending: true,
