@@ -50,7 +50,7 @@ const Login = () => {
     if (user && !error) {
       router.push('/admin/dashboard');
     }
-  }, [user, router]);
+  }, [user, error, router]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">

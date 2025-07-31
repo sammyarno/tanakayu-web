@@ -39,7 +39,7 @@ export const useNearestEvents = (supaClient?: SupabaseClient) => {
   });
 };
 
-export const usePrefetchNearestEvents = async (supaClient?: SupabaseClient) => {
+export const prefetchNearestEvents = async (supaClient?: SupabaseClient) => {
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({

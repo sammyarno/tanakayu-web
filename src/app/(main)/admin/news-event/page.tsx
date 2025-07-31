@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -17,7 +17,7 @@ import CreateDialog from './CreateDialog';
 
 const ITEMS_PER_PAGE = 5;
 
-const NewsEvent = () => {
+const NewsEventContent = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { data, isFetching: isFetchLoading } = useNewsEvents();
@@ -93,6 +93,14 @@ const NewsEvent = () => {
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </section>
     </PageContent>
+  );
+};
+
+const NewsEvent = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewsEventContent />
+    </Suspense>
   );
 };
 

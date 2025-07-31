@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
-import type { Comment, NewsEventWithComment } from '@/types';
+import type { NewsEventWithComment } from '@/types';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 

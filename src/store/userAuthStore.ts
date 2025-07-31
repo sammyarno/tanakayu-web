@@ -29,7 +29,7 @@ const CACHE_DURATION = parseInt(process.env.NEXT_PUBLIC_AUTH_CACHE_DURATION || '
 const encryptedStorage = {
   getItem: async (name: string): Promise<string | null> => {
     if (typeof window === 'undefined') return null;
-    
+
     const str = localStorage.getItem(name);
     if (!str) return str;
 
@@ -44,7 +44,7 @@ const encryptedStorage = {
 
   setItem: async (name: string, value: string): Promise<void> => {
     if (typeof window === 'undefined') return;
-    
+
     try {
       const data = JSON.parse(value) as PersistedState;
       const encrypted = await encryptData(data);
@@ -74,7 +74,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           try {
             const client = getSupabaseClient();
             const { data, error } = await client.auth.getUser();
-            
+
             if (data.user && !error) {
               const limitedData = toLimitedUserData(data.user);
               set({
@@ -86,7 +86,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             } else {
               set({ isInitialized: true });
             }
-          } catch (error) {
+          } catch {
             set({ isInitialized: true });
           }
         }

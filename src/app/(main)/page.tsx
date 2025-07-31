@@ -5,13 +5,13 @@ import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
 import { Badge } from '@/components/ui/badge';
-import { usePrefetchNearestEvents } from '@/hooks/useNearestEvents';
+import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
 import { createServerClient } from '@/plugins/supabase/server';
 
 const Home = async () => {
   const cookieStore = await cookies();
   const supaClient = createServerClient(cookieStore);
-  const dehydratedState = await usePrefetchNearestEvents(supaClient);
+  const dehydratedState = await prefetchNearestEvents(supaClient);
 
   return (
     <PageContent>
