@@ -78,7 +78,7 @@ export interface Transaction {
 
 export interface TransactionsByDate {
   date: string;
-  transactions: Transaction[];
+  details: Transaction[];
 }
 
 export interface TransactionsResult {

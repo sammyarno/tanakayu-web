@@ -1,43 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSupabaseClient } from '@/plugins/supabase/client';
 import { useUserAuthStore } from '@/store/userAuthStore';
 
-interface UpdateProfileData {
+export interface UpdateProfileRequest {
   displayName?: string;
   email?: string;
   phone?: string;
   password?: string;
 }
 
-const updateProfile = async (data: UpdateProfileData) => {
-  const supabase = getSupabaseClient();
-  
-  // Prepare the update data for Supabase auth
-  const updateData: any = {};
-  
-  if (data.email) {
-    updateData.email = data.email;
+const updateProfile = async (payload: UpdateProfileRequest) => {
+  const response = await fetch('/api/profile', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      displayName: payload.displayName,
+      email: payload.email,
+      phone: payload.phone,
+      password: payload.password,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update profile');
   }
-  
-  if (data.password) {
-    updateData.password = data.password;
-  }
-  
-  // Update user metadata for display name and phone
-  if (data.displayName || data.phone) {
-    updateData.data = {
-      ...(data.displayName && { display_name: data.displayName, full_name: data.displayName }),
-      ...(data.phone && { phone: data.phone }),
-    };
-  }
-  
-  const { data: updatedUser, error } = await supabase.auth.updateUser(updateData);
-  
-  if (error) {
-    throw new Error(error.message);
-  }
-  
-  return updatedUser;
+
+  const { user } = await response.json();
+  return user;
 };
 
 export const useUpdateProfile = () => {
@@ -48,8 +39,8 @@ export const useUpdateProfile = () => {
     mutationFn: updateProfile,
     onSuccess: (data) => {
       // Update the user store with the new data
-      if (data.user) {
-        updateUser(data.user);
+      if (data) {
+        updateUser(data);
       }
       
       // Invalidate and refetch any user-related queries

@@ -1,51 +1,38 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface EditNewsEventRequest {
   id: string;
-  title?: string;
-  content?: string;
-  type?: string;
+  title: string;
+  content: string;
+  type: string;
   startDate?: string | null;
   endDate?: string | null;
   actor: string;
 }
 
 const editNewsEvent = async (payload: EditNewsEventRequest) => {
-  const client = getSupabaseClient();
+  const response = await fetch(`/api/news-events/${payload.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: payload.title,
+      content: payload.content,
+      type: payload.type,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      actor: payload.actor,
+    }),
+  });
 
-  const updateData: any = {
-    modified_by: payload.actor,
-    modified_at: getNowDate(),
-  };
-
-  // Check if this is a soft delete operation (only id and actor provided)
-  const isDeleteOperation =
-    payload.title === undefined &&
-    payload.content === undefined &&
-    payload.type === undefined &&
-    payload.startDate === undefined &&
-    payload.endDate === undefined;
-
-  if (isDeleteOperation) {
-    // Soft delete: set deleted_at and deleted_by
-    updateData.deleted_at = getNowDate();
-    updateData.deleted_by = payload.actor;
-  } else {
-    // Regular edit: only include fields that are provided
-    if (payload.title !== undefined) updateData.title = payload.title;
-    if (payload.content !== undefined) updateData.content = payload.content;
-    if (payload.type !== undefined) updateData.type = payload.type;
-    if (payload.startDate !== undefined) updateData.start_date = payload.startDate;
-    if (payload.endDate !== undefined) updateData.end_date = payload.endDate;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update news event');
   }
 
-  const { data, error } = await client.from('news_events').update(updateData).eq('id', payload.id).select('id');
-
-  if (error) throw new Error(error.message);
-
-  return data;
+  const { newsEvent } = await response.json();
+  return newsEvent;
 };
 
 export const useEditNewsEvent = () => {

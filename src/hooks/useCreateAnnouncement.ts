@@ -1,49 +1,33 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface CreateAnnouncementRequest {
   title: string;
   content: string;
-  categories: string[];
+  categoryIds: string[];
   actor: string;
 }
 
 const createAnnouncement = async (payload: CreateAnnouncementRequest) => {
-  const client = getSupabaseClient();
-
-  // Insert the announcement
-  const { data, error } = await client
-    .from('announcements')
-    .insert({
+  const response = await fetch('/api/announcements', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
       title: payload.title,
       content: payload.content,
-      created_at: getNowDate(),
-      created_by: payload.actor,
-    })
-    .select('id');
+      categoryIds: payload.categoryIds,
+      actor: payload.actor,
+    }),
+  });
 
-  if (error) throw new Error(error.message);
-  
-  if (!data || data.length === 0) {
-    throw new Error('Failed to create announcement');
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create announcement');
   }
-  
-  const announcementId = data[0].id;
 
-  // Insert category mappings
-  const { error: categoryInsertError } = await client.from('announcement_category_map').insert(
-    payload.categories.map(category_id => ({
-      announcement_id: announcementId,
-      category_id,
-      created_by: payload.actor,
-      created_at: getNowDate(),
-    }))
-  );
-
-  if (categoryInsertError) throw new Error(categoryInsertError.message);
-
-  return data[0];
+  const { announcement } = await response.json();
+  return announcement;
 };
 
 export const useCreateAnnouncement = () => {

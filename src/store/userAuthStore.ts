@@ -1,4 +1,3 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
 import { LimitedUserData, fromLimitedUserData, toLimitedUserData } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
 import { User } from '@supabase/supabase-js';
@@ -70,20 +69,26 @@ export const useUserAuthStore = create<UserAuthState>()(
           const user = fromLimitedUserData(storedUserData) as User | null;
           set({ user, isInitialized: true });
         } else {
-          // Check current session with Supabase when no cached data
+          // Check current session with API when no cached data
           try {
-            const client = getSupabaseClient();
-            const { data, error } = await client.auth.getUser();
+            const response = await fetch('/api/auth/user');
 
-            if (data.user && !error) {
-              const limitedData = toLimitedUserData(data.user);
-              set({
-                storedUserData: limitedData,
-                user: data.user,
-                lastFetched: getCurrentTimestamp(),
-                isInitialized: true,
-              });
+            if (response.ok) {
+              const { user } = await response.json();
+
+              if (user) {
+                const limitedData = toLimitedUserData(user);
+                set({
+                  storedUserData: limitedData,
+                  user: user,
+                  lastFetched: getCurrentTimestamp(),
+                  isInitialized: true,
+                });
+              } else {
+                set({ isInitialized: true });
+              }
             } else {
+              console.log('cek user not okay', response);
               set({ isInitialized: true });
             }
           } catch {
@@ -123,22 +128,25 @@ export const useUserAuthStore = create<UserAuthState>()(
           set({ isLoading: true, error: null });
 
           try {
-            const client = getSupabaseClient();
-            const { data, error } = await client.auth.getUser();
+            const response = await fetch('/api/auth/user');
 
-            if (error) throw new Error(error.message);
+            if (!response.ok) {
+              throw new Error('Failed to fetch user');
+            }
+
+            const { user } = await response.json();
 
             // Convert to limited user data
-            const limitedData = toLimitedUserData(data.user);
+            const limitedData = toLimitedUserData(user);
 
             set({
               storedUserData: limitedData,
-              user: data.user,
+              user: user,
               lastFetched: getCurrentTimestamp(),
               isLoading: false,
             });
 
-            return data.user;
+            return user;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
             set({ error: errorMessage, isLoading: false, storedUserData: null, user: null });
@@ -150,25 +158,32 @@ export const useUserAuthStore = create<UserAuthState>()(
           set({ isLoading: true, error: null });
 
           try {
-            const client = getSupabaseClient();
-            const { data, error } = await client.auth.signInWithPassword({
-              email,
-              password,
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email, password }),
             });
 
-            if (error) throw new Error(error.message);
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.error || 'Failed to sign in');
+            }
+
+            const { user } = await response.json();
 
             // Convert to limited user data
-            const limitedData = toLimitedUserData(data.user);
+            const limitedData = toLimitedUserData(user);
 
             set({
               storedUserData: limitedData,
-              user: data.user,
+              user: user,
               lastFetched: getCurrentTimestamp(),
               isLoading: false,
             });
 
-            return data.user;
+            return user;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
             set({ error: errorMessage, isLoading: false });
@@ -180,10 +195,13 @@ export const useUserAuthStore = create<UserAuthState>()(
           set({ isLoading: true, error: null });
 
           try {
-            const client = getSupabaseClient();
-            const { error } = await client.auth.signOut();
+            const response = await fetch('/api/auth/logout', {
+              method: 'POST',
+            });
 
-            if (error) throw new Error(error.message);
+            if (!response.ok) {
+              throw new Error('Failed to sign out');
+            }
 
             set({
               storedUserData: null,

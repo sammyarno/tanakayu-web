@@ -1,58 +1,26 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import type { Announcement, Category } from '@/types';
+import { useUser } from '@/store/userAuthStore';
+import type { Announcement } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
-export const fetchAnnouncements = async () => {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client
-    .from('announcements')
-    .select(
-      `
-        id,
-        title,
-        content,
-        created_at,
-        created_by,
-        announcement_category_map (
-          announcement_categories (
-            id,
-            label,
-            code
-          )
-        )
-      `
-    )
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false });
-
-  if (error) throw new Error(error.message);
-
-  // transform data
-  const result: Announcement[] = data.map(
-    (item): Announcement => ({
-      id: item.id,
-      title: item.title,
-      content: item.content,
-      createdAt: item.created_at,
-      createdBy: item.created_by,
-      categories: item.announcement_category_map.map(
-        (c): Category => ({
-          id: c.announcement_categories.id,
-          label: c.announcement_categories.label,
-          code: c.announcement_categories.code,
-        })
-      ),
-    })
-  );
-
-  return result;
+export const fetchAnnouncements = async (isAdmin = false) => {
+  const response = await fetch(`/api/announcements?admin=${isAdmin}`);
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to fetch announcements');
+  }
+  
+  const { announcements } = await response.json();
+  return announcements as Announcement[];
 };
 
 export const useAnnouncements = () => {
+  const user = useUser();
+  const isAdmin = !!user; // If user exists, they're an admin
+
   return useQuery({
-    queryKey: ['announcements'],
-    queryFn: () => fetchAnnouncements(),
+    queryKey: ['announcements', { isAdmin }],
+    queryFn: () => fetchAnnouncements(isAdmin),
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
   });

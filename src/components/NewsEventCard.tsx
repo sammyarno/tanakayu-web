@@ -97,9 +97,9 @@ const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: Ne
 
     if (name && comment) {
       await postComment({
-        actor: name,
+        createdBy: name,
         comment,
-        targetID: item.id,
+        targetId: item.id,
         targetType: 'news_event',
       });
       form.reset();

@@ -1,50 +1,42 @@
 import { getQueryClient } from '@/plugins/react-query/client';
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { NewsEvent } from '@/types';
-import { SupabaseClient } from '@supabase/supabase-js';
 import { dehydrate, useQuery } from '@tanstack/react-query';
 
-export const fetchNearestEvents = async (supaClient?: SupabaseClient) => {
-  const client = supaClient ?? getSupabaseClient();
-  const today = new Date().toISOString().split('T')[0];
+interface NearestEvent {
+  id: string;
+  title: string;
+  type: string;
+  content: string;
+  start: string;
+  end: string;
+}
 
-  const { data, error } = await client
-    .from('news_events')
-    .select('id,title,type,content,start_date,end_date')
-    .eq('type', 'event')
-    .gte('start_date', today)
-    .limit(2)
-    .order('start_date', {
-      ascending: true,
-    });
-
-  if (error) throw new Error(error.message);
-
-  // transform data
-  const result: NewsEvent[] = data.map(item => ({
-    ...item,
-    startDate: item.start_date,
-    endDate: item.end_date,
-  }));
-
-  return result;
+export const fetchNearestEvents = async (): Promise<NearestEvent[]> => {
+  const response = await fetch('/api/events/nearest');
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to fetch nearest events');
+  }
+  
+  const { events } = await response.json();
+  return events as NearestEvent[];
 };
 
-export const useNearestEvents = (supaClient?: SupabaseClient) => {
+export const useNearestEvents = () => {
   return useQuery({
     queryKey: ['nearest-events'],
-    queryFn: () => fetchNearestEvents(supaClient),
+    queryFn: fetchNearestEvents,
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
   });
 };
 
-export const prefetchNearestEvents = async (supaClient?: SupabaseClient) => {
+export const prefetchNearestEvents = async () => {
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ['nearest-events'],
-    queryFn: () => fetchNearestEvents(supaClient),
+    queryFn: fetchNearestEvents,
   });
 
   return dehydrate(queryClient);

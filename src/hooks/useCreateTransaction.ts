@@ -1,35 +1,39 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface CreateTransactionRequest {
   title: string;
-  description?: string | null;
   amount: number;
+  type: 'income' | 'expense';
   category: string;
-  type: string;
-  actor: string;
+  description?: string;
   date: string;
+  actor: string;
 }
 
 const createTransaction = async (payload: CreateTransactionRequest) => {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client
-    .from('transactions')
-    .insert({
+  const response = await fetch('/api/transactions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
       title: payload.title,
-      description: payload.description || null,
       amount: payload.amount,
-      category: payload.category,
       type: payload.type,
+      category: payload.category,
+      description: payload.description,
       date: payload.date,
-      created_by: payload.actor,
-    })
-    .select('id');
+      actor: payload.actor,
+    }),
+  });
 
-  if (error) throw new Error(error.message);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to create transaction');
+  }
 
-  return data?.[0]?.id;
+  const { transaction } = await response.json();
+  return transaction;
 };
 
 export const useCreateTransaction = () => {

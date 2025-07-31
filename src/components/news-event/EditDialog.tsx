@@ -1,32 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Alert, AlertTitle } from '@/components/ui/alert';
-import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
-import { toast } from 'sonner';
 import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
 import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { NewsEventWithComment } from '@/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 const editNewsEventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -158,9 +146,7 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
                 <Controller
                   name="startDate"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} id="startDate" type="date" disabled={isPending} />
-                  )}
+                  render={({ field }) => <Input {...field} id="startDate" type="date" disabled={isPending} />}
                 />
               </div>
               <div className="grid gap-3">
@@ -168,9 +154,7 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
                 <Controller
                   name="endDate"
                   control={control}
-                  render={({ field }) => (
-                    <Input {...field} id="endDate" type="date" disabled={isPending} />
-                  )}
+                  render={({ field }) => <Input {...field} id="endDate" type="date" disabled={isPending} />}
                 />
               </div>
             </div>

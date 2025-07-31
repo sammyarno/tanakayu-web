@@ -42,7 +42,7 @@ const CreateDialog = () => {
       await mutateAsync({
         title,
         content,
-        categories: categoryIds,
+        categoryIds: categoryIds,
         actor: displayName || '',
       });
 

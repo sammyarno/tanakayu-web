@@ -1,31 +1,33 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
 import { useMutation } from '@tanstack/react-query';
 
 export interface PostCommentRequest {
-  targetID: string;
-  targetType: string;
   comment: string;
-  actor: string;
+  targetType: 'news_event';
+  targetId: string;
+  createdBy: string;
 }
 
 const postComment = async (payload: PostCommentRequest) => {
-  const client = getSupabaseClient();
+  const response = await fetch('/api/comments', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      comment: payload.comment,
+      targetType: payload.targetType,
+      targetId: payload.targetId,
+      createdBy: payload.createdBy,
+    }),
+  });
 
-  const { data, error } = await client
-    .from('comments')
-    .insert([
-      {
-        comment: payload.comment,
-        created_by: payload.actor,
-        target_id: payload.targetID,
-        target_type: payload.targetType,
-      },
-    ])
-    .select('id');
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to post comment');
+  }
 
-  if (error) throw new Error(error.message);
-
-  return data;
+  const { comment } = await response.json();
+  return comment;
 };
 
 export const usePostComment = () => {

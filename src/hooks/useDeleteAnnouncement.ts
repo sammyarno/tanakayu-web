@@ -1,5 +1,3 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface DeleteAnnouncementRequest {
@@ -8,20 +6,23 @@ export interface DeleteAnnouncementRequest {
 }
 
 const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
-  const client = getSupabaseClient();
+  const response = await fetch(`/api/announcements/${payload.id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      deletedBy: payload.actor,
+    }),
+  });
 
-  const { data, error } = await client
-    .from('announcements')
-    .update({
-      deleted_at: getNowDate(),
-      deleted_by: payload.actor,
-    })
-    .eq('id', payload.id)
-    .select('id');
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete announcement');
+  }
 
-  if (error) throw new Error(error.message);
-
-  return data;
+  const { announcement } = await response.json();
+  return announcement;
 };
 
 export const useDeleteAnnouncement = () => {

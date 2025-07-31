@@ -11,19 +11,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
-import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
+import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
 import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { NewsEventWithComment } from '@/types';
 
 const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutateAsync: editNewsEvent, isPending: isLoading } = useEditNewsEvent();
+  const { mutateAsync: deleteNewsEvent, isPending: isLoading } = useDeleteNewsEvent();
   const displayName = useStoredUserDisplayName();
 
   const handleDelete = async () => {
     if (!displayName) return;
     try {
-      await editNewsEvent({
+      await deleteNewsEvent({
         id: item.id,
         actor: displayName,
       });

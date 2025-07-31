@@ -1,5 +1,4 @@
-import { getSupabaseClient } from '@/plugins/supabase/client';
-import type { NewsEventWithComment } from '@/types';
+import { type NewsEventWithComment } from '@/types';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -10,27 +9,24 @@ export interface ModerateCommentRequest {
 }
 
 const moderateComment = async (payload: ModerateCommentRequest) => {
-  const client = getSupabaseClient();
+  const response = await fetch(`/api/comments/${payload.commentId}/moderate`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: payload.action,
+      actor: payload.actor,
+    }),
+  });
 
-  const updateData: any = {};
-  const currentTimestamp = getNowDate();
-
-  if (payload.action === 'approve') {
-    updateData.approved_at = currentTimestamp;
-    updateData.approved_by = payload.actor;
-  } else if (payload.action === 'reject') {
-    updateData.rejected_at = currentTimestamp;
-    updateData.rejected_by = payload.actor;
-  } else if (payload.action === 'delete') {
-    updateData.deleted_at = currentTimestamp;
-    updateData.deleted_by = payload.actor;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to moderate comment');
   }
 
-  const { data, error } = await client.from('comments').update(updateData).eq('id', payload.commentId).select('id');
-
-  if (error) throw new Error(error.message);
-
-  return data;
+  const { comment } = await response.json();
+  return comment;
 };
 
 export const useModerateComment = () => {
