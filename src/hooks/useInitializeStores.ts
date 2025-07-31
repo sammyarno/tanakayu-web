@@ -12,7 +12,6 @@ export const useInitializeStores = () => {
 
   useEffect(() => {
     fetchAnnouncementCategories();
-
     const isLoginPage = pathname.includes('/login');
 
     if (isLoginPage) {
