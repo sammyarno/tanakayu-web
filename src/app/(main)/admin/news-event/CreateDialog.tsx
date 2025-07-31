@@ -38,9 +38,9 @@ const CreateDialog = () => {
       await mutateAsync({
         title,
         content,
-        type: selectedType,
-        startDate: startDate || null,
-        endDate: endDate || null,
+        type: selectedType as 'news' | 'event',
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
         actor: displayName || '',
       });
 
@@ -114,11 +114,23 @@ const CreateDialog = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Label htmlFor="startDate">Start Date (Optional)</Label>
-                <Input id="startDate" name="startDate" type="date" min={new Date().toISOString().split('T')[0]} disabled={isPending} />
+                <Input
+                  id="startDate"
+                  name="startDate"
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  disabled={isPending}
+                />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="endDate">End Date (Optional)</Label>
-                <Input id="endDate" name="endDate" type="date" min={new Date().toISOString().split('T')[0]} disabled={isPending} />
+                <Input
+                  id="endDate"
+                  name="endDate"
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  disabled={isPending}
+                />
               </div>
             </div>
             <div className="grid gap-3">

@@ -6,7 +6,7 @@ interface CreateNewsEventParams {
   content: string;
   startDate?: string;
   endDate?: string;
-  createdBy: string;
+  actor: string;
 }
 
 export const useCreateNewsEvent = () => {
@@ -25,7 +25,7 @@ export const useCreateNewsEvent = () => {
           content: params.content,
           startDate: params.startDate,
           endDate: params.endDate,
-          createdBy: params.createdBy,
+          actor: params.actor,
         }),
       });
 

@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 
 import HydrateClient from '@/components/HydrateClient';
@@ -6,12 +5,19 @@ import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
 import { Badge } from '@/components/ui/badge';
 import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
-import { createServerClient } from '@/plugins/supabase/server';
 
 const Home = async () => {
-  const cookieStore = await cookies();
-  const supaClient = createServerClient(cookieStore);
-  const dehydratedState = await prefetchNearestEvents(supaClient);
+  let dehydratedState;
+  
+  try {
+    // Skip prefetch during build time to prevent hanging
+    if (process.env.NEXT_PHASE !== 'phase-production-build') {
+      dehydratedState = await prefetchNearestEvents();
+    }
+  } catch (error) {
+    console.warn('Failed to prefetch nearest events:', error);
+    dehydratedState = null;
+  }
 
   return (
     <PageContent>

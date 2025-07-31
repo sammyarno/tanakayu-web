@@ -4,7 +4,7 @@ export interface PostCommentRequest {
   comment: string;
   targetType: 'news_event';
   targetId: string;
-  createdBy: string;
+  actor: string;
 }
 
 const postComment = async (payload: PostCommentRequest) => {
@@ -17,7 +17,7 @@ const postComment = async (payload: PostCommentRequest) => {
       comment: payload.comment,
       targetType: payload.targetType,
       targetId: payload.targetId,
-      createdBy: payload.createdBy,
+      actor: payload.actor,
     }),
   });
 

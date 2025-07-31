@@ -18,7 +18,7 @@ const NearestEvents = () => {
         {events.map(item => (
           <div key={item.id}>
             <h3 className="text-tanakayu-dark text-base font-semibold">{item.title}</h3>
-            <p className="text-sm">{formatDateRange(item.startDate, item.endDate)}</p>
+            <p className="text-sm">{formatDateRange(item.start, item.end)}</p>
             <p className="text-sm">{item.content}</p>
           </div>
         ))}
