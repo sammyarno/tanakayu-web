@@ -7,28 +7,14 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
+import { formatCurrencyToIDR } from '@/utils/currency';
+import { formatDateForTransaction } from '@/utils/date';
 
 import CreateTransactionDialog from './CreateDialog';
 
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
   const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    return { day, dayName, monthYear };
-  };
 
   return (
     <PageContent>
@@ -65,7 +51,7 @@ const FinancialReport = () => {
           <div className="flex flex-2/5 flex-col">
             <p className="text-right text-sm">Saldo</p>
             <p className="text-right font-bold">
-              {isLoading ? 'Loading...' : transactionsData ? formatCurrency(transactionsData.balance) : 'IDR 0'}
+              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
             </p>
           </div>
         </div>
@@ -81,7 +67,7 @@ const FinancialReport = () => {
           </div>
         )}
         {transactionsData?.transactions.map(dayGroup => {
-          const { day, dayName, monthYear } = formatDate(dayGroup.date);
+          const { day, dayName, monthYear } = formatDateForTransaction(dayGroup.date);
           const dayTotal = dayGroup.transactions.reduce((sum, transaction) => {
             return sum + (transaction.type === 'income' ? transaction.amount : -transaction.amount);
           }, 0);

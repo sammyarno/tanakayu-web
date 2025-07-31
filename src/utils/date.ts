@@ -26,4 +26,12 @@ export const getNowDate = () => dayjs().toISOString();
 
 export const formatDate = (date: ConfigType) => dayjs(date).format('DD MMMM YYYY HH:mm');
 
+export const formatDateForTransaction = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  return { day, dayName, monthYear };
+};
+
 export default dayjs;
