@@ -14,8 +14,20 @@
 const ENCRYPTION_SALT = process.env.NEXT_PUBLIC_ENCRYPTION_SALT || 'default-salt';
 const ENCRYPTION_KEY_SECRET = process.env.NEXT_PUBLIC_ENCRYPTION_KEY_SECRET || 'default-key';
 
+// Check if Web Crypto API is available
+function isCryptoAvailable(): boolean {
+  return typeof window !== 'undefined' && 
+         window.crypto && 
+         window.crypto.subtle && 
+         typeof window.crypto.subtle.importKey === 'function';
+}
+
 // Key derivation function to generate encryption key
 async function deriveKey(): Promise<CryptoKey> {
+  if (!isCryptoAvailable()) {
+    throw new Error('Web Crypto API is not available. Ensure you are using HTTPS and a supported browser.');
+  }
+
   // Convert the secret to a buffer
   const encoder = new TextEncoder();
   const secretBuffer = encoder.encode(ENCRYPTION_KEY_SECRET);
@@ -48,6 +60,11 @@ async function deriveKey(): Promise<CryptoKey> {
  */
 export async function encryptData<T>(data: T): Promise<string> {
   try {
+    if (!isCryptoAvailable()) {
+      console.warn('Web Crypto API not available, returning unencrypted data');
+      return JSON.stringify(data);
+    }
+
     const key = await deriveKey();
     const encoder = new TextEncoder();
     const dataString = JSON.stringify(data);
@@ -86,8 +103,23 @@ export async function encryptData<T>(data: T): Promise<string> {
  */
 export async function decryptData<T>(encryptedData: string): Promise<T | null> {
   try {
+    if (!isCryptoAvailable()) {
+      console.warn('Web Crypto API not available, attempting to parse as JSON');
+      try {
+        return JSON.parse(encryptedData) as T;
+      } catch {
+        return null;
+      }
+    }
+
+    // Validate and sanitize base64 string
+    const sanitizedData = encryptedData.replace(/[^A-Za-z0-9+/]/g, '');
+    
+    // Add padding if necessary
+    const paddedData = sanitizedData + '='.repeat((4 - (sanitizedData.length % 4)) % 4);
+    
     // Convert from base64
-    const binaryString = atob(encryptedData);
+    const binaryString = atob(paddedData);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
