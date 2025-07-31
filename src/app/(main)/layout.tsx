@@ -21,7 +21,7 @@ export default function RootLayout({
       <head>
         <title>Samuel's Website</title>
         <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
         <meta name="lang" content="id" />
         <meta name="theme-color" content="#1F3D2B" />

@@ -63,3 +63,25 @@ export interface Contact {
   image: string;
   phone: string;
 }
+
+export interface Transaction {
+  id: string;
+  title: string;
+  amount: number;
+  type: string;
+  category: string;
+  description: string | null;
+  date: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface TransactionsByDate {
+  date: string;
+  transactions: Transaction[];
+}
+
+export interface TransactionsResult {
+  balance: number;
+  transactions: TransactionsByDate[];
+}
