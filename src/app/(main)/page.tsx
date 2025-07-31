@@ -4,6 +4,7 @@ import Link from 'next/link';
 import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
+import { Badge } from '@/components/ui/badge';
 import { usePrefetchNearestEvents } from '@/hooks/useNearestEvents';
 import { createServerClient } from '@/plugins/supabase/server';
 
@@ -38,9 +39,15 @@ const Home = async () => {
           <p className="text-sm">Lihat detail transaksi keuangan komunitas dengan transparansi penuh.</p>
         </Link>
         <Link
-          href="/contact"
-          className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
+          // href="/contact"
+          href="#"
+          className="border-tanakayu-accent relative cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
         >
+          {/* overlay */}
+          <div className="border-tanakayu-accent bg-tanakayu-text/60 absolute top-0 left-0 h-full w-full rounded" />
+          <div className="border-tanakayu-accent absolute top-0 left-0 flex h-full w-full items-center justify-center rounded border">
+            <Badge variant="secondary">Coming Soon</Badge>
+          </div>
           <h2 className="mb-1 text-lg font-semibold">👥 Tim & Kontak</h2>
           <p className="text-sm">Kenali pengurus lingkungan dan cara menghubungi mereka.</p>
         </Link>
