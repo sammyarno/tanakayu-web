@@ -115,7 +115,7 @@ const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: Ne
   };
 
   return (
-    <div className="bg-qwhite border-tanakayu-accent rounded border p-3">
+    <div className="border-tanakayu-accent rounded border p-3">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h2 className="flex items-center text-lg font-semibold">

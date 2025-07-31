@@ -68,8 +68,8 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button size="sm" onClick={() => setIsOpen(true)}>
-            <Edit2Icon /> Edit
+          <Button variant="ghost" className="!px-1 text-blue-500" onClick={() => setIsOpen(true)}>
+            <Edit2Icon className="h-4 w-4" />
           </Button>
         </DialogTrigger>
         <DialogContent>

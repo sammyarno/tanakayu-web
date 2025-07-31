@@ -32,8 +32,8 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogTrigger asChild>
-        <Button size="sm" variant="destructive" onClick={() => setIsOpen(true)}>
-          <Trash /> Delete
+        <Button variant="ghost" className="!px-1 text-red-500" onClick={() => setIsOpen(true)}>
+          <Trash className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
