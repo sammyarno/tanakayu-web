@@ -22,13 +22,6 @@ const profileSchema = z
     email: z.string().email({
       message: 'Please enter a valid email address.',
     }),
-    phone: z
-      .string()
-      .min(10, {
-        message: 'Phone number must be at least 10 characters.',
-      })
-      .optional()
-      .or(z.literal('')),
     password: z
       .string()
       .min(6, {
@@ -62,7 +55,6 @@ const ProfilePage = () => {
     defaultValues: {
       displayName: '',
       email: '',
-      phone: '',
       password: '',
       confirmPassword: '',
     },
@@ -74,7 +66,6 @@ const ProfilePage = () => {
       form.reset({
         displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || '',
         email: user.email || '',
-        phone: user.user_metadata?.phone || '',
         password: '',
         confirmPassword: '',
       });
@@ -86,7 +77,6 @@ const ProfilePage = () => {
       await updateProfile({
         displayName: data.displayName,
         email: data.email,
-        phone: data.phone || undefined,
         password: data.password || undefined,
       });
 
@@ -98,6 +88,9 @@ const ProfilePage = () => {
       // Clear password fields after successful update
       form.setValue('password', '');
       form.setValue('confirmPassword', '');
+      // Keep the updated display name and email values
+      form.setValue('displayName', data.displayName);
+      form.setValue('email', data.email);
     } catch (error) {
       toast.error('Failed to update profile. Please try again.', {
         duration: 3000,
@@ -151,20 +144,7 @@ const ProfilePage = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="tel" placeholder="Enter your phone number" {...field} />
-                  </FormControl>
-                  <FormDescription>Your contact phone number.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
 
             <div className="border-t pt-6">
               <h3 className="mb-4 text-lg font-semibold">Change Password</h3>
