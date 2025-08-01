@@ -8,7 +8,7 @@ export async function PUT(request: NextRequest) {
     const supabase = createServerClient(cookieStore);
     const body = await request.json();
     
-    const { displayName, email, phone, password } = body;
+    const { displayName, email, password } = body;
 
     // Prepare the update data for Supabase auth
     const updateData: any = {};
@@ -21,11 +21,11 @@ export async function PUT(request: NextRequest) {
       updateData.password = password;
     }
     
-    // Update user metadata for display name and phone
-    if (displayName || phone) {
+    // Update user metadata for display name
+    if (displayName) {
       updateData.data = {
-        ...(displayName && { display_name: displayName, full_name: displayName }),
-        ...(phone && { phone: phone }),
+        display_name: displayName, 
+        full_name: displayName
       };
     }
     

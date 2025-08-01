@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import AdminTitleSign from '@/components/AdminTitleSign';
 import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
@@ -8,7 +9,7 @@ import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
 
 const Home = async () => {
   let dehydratedState;
-  
+
   try {
     // Skip prefetch during build time to prevent hanging
     if (process.env.NEXT_PHASE !== 'phase-production-build') {
@@ -21,8 +22,8 @@ const Home = async () => {
 
   return (
     <PageContent>
-      {/* section menu */}
-      <section id="menu" className="flex flex-col gap-4">
+      <AdminTitleSign />
+      <section className="flex flex-col gap-4">
         <Link
           href="/news-event"
           className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"

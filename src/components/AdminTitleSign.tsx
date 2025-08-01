@@ -1,22 +1,39 @@
 'use client';
 
+import Link from 'next/link';
+
 import SignOutButton from '@/components/SignOutButton';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useStoredUserDisplayName, useStoredUserEmail } from '@/store/userAuthStore';
+import { useStoredUserDisplayName, useStoredUserEmail, useUserAuthStore } from '@/store/userAuthStore';
 
 const AdminTitleSign = () => {
   const email = useStoredUserEmail();
   const displayName = useStoredUserDisplayName();
+  const { isLoading, user, error } = useUserAuthStore();
 
   const displayText = displayName || email;
 
+  if (isLoading) {
+    return <Skeleton className="h-8 w-full" />;
+  }
+
+  if (!error && user) {
+    return (
+      <div className="flex w-full items-center justify-end gap-2">
+        <p className="flex text-center font-bold">Welcome back, {displayText}!</p>
+        <SignOutButton size="sm" variant="ghost" />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex w-full flex-col items-end justify-center gap-2">
-      <h1 className="flex text-center text-xl font-bold">
-        Welcome back, {displayText ? displayText : <Skeleton className="h-7 w-32" />}!
-      </h1>
-      <SignOutButton size="sm" variant="ghost" />
-    </div>
+    <section className="flex items-center justify-end gap-2">
+      <p className="text-sm font-bold">Are you an admin?</p>
+      <Button variant="outline" size="sm" asChild>
+        <Link href="/login">Login</Link>
+      </Button>
+    </section>
   );
 };
 

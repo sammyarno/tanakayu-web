@@ -4,7 +4,6 @@ import { useUserAuthStore } from '@/store/userAuthStore';
 export interface UpdateProfileRequest {
   displayName?: string;
   email?: string;
-  phone?: string;
   password?: string;
 }
 
@@ -17,7 +16,6 @@ const updateProfile = async (payload: UpdateProfileRequest) => {
     body: JSON.stringify({
       displayName: payload.displayName,
       email: payload.email,
-      phone: payload.phone,
       password: payload.password,
     }),
   });
