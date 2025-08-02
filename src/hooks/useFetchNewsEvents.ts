@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './auth/useAuth';
 
 export const fetchNewsEvents = async (isAdmin = false) => {
+  console.log('fetching news', isAdmin);
   const response = await fetch(`/api/news-events?admin=${isAdmin}`);
 
   if (!response.ok) {
@@ -16,13 +17,14 @@ export const fetchNewsEvents = async (isAdmin = false) => {
 };
 
 export const useNewsEvents = () => {
-  const { user } = useAuth();
-  const isAdmin = !!user; // If user exists, they're an admin
+  const { user, isInitialized } = useAuth();
+  const isAdmin = !!user;
 
   return useQuery({
     queryKey: ['news-events', { isAdmin }],
     queryFn: () => fetchNewsEvents(isAdmin),
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
+    enabled: isInitialized,
   });
 };

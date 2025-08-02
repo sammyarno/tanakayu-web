@@ -71,6 +71,11 @@ export const useUserAuthStore = create<UserAuthState>()(
         const { lastFetched } = get();
 
         if (!force && lastFetched && Date.now() - lastFetched < SESSION_TTL_MS) {
+          set({
+            isLoading: false,
+            isInitialized: true,
+          });
+
           return null;
         }
 
@@ -89,6 +94,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             storedUserData: limitedData,
             lastFetched: getCurrentTimestamp(),
             isLoading: false,
+            isInitialized: true,
           });
 
           return data.user;

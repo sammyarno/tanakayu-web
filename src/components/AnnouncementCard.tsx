@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { categoryDisplayMap } from '@/data/announcements';
 import { Announcement } from '@/types';
@@ -12,30 +14,60 @@ interface Props {
   editable?: boolean;
 }
 
-const AnnouncementCard = ({ announcement, editable = false }: Props) => {
-  // Sanitize HTML content for safe rendering
-  const sanitizedContent = DOMPurify.sanitize(announcement.content, {
+const ContentWithToggle = ({ content }: { content: string }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const sanitizedContent = DOMPurify.sanitize(content, {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'h1', 'h2', 'h3', 'img', 'a'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel']
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel'],
   });
 
-  // Create a truncated version for card display
   const createTruncatedContent = (htmlContent: string, maxLength: number = 150) => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     const textContent = tempDiv.textContent || tempDiv.innerText || '';
-    
+
     if (textContent.length <= maxLength) {
       return htmlContent;
     }
-    
+
     return textContent.substring(0, maxLength) + '...';
   };
 
   const truncatedContent = createTruncatedContent(sanitizedContent);
+  const needsTruncation = sanitizedContent.length > 150;
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
-    <div className="border-tanakayu-accent flex flex-col items-start gap-2 rounded border bg-white p-3">
+    <div className="w-full space-y-1">
+      <div
+        className="prose prose-sm max-w-none cursor-pointer text-sm text-gray-700"
+        dangerouslySetInnerHTML={{
+          __html:
+            typeof window !== 'undefined'
+              ? isExpanded
+                ? sanitizedContent
+                : truncatedContent
+              : content.substring(0, 150) + '...',
+        }}
+      />
+      {needsTruncation && (
+        <div className="text-right">
+          <button onClick={toggleExpanded} className="text-tanakayu-dark text-xs font-medium">
+            {isExpanded ? 'Show less' : 'Show more'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const AnnouncementCard = ({ announcement, editable = false }: Props) => {
+  return (
+    <div className="border-tanakayu-accent flex flex-col items-start gap-3 rounded border bg-white p-3">
       <div className="flex w-full items-center justify-between">
         <div className="flex flex-wrap gap-2">
           {announcement.categories.map(cat => {
@@ -68,12 +100,7 @@ const AnnouncementCard = ({ announcement, editable = false }: Props) => {
           </p>
         </div>
       </div>
-      <div 
-        className="text-sm text-gray-700 prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ 
-          __html: typeof window !== 'undefined' ? truncatedContent : announcement.content.substring(0, 150) + '...' 
-        }}
-      />
+      <ContentWithToggle content={announcement.content} />
     </div>
   );
 };

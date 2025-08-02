@@ -7,13 +7,21 @@ import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { getSupabaseClient } from '@/plugins/supabase/client';
+
+// Removed Supabase client import - now using API route for uploads
+
+// Type for ReactQuill component
+interface ReactQuillComponent {
+  getEditor: () => any;
+  focus: () => void;
+  blur: () => void;
+}
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
   loading: () => <Skeleton className="h-56 w-full" />,
-});
+}) as any;
 
 interface RichTextEditorProps {
   value: string;
@@ -34,8 +42,7 @@ function RichTextEditor({
   storageFolder = 'uploads',
   fileNamePrefix = 'tanakayu',
 }: RichTextEditorProps) {
-  const quillRef = useRef<any>(null);
-  const supabase = getSupabaseClient();
+  const quillRef = useRef<ReactQuillComponent | null>(null);
 
   // Custom image upload handler
   const imageHandler = useCallback(async () => {
@@ -48,8 +55,8 @@ function RichTextEditor({
       const file = input.files?.[0];
       if (!file) return;
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validate file size (max 200KB)
+      if (file.size > 200 * 1024) {
         alert('Image size must be less than 5MB');
         return;
       }
@@ -61,34 +68,29 @@ function RichTextEditor({
       }
 
       try {
-        // Generate unique filename with uploads folder
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${storageFolder}/${fileNamePrefix}-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        // Upload via API route (handles server-side auth)
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', storageFolder);
 
-        console.log('upload', fileName, fileExt, file.type, file.size);
-        // Upload to Supabase Storage
-        const { error } = await supabase.storage.from('tanakayu').upload(fileName, file, {
-          contentType: file.type,
-          upsert: false,
-          cacheControl: '3600',
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
         });
 
-        if (error) {
-          console.error('Upload error:', error);
-          const { data } = await supabase.auth.getUser();
-          console.log('Current user:', data);
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          console.error('Upload error:', result.error);
           alert('Failed to upload image. Please try again.');
           return;
         }
 
-        // Get public URL
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('tanakayu').getPublicUrl(fileName);
+        const publicUrl = result.url;
 
-        // Insert image into editor
-        const quill = quillRef.current?.getEditor();
-        if (quill) {
+        // Insert image into editor - proper way to get Quill instance
+        if (quillRef.current && typeof quillRef.current.getEditor === 'function') {
+          const quill = quillRef.current.getEditor();
           const range = quill.getSelection();
           quill.insertEmbed(range?.index || 0, 'image', publicUrl);
           quill.setSelection((range?.index || 0) + 1);
@@ -98,7 +100,7 @@ function RichTextEditor({
         alert('Failed to upload image. Please try again.');
       }
     };
-  }, [supabase]);
+  }, [storageFolder, fileNamePrefix]);
 
   // Quill modules configuration
   const modules = useMemo(
@@ -145,6 +147,9 @@ function RichTextEditor({
   return (
     <div className={cn('rich-text-editor', className)}>
       <ReactQuill
+        ref={(el: ReactQuillComponent | null) => {
+          quillRef.current = el;
+        }}
         theme="snow"
         value={value}
         onChange={onChange}
