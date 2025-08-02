@@ -8,47 +8,55 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/ui/rich-text-editor';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useCreateAnnouncement } from '@/hooks/useCreateAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 
 const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [tempCategories, setTempCategories] = useState<string[]>([]);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
   const { mutateAsync, isPending } = useCreateAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(undefined);
-    const formData = new FormData(e.currentTarget);
 
-    const title = formData.get('title')?.toString();
-    const content = formData.get('content')?.toString();
-    const categoryCodes = tempCategories;
-
-    if (!title || !content || !categoryCodes.length) {
+    // Validate required fields
+    if (!title.trim() || !content.trim() || !tempCategories.length) {
       setErrorMessage('Please fill in all required fields');
       return;
     }
 
-    const categoryIds = categoryCodes.map(x => categories?.find(c => c.code === x)?.id || '');
+    // Strip HTML tags for basic content validation
+    const textContent = content.replace(/<[^>]*>/g, '').trim();
+    if (!textContent) {
+      setErrorMessage('Please enter some content');
+      return;
+    }
+
+    const categoryIds = tempCategories.map(x => categories?.find(c => c.code === x)?.id || '');
 
     try {
       await mutateAsync({
-        title,
+        title: title.trim(),
         content,
         categoryIds: categoryIds,
         actor: displayName || '',
       });
 
+      // Reset form
       setIsOpen(false);
       setErrorMessage(undefined);
       setTempCategories([]);
+      setTitle('');
+      setContent('');
     } catch (error) {
       setErrorMessage('Failed to create announcement');
       console.error(error);
@@ -64,6 +72,8 @@ const CreateDialog = () => {
     if (!isOpen) {
       setTempCategories([]);
       setErrorMessage(undefined);
+      setTitle('');
+      setContent('');
     }
   }, [isOpen]);
 
@@ -74,7 +84,7 @@ const CreateDialog = () => {
           Tambah Pengumuman
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Announcement</DialogTitle>
         </DialogHeader>
@@ -91,7 +101,8 @@ const CreateDialog = () => {
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                name="title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
                 autoFocus={true}
                 placeholder="Enter announcement title"
                 disabled={isPending}
@@ -105,7 +116,15 @@ const CreateDialog = () => {
             />
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
-              <Textarea id="content" name="content" placeholder="Enter announcement content" disabled={isPending} />
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Write your announcement content here. You can format text, add images, and create lists."
+                disabled={isPending}
+                className="min-h-[300px]"
+                storageFolder="announcements"
+                fileNamePrefix="announcement"
+              />
             </div>
           </div>
           <DialogFooter className="mt-4">

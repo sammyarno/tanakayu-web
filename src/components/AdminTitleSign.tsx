@@ -5,12 +5,10 @@ import Link from 'next/link';
 import SignOutButton from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useStoredUserDisplayName, useStoredUserEmail, useUserAuthStore } from '@/store/userAuthStore';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const AdminTitleSign = () => {
-  const email = useStoredUserEmail();
-  const displayName = useStoredUserDisplayName();
-  const { isLoading, user, error } = useUserAuthStore();
+  const { email, displayName, isLoading, user, error } = useAuth();
 
   const displayText = displayName || email;
 

@@ -4,11 +4,10 @@ import { type ReactNode, useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useAuthInitialized, useUserAuthStore } from '@/store/userAuthStore';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 const PrivatePage = ({ children }: { children: ReactNode }) => {
-  const { user, isLoading } = useUserAuthStore();
-  const isInitialized = useAuthInitialized();
+  const { user, isLoading, isInitialized } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

@@ -5,11 +5,11 @@ import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+ import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/ui/rich-text-editor';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { Announcement } from '@/types';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 
@@ -17,9 +17,10 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
+  const [content, setContent] = useState(announcement.content);
   const { mutateAsync, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,11 +28,17 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
     const formData = new FormData(e.currentTarget);
 
     const title = formData.get('title')?.toString();
-    const content = formData.get('content')?.toString();
     const categoryCodes = tempCategories;
 
-    if (!title || !content || !categoryCodes.length) {
+    if (!title || !content.trim() || !categoryCodes.length) {
       setErrorMessage('Please fill in all required fields');
+      return;
+    }
+
+    // Strip HTML tags for basic content validation
+    const textContent = content.replace(/<[^>]*>/g, '').trim();
+    if (!textContent) {
+      setErrorMessage('Please enter some content');
       return;
     }
 
@@ -62,6 +69,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   useEffect(() => {
     if (!isOpen) return;
     setTempCategories(announcement.categories.map(x => x.code));
+    setContent(announcement.content);
   }, [isOpen, announcement]);
 
   return (
@@ -72,7 +80,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
             <Edit2Icon className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Announcement</DialogTitle>
           </DialogHeader>
@@ -103,7 +111,15 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
               />
               <div className="grid gap-3">
                 <Label htmlFor="content">Content</Label>
-                <Textarea id="content" name="content" defaultValue={announcement.content} disabled={isPending} />
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Write your announcement content here. You can format text, add images, and create lists."
+                  disabled={isPending}
+                  className="min-h-[300px]"
+                  storageFolder="announcements"
+                  fileNamePrefix="announcement"
+                />
               </div>
             </div>
             <DialogFooter className="mt-4">

@@ -8,8 +8,8 @@ import PageContent from '@/components/PageContent';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useUpdateProfile } from '@/hooks/useUpdateProfile';
-import { useUserAuthStore } from '@/store/userAuthStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -47,7 +47,7 @@ const profileSchema = z
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const ProfilePage = () => {
-  const { user } = useUserAuthStore();
+  const { displayName, email } = useAuth();
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
 
   const form = useForm<ProfileFormValues>({
@@ -62,15 +62,15 @@ const ProfilePage = () => {
 
   // Load user data when component mounts
   useEffect(() => {
-    if (user) {
+    if (displayName) {
       form.reset({
-        displayName: user.user_metadata?.display_name || user.user_metadata?.full_name || '',
-        email: user.email || '',
+        displayName: displayName || '',
+        email: email,
         password: '',
         confirmPassword: '',
       });
     }
-  }, [user, form]);
+  }, [displayName, email, form]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
@@ -143,8 +143,6 @@ const ProfilePage = () => {
                 </FormItem>
               )}
             />
-
-
 
             <div className="border-t pt-6">
               <h3 className="mb-4 text-lg font-semibold">Change Password</h3>

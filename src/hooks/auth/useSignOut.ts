@@ -2,10 +2,10 @@ import { useCallback } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useUserAuthStore } from '@/store/userAuthStore';
+import { useAuth } from './useAuth';
 
 export const useSignOut = () => {
-  const { signOut, isLoading, error } = useUserAuthStore();
+  const { signOut, isLoading, error } = useAuth();
   const router = useRouter();
 
   const handleSignOut = useCallback(async () => {
