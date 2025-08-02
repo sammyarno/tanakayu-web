@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { NewsEventWithComment } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
@@ -29,7 +29,7 @@ type EditNewsEventFormData = z.infer<typeof editNewsEventSchema>;
 const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: editNewsEvent, isPending } = useEditNewsEvent();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const {
     control,
@@ -164,12 +164,14 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
                 name="content"
                 control={control}
                 render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    id="content"
-                    placeholder="Enter news/event content"
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Write your news/event content here. You can format text, add images, and create lists."
                     disabled={isPending}
-                    rows={6}
+                    className="min-h-[200px]"
+                    storageFolder="news-events"
+                    fileNamePrefix="news-event"
                   />
                 )}
               />

@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useCreateNewsEvent } from '@/hooks/useCreateNewsEvent';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,8 +16,9 @@ const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [selectedType, setSelectedType] = useState<string>('');
+  const [content, setContent] = useState('');
   const { mutateAsync, isPending } = useCreateNewsEvent();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,11 +26,12 @@ const CreateDialog = () => {
     const formData = new FormData(e.currentTarget);
 
     const title = formData.get('title')?.toString();
-    const content = formData.get('content')?.toString();
     const startDate = formData.get('startDate')?.toString() || null;
     const endDate = formData.get('endDate')?.toString() || null;
 
-    if (!title || !content || !selectedType) {
+    // Strip HTML tags for basic content validation
+    const textContent = content.replace(/<[^>]*>/g, '').trim();
+    if (!title || !textContent || !selectedType) {
       setErrorMessage('Please fill in all required fields');
       return;
     }
@@ -47,6 +49,7 @@ const CreateDialog = () => {
       setIsOpen(false);
       setErrorMessage(undefined);
       setSelectedType('');
+      setContent('');
       toast('News/Event created successfully!', {
         duration: 3000,
         position: 'top-center',
@@ -135,12 +138,14 @@ const CreateDialog = () => {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                name="content"
-                placeholder="Enter news/event content"
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Write your news/event content here. You can format text, add images, and create lists."
                 disabled={isPending}
-                rows={6}
+                className="min-h-[200px]"
+                storageFolder="news-events"
+                fileNamePrefix="news-event"
               />
             </div>
           </div>

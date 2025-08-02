@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useCreateTransaction } from '@/hooks/useCreateTransaction';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { AlertCircleIcon } from 'lucide-react';
 
 const CATEGORY_OPTIONS = {
@@ -30,7 +30,7 @@ const CreateDialog = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [transactionType, setTransactionType] = useState<string>('');
   const { mutateAsync, isPending } = useCreateTransaction();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -130,12 +130,7 @@ const CreateDialog = () => {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="date">Date</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                disabled={isPending}
-              />
+              <Input id="date" name="date" type="date" disabled={isPending} />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description (Optional)</Label>

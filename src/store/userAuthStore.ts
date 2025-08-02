@@ -1,4 +1,4 @@
-import { LimitedUserData, fromLimitedUserData, toLimitedUserData } from '@/types/auth';
+import { LimitedUserData, toLimitedUserData } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
 import { User } from '@supabase/supabase-js';
 import { create } from 'zustand';
@@ -15,22 +15,21 @@ interface UserAuthState extends PersistedState {
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
-  user: User | null;
-  fetchUser: (isLoginPage?: boolean) => Promise<User | null>;
+  fetchUser: (force?: boolean) => Promise<User | null>;
   signIn: (email: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   clearError: () => void;
   updateUser: (user: User) => void;
 }
 
-const CACHE_DURATION = parseInt(process.env.NEXT_PUBLIC_AUTH_CACHE_DURATION || '300000', 10);
+const SESSION_TTL_MS = 1000 * 60 * 5; // 5 minutes
 
 const encryptedStorage = {
   getItem: async (name: string): Promise<string | null> => {
     if (typeof window === 'undefined') return null;
 
     const str = localStorage.getItem(name);
-    if (!str) return str;
+    if (!str) return null;
 
     try {
       const data = await decryptData<PersistedState>(str);
@@ -49,8 +48,7 @@ const encryptedStorage = {
       const encrypted = await encryptData(data);
       localStorage.setItem(name, encrypted);
     } catch (e) {
-      console.error('Failed to encrypt storage', e);
-      localStorage.setItem(name, value);
+      console.error('Encryption failed. Not storing data.');
     }
   },
 
@@ -62,187 +60,116 @@ const encryptedStorage = {
 
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
-    (set, get) => {
-      const initializeUser = async () => {
-        const { storedUserData } = get();
-        if (storedUserData) {
-          const user = fromLimitedUserData(storedUserData) as User | null;
-          set({ user, isInitialized: true });
-        } else {
-          // Check current session with API when no cached data
-          try {
-            const response = await fetch('/api/auth/user');
+    (set, get) => ({
+      storedUserData: null,
+      lastFetched: null,
+      isLoading: false,
+      isInitialized: false,
+      error: null,
 
-            if (response.ok) {
-              const { user } = await response.json();
+      fetchUser: async (force = false) => {
+        const { lastFetched } = get();
 
-              if (user) {
-                const limitedData = toLimitedUserData(user);
-                set({
-                  storedUserData: limitedData,
-                  user: user,
-                  lastFetched: getCurrentTimestamp(),
-                  isInitialized: true,
-                });
-              } else {
-                set({ isInitialized: true });
-              }
-            } else {
-              console.log('cek user not okay', response);
-              set({ isInitialized: true });
-            }
-          } catch {
-            set({ isInitialized: true });
-          }
+        if (!force && lastFetched && Date.now() - lastFetched < SESSION_TTL_MS) {
+          return null;
         }
-      };
 
-      // Call initialization after a brief delay to ensure persistence has loaded
-      setTimeout(initializeUser, 0);
+        set({ isLoading: true, error: null });
 
-      return {
-        storedUserData: null,
-        lastFetched: null,
-        isLoading: false,
-        isInitialized: false,
-        error: null,
-        user: null,
+        try {
+          const response = await fetch('/api/auth/user');
+          const data = await response.json();
 
-        fetchUser: async (isLoginPage = false) => {
-          const { lastFetched, storedUserData } = get();
-          const currentTime = getCurrentTimestamp();
-
-          // Return cached user if still valid
-          if (storedUserData && lastFetched && currentTime - lastFetched < CACHE_DURATION) {
-            const cachedUser = fromLimitedUserData(storedUserData) as User | null;
-            set({ user: cachedUser });
-            return cachedUser;
+          if (!response.ok || !data?.user) {
+            throw new Error('No user found');
           }
 
-          if (isLoginPage) {
-            const currentUser = fromLimitedUserData(storedUserData) as User | null;
-            set({ user: currentUser });
-            return currentUser;
-          }
-
-          set({ isLoading: true, error: null });
-
-          try {
-            const response = await fetch('/api/auth/user');
-
-            if (!response.ok) {
-              throw new Error('Failed to fetch user');
-            }
-
-            const { user } = await response.json();
-
-            // Convert to limited user data
-            const limitedData = toLimitedUserData(user);
-
-            set({
-              storedUserData: limitedData,
-              user: user,
-              lastFetched: getCurrentTimestamp(),
-              isLoading: false,
-            });
-
-            return user;
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
-            set({ error: errorMessage, isLoading: false, storedUserData: null, user: null });
-            return null;
-          }
-        },
-
-        signIn: async (email: string, password: string) => {
-          set({ isLoading: true, error: null });
-
-          try {
-            const response = await fetch('/api/auth/login', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ email, password }),
-            });
-
-            if (!response.ok) {
-              const error = await response.json();
-              throw new Error(error.error || 'Failed to sign in');
-            }
-
-            const { user } = await response.json();
-
-            // Convert to limited user data
-            const limitedData = toLimitedUserData(user);
-
-            set({
-              storedUserData: limitedData,
-              user: user,
-              lastFetched: getCurrentTimestamp(),
-              isLoading: false,
-            });
-
-            return user;
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
-            set({ error: errorMessage, isLoading: false });
-            return null;
-          }
-        },
-
-        signOut: async () => {
-          set({ isLoading: true, error: null });
-
-          try {
-            const response = await fetch('/api/auth/logout', {
-              method: 'POST',
-            });
-
-            if (!response.ok) {
-              throw new Error('Failed to sign out');
-            }
-
-            set({
-              storedUserData: null,
-              user: null,
-              lastFetched: null,
-              isLoading: false,
-            });
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
-            set({ error: errorMessage, isLoading: false });
-            // Still clear user data even if there's an error with the API
-            set({ storedUserData: null, user: null, lastFetched: null });
-          }
-        },
-
-        clearError: () => set({ error: null }),
-
-        updateUser: (user: User) => {
-          const limitedData = toLimitedUserData(user);
+          const limitedData = toLimitedUserData(data.user);
           set({
             storedUserData: limitedData,
-            user,
             lastFetched: getCurrentTimestamp(),
+            isLoading: false,
           });
-        },
-      };
-    },
+
+          return data.user;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
+          set({ error: errorMessage, isLoading: false, storedUserData: null });
+          return null;
+        }
+      },
+
+      signIn: async (email: string, password: string) => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data?.error || 'Failed to sign in');
+          }
+
+          const limitedData = toLimitedUserData(data.user);
+          set({
+            storedUserData: limitedData,
+            lastFetched: getCurrentTimestamp(),
+            isLoading: false,
+          });
+
+          return data.user;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
+          set({ error: errorMessage, isLoading: false });
+          return null;
+        }
+      },
+
+      signOut: async () => {
+        set({ isLoading: true, error: null });
+
+        try {
+          const response = await fetch('/api/auth/logout', { method: 'POST' });
+
+          if (!response.ok) {
+            throw new Error('Failed to sign out');
+          }
+
+          set({
+            storedUserData: null,
+            lastFetched: null,
+            isLoading: false,
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
+          set({ storedUserData: null, lastFetched: null, isLoading: false, error: errorMessage });
+        }
+      },
+
+      clearError: () => set({ error: null }),
+
+      updateUser: (user: User) => {
+        const limitedData = toLimitedUserData(user);
+        set({
+          storedUserData: limitedData,
+          lastFetched: getCurrentTimestamp(),
+        });
+      },
+    }),
     {
       name: 'user-auth-storage',
       storage: createJSONStorage(() => encryptedStorage),
-      partialize: state => ({ storedUserData: state.storedUserData, lastFetched: state.lastFetched }),
+      partialize: state => ({
+        storedUserData: state.storedUserData,
+        lastFetched: state.lastFetched,
+      }),
+      onRehydrateStorage: () => state => {
+        state?.fetchUser?.();
+      },
     }
   )
 );
-
-export const useUser = () => useUserAuthStore(state => state.user);
-export const useAuthLoading = () => useUserAuthStore(state => state.isLoading);
-export const useAuthError = () => useUserAuthStore(state => state.error);
-export const useAuthInitialized = () => useUserAuthStore(state => state.isInitialized);
-
-export const useStoredUserData = () => useUserAuthStore(state => state.storedUserData);
-export const useStoredUserId = () => useUserAuthStore(state => state.storedUserData?.id);
-export const useStoredUserEmail = () => useUserAuthStore(state => state.storedUserData?.email);
-export const useStoredUserDisplayName = () => useUserAuthStore(state => state.storedUserData?.display_name);

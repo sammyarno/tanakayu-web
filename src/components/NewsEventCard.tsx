@@ -5,11 +5,12 @@ import EditDialog from '@/components/news-event/EditDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useModerateComment } from '@/hooks/useModerateComment';
 import { usePostComment } from '@/hooks/usePostComment';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import type { NewsEventWithComment } from '@/types';
 import { formatDate } from '@/utils/date';
+import DOMPurify from 'dompurify';
 import { Calendar, Check, Trash, X } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,8 +22,8 @@ interface NewsEventCardProps {
 const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: NewsEventCardProps) {
   const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
   const { mutateAsync: moderateComment, isPending: isModerateLoading } = useModerateComment();
+  const { displayName } = useAuth();
 
-  const displayName = useStoredUserDisplayName();
   const comments = item.comments;
   const isLoading = isPostLoading || isModerateLoading;
 
@@ -125,7 +126,32 @@ const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: Ne
           <p className="mb-2 text-xs text-gray-600">
             {item.createdBy} | {formatDate(item.createdAt)}
           </p>
-          <p className="text-sm text-gray-700">{item.content}</p>
+          <div
+            className="prose prose-sm max-w-none text-sm text-gray-700"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(item.content, {
+                ALLOWED_TAGS: [
+                  'p',
+                  'br',
+                  'strong',
+                  'em',
+                  'u',
+                  'ol',
+                  'ul',
+                  'li',
+                  'a',
+                  'img',
+                  'h1',
+                  'h2',
+                  'h3',
+                  'h4',
+                  'h5',
+                  'h6',
+                ],
+                ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
+              }),
+            }}
+          />
         </div>
         {editable && (
           <div className="ml-2 flex items-center gap-1">

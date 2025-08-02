@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useInitializeStores } from '@/hooks/useInitializeStores';
 import { getSupabaseClient } from '@/plugins/supabase/client';
 import { useUserAuthStore } from '@/store/userAuthStore';
@@ -17,7 +18,7 @@ function StoreInitializer() {
 
 // Component to handle auth state changes
 function AuthStateHandler() {
-  const { fetchUser } = useUserAuthStore();
+  const { fetchUser } = useAuth();
 
   useEffect(() => {
     const supabase = getSupabaseClient();

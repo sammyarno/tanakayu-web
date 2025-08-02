@@ -7,9 +7,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { Announcement } from '@/types';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 
@@ -19,7 +19,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
   const { mutateAsync, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

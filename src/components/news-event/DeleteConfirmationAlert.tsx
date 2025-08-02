@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,16 +9,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
+import { NewsEventWithComment } from '@/types';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
-import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
-import { NewsEventWithComment } from '@/types';
 
 const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: deleteNewsEvent, isPending: isLoading } = useDeleteNewsEvent();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleDelete = async () => {
     if (!displayName) return;

@@ -10,15 +10,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
-import { useStoredUserDisplayName } from '@/store/userAuthStore';
 import { Announcement } from '@/types';
 import { Trash } from 'lucide-react';
 
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync, isPending: isLoading } = useDeleteAnnouncement();
-  const displayName = useStoredUserDisplayName();
+  const { displayName } = useAuth();
 
   const handleDelete = async () => {
     await mutateAsync({

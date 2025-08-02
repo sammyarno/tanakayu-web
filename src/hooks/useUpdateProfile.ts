@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserAuthStore } from '@/store/userAuthStore';
+
+import { useAuth } from './auth/useAuth';
 
 export interface UpdateProfileRequest {
   displayName?: string;
@@ -31,20 +32,20 @@ const updateProfile = async (payload: UpdateProfileRequest) => {
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
-  const { updateUser } = useUserAuthStore();
-  
+  const { updateUser } = useAuth();
+
   return useMutation({
     mutationFn: updateProfile,
-    onSuccess: (data) => {
+    onSuccess: data => {
       // Update the user store with the new data
       if (data) {
         updateUser(data);
       }
-      
+
       // Invalidate and refetch any user-related queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
-    onError: (error) => {
+    onError: error => {
       console.error('Profile update failed:', error);
     },
   });
