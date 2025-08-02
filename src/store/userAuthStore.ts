@@ -47,7 +47,7 @@ const encryptedStorage = {
       const data = JSON.parse(value) as PersistedState;
       const encrypted = await encryptData(data);
       localStorage.setItem(name, encrypted);
-    } catch (e) {
+    } catch {
       console.error('Encryption failed. Not storing data.');
     }
   },
