@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
           description,
           amount,
           type,
-          category: 'upload',
+          category: 'upload sheet',
           date,
           createdAt: getNowDate(),
           createdBy: 'system',

@@ -35,6 +35,7 @@ const TransactionCard = ({ dayGroup }: TransactionCardProps) => {
         {dayGroup.details.map(transaction => (
           <div key={transaction.id} className="flex items-stretch py-1">
             <div className="flex flex-[75%] flex-col">
+              <p className="text-muted-foreground text-xs capitalize">{transaction.category}</p>
               <p className="text-sm">{transaction.title}</p>
             </div>
             <div className="flex flex-[25%] items-start justify-end">
