@@ -9,6 +9,7 @@ import TransactionCard from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
+import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { formatCurrencyToIDR } from '@/utils/currency';
 
 import CreateTransactionDialog from './CreateDialog';
@@ -17,6 +18,7 @@ import UploadExcelDialog from './UploadExcelDialog';
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
   const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod);
+  const { monthOptions, isLoading: isLoadingDateRange, hasTransactions } = useFetchTransactionDateRange();
 
   const renderTransactions = () => {
     if (!transactionsData?.transactions || !Array.isArray(transactionsData.transactions)) {
@@ -53,18 +55,21 @@ const FinancialReport = () => {
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="012025">January 2025</SelectItem>
-                <SelectItem value="022025">February 2025</SelectItem>
-                <SelectItem value="032025">March 2025</SelectItem>
-                <SelectItem value="042025">April 2025</SelectItem>
-                <SelectItem value="052025">May 2025</SelectItem>
-                <SelectItem value="062025">June 2025</SelectItem>
-                <SelectItem value="072025">July 2025</SelectItem>
-                <SelectItem value="082025">August 2025</SelectItem>
-                <SelectItem value="092025">September 2025</SelectItem>
-                <SelectItem value="102025">October 2025</SelectItem>
-                <SelectItem value="112025">November 2025</SelectItem>
-                <SelectItem value="122025">December 2025</SelectItem>
+                {isLoadingDateRange ? (
+                  <SelectItem value="loading" disabled>
+                    Loading periods...
+                  </SelectItem>
+                ) : !hasTransactions ? (
+                  <SelectItem value="no-data" disabled>
+                    No transactions found
+                  </SelectItem>
+                ) : (
+                  monthOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
