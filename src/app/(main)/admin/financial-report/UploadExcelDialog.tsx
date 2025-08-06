@@ -9,9 +9,12 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useBulkCreateTransactions } from '@/hooks/useBulkCreateTransactions';
 import { useCompileTransactionSheet } from '@/hooks/useCompileTransactionSheet';
 import { UploadTransactionResult } from '@/types';
 import { AlertCircleIcon, FileSpreadsheetIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 const UploadExcelDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +22,8 @@ const UploadExcelDialog = () => {
   const [uploadResult, setUploadResult] = useState<UploadTransactionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>();
   const { mutateAsync, isPending } = useCompileTransactionSheet();
+  const { mutateAsync: bulkCreateTransactions, isPending: isSaving } = useBulkCreateTransactions();
+  const { displayName } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,16 +48,57 @@ const UploadExcelDialog = () => {
       setErrorMessage(undefined);
       const result = await mutateAsync(fileToUpload);
       setUploadResult(result);
-
-      // Console log all transactions
-      console.log('Upload Result:', result);
-      console.log(
-        'All Transactions:',
-        result.transactions.flatMap(dateGroup => dateGroup.details)
-      );
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to upload file');
       console.error(error);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!uploadResult || !displayName) {
+      setErrorMessage('Missing upload data or user information');
+      return;
+    }
+
+    try {
+      setErrorMessage(undefined);
+
+      // Extract all transactions from the upload result
+      const allTransactions = uploadResult.transactions.flatMap(dateGroup =>
+        dateGroup.details.map(transaction => ({
+          amount: transaction.amount,
+          category: transaction.category,
+          date: transaction.date,
+          description: transaction.description || '',
+          title: transaction.title,
+          type: transaction.type as 'income' | 'expense',
+        }))
+      );
+
+      const result = await bulkCreateTransactions({
+        transactions: allTransactions,
+        actor: displayName,
+      });
+
+      toast.success(`${result.count} transactions successfully uploaded`, {
+        duration: 3000,
+        position: 'top-center',
+      });
+
+      // Close dialog and reset states
+      setIsOpen(false);
+      setSelectedFile(null);
+      setUploadResult(null);
+      setErrorMessage(undefined);
+
+      // Clear file input
+      const fileInput = document.getElementById('file') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to save transactions');
+      console.error('Save error:', error);
     }
   };
 
@@ -176,15 +222,15 @@ const UploadExcelDialog = () => {
 
         {/* Action Section */}
         <DialogFooter className="mt-6">
-          <Button variant="destructive" onClick={handleCancel} disabled={isPending}>
+          <Button variant="destructive" onClick={handleCancel} disabled={isPending || isSaving}>
             Cancel
           </Button>
           <Button
-            onClick={() => handleUpload()}
-            disabled={!uploadResult || isPending}
+            onClick={handleSave}
+            disabled={!uploadResult || isPending || isSaving || !displayName}
             className="bg-green-600 hover:bg-green-700"
           >
-            Save
+            {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
