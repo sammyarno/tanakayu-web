@@ -1,9 +1,11 @@
 import dayjs, { type ConfigType } from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import timezone from 'dayjs/plugin/timezone';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 
 dayjs.tz.setDefault('Asia/Jakarta');
 
@@ -32,6 +34,35 @@ export const formatDateForTransaction = (dateString: string) => {
   const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
   const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   return { day, dayName, monthYear };
+};
+
+// Parse various date formats and return ISO date string (YYYY-MM-DD)
+export const parseExcelDate = (dateValue: any): string | null => {
+  if (typeof dateValue === 'number') {
+    // Excel date serial number
+    const excelDate = dayjs('1900-01-01').add(dateValue - 2, 'day');
+    return excelDate.format('YYYY-MM-DD');
+  }
+  
+  if (typeof dateValue === 'string') {
+    const dateStr = dateValue.trim();
+    
+    // Handle DD/MM/YYYY format (e.g., "16/07/2025")
+    if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+      const parsedDate = dayjs(dateStr, 'DD/MM/YYYY');
+      if (parsedDate.isValid()) {
+        return parsedDate.format('YYYY-MM-DD');
+      }
+    }
+    
+    // Try other common formats
+    const parsedDate = dayjs(dateStr);
+    if (parsedDate.isValid()) {
+      return parsedDate.format('YYYY-MM-DD');
+    }
+  }
+  
+  return null;
 };
 
 export default dayjs;

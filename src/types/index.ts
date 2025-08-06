@@ -85,3 +85,13 @@ export interface TransactionsResult {
   balance: number;
   transactions: TransactionsByDate[];
 }
+
+interface UploadTransactionResultSummary {
+  totalTransactions: number;
+  totalIncome: number;
+  totalExpense: number;
+}
+
+export interface UploadTransactionResult extends TransactionsResult {
+  summary: UploadTransactionResultSummary;
+}

@@ -101,7 +101,7 @@ const CreateDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
+        <Button onClick={() => setIsOpen(true)} size="lg" className="flex-1 tracking-wide">
           Tambah Transaksi
         </Button>
       </DialogTrigger>
