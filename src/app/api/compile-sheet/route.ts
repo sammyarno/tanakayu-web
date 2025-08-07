@@ -42,10 +42,16 @@ export async function POST(request: NextRequest) {
     const headers = jsonData[0] as string[];
 
     const dateColumnIndex = headers.findIndex(h => h && h.toLowerCase().includes('tanggal transaksi'));
-    const descriptionColumnIndex = headers.findIndex(h => h && h.toLowerCase().includes('keterangan'));
+    const titleColumnIndex = headers.findIndex(h => h && h.toLowerCase().includes('keterangan'));
     const amountColumnIndex = headers.findIndex(h => h && h.toLowerCase().includes('jumlah'));
+    const descriptionColumnIndex = headers.findIndex(h => h && h.toLowerCase().includes('cek'));
 
-    if (dateColumnIndex === -1 || descriptionColumnIndex === -1 || amountColumnIndex === -1) {
+    if (
+      dateColumnIndex === -1 ||
+      titleColumnIndex === -1 ||
+      descriptionColumnIndex === -1 ||
+      amountColumnIndex === -1
+    ) {
       return Response.json(
         {
           error:
@@ -70,8 +76,8 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
+        const title = row[titleColumnIndex]?.toString() || '';
         const description = row[descriptionColumnIndex]?.toString() || '';
-
         const amountString = row[amountColumnIndex]?.toString() || '';
         const amountParts = amountString.trim().split(' ');
 
@@ -101,7 +107,7 @@ export async function POST(request: NextRequest) {
 
         transactions.push({
           id: `upload-${getNowDate()}-${Math.random().toString(36).substr(2, 9)}`,
-          title: description,
+          title,
           description,
           amount,
           type,

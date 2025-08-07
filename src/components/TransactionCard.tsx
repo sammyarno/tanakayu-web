@@ -25,7 +25,7 @@ const TransactionCard = ({ dayGroup }: TransactionCardProps) => {
           <p className="text-sm text-stone-600">{monthYear}</p>
         </div>
         <div className="flex flex-[25%] items-center justify-end">
-          <p className={`font-serif ${dayTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`tracking-wider ${dayTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {Math.abs(dayTotal).toLocaleString('id-ID')}
           </p>
         </div>
@@ -37,11 +37,10 @@ const TransactionCard = ({ dayGroup }: TransactionCardProps) => {
             <div className="flex flex-[75%] flex-col">
               <p className="text-muted-foreground text-xs capitalize">{transaction.category}</p>
               <p className="text-sm">{transaction.title}</p>
+              <p className="text-muted-foreground text-xs">{transaction.description}</p>
             </div>
             <div className="flex flex-[25%] items-start justify-end">
-              <p
-                className={`text-sm tracking-wider ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
-              >
+              <p className={`text-sm ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                 {transaction.amount.toLocaleString('id-ID')}
               </p>
             </div>
