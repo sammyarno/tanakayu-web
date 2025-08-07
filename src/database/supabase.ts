@@ -210,24 +210,24 @@ export type Database = {
         Row: {
           created_at: string
           expired_at: string
+          hashed_token: string
           id: number
-          token_hash: string
           user_agent: string
           user_id: string
         }
         Insert: {
           created_at?: string
           expired_at: string
+          hashed_token: string
           id?: number
-          token_hash: string
           user_agent: string
           user_id: string
         }
         Update: {
           created_at?: string
           expired_at?: string
+          hashed_token?: string
           id?: number
-          token_hash?: string
           user_agent?: string
           user_id?: string
         }
