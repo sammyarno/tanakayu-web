@@ -49,8 +49,8 @@ export const useBulkCreateTransactions = () => {
   return useMutation({
     mutationFn: bulkCreateTransactions,
     onSuccess: () => {
-      // Invalidate transactions query to refresh the data
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['transaction-date-range'] });
     },
   });
 };
