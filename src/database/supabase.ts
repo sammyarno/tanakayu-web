@@ -206,6 +206,41 @@ export type Database = {
         }
         Relationships: []
       }
+      refresh_tokens: {
+        Row: {
+          created_at: string
+          expired_at: string
+          id: number
+          token_hash: string
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expired_at: string
+          id?: number
+          token_hash: string
+          user_agent: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expired_at?: string
+          id?: number
+          token_hash?: string
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refresh_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -245,6 +280,39 @@ export type Database = {
           modified_by?: string | null
           title?: string
           type?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          hashed_password: string
+          id: string
+          phone_number: string | null
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          hashed_password: string
+          id?: string
+          phone_number?: string | null
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          hashed_password?: string
+          id?: string
+          phone_number?: string | null
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }
