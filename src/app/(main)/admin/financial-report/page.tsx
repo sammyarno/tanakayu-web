@@ -6,10 +6,9 @@ import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import TransactionCard from '@/components/TransactionCard';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
+import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
 
 import CreateTransactionDialog from './CreateDialog';
@@ -33,9 +32,7 @@ const FinancialReport = () => {
       );
     }
 
-    return transactionsData.transactions.map(dayGroup => (
-      <TransactionCard key={dayGroup.date} dayGroup={dayGroup} />
-    ));
+    return transactionsData.transactions.map(dayGroup => <TransactionCard key={dayGroup.date} dayGroup={dayGroup} />);
   };
 
   return (
@@ -64,7 +61,7 @@ const FinancialReport = () => {
                     No transactions found
                   </SelectItem>
                 ) : (
-                  monthOptions.map((option) => (
+                  monthOptions.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
