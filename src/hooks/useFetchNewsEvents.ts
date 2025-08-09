@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './auth/useAuth';
 
 export const fetchNewsEvents = async (isAdmin = false) => {
-  console.log('fetching news', isAdmin);
   const response = await fetch(`/api/news-events?admin=${isAdmin}`);
 
   if (!response.ok) {

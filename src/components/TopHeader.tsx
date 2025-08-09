@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
 
-const AdminTitleSign = () => {
+const TopHeader = () => {
   const { email, displayName, isLoading, user, error } = useAuth();
 
   const displayText = displayName || email;
@@ -29,7 +29,7 @@ const AdminTitleSign = () => {
 
   return (
     <section className="flex items-center justify-end gap-2">
-      <p className="text-sm font-bold">Are you an admin?</p>
+      <p className="text-sm font-bold">Have an account?</p>
       <Button variant="outline" size="sm" asChild>
         <Link href="/login">Login</Link>
       </Button>
@@ -37,4 +37,4 @@ const AdminTitleSign = () => {
   );
 };
 
-export default AdminTitleSign;
+export default TopHeader;

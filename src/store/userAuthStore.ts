@@ -124,7 +124,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           // Then fetch user data using the JWT
           const userResponse = await fetch('/api/auth/user', {
             headers: {
-              'Authorization': `Bearer ${loginData.jwt}`,
+              Authorization: `Bearer ${loginData.jwt}`,
             },
           });
 
@@ -186,9 +186,6 @@ export const useUserAuthStore = create<UserAuthState>()(
         storedUserData: state.storedUserData,
         lastFetched: state.lastFetched,
       }),
-      onRehydrateStorage: () => state => {
-        state?.fetchUser?.();
-      },
     }
   )
 );

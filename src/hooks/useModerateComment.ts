@@ -1,6 +1,7 @@
 import { type NewsEventWithComment } from '@/types';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
 
 export interface ModerateCommentRequest {
@@ -63,7 +64,6 @@ export const useModerateComment = () => {
                   ? event.comments.filter(comment => comment.id !== variables.commentId)
                   : event.comments.map(comment => {
                       if (comment.id === variables.commentId) {
-                        console.log('comment', comment, updateData);
                         return {
                           ...comment,
                           ...updateData,

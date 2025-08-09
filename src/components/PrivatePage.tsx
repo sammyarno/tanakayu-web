@@ -12,7 +12,6 @@ const PrivatePage = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (isInitialized && !user && !isLoading) {
-      console.log('privatePage', isInitialized, user, isLoading);
       router.push('/login');
     }
   }, [user, isLoading, isInitialized, router]);

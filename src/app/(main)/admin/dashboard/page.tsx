@@ -1,13 +1,13 @@
 import Link from 'next/link';
 
-import AdminTitleSign from '@/components/AdminTitleSign';
 import PageContent from '@/components/PageContent';
+import TopHeader from '@/components/TopHeader';
 import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   return (
     <PageContent isAdmin>
-      <AdminTitleSign />
+      <TopHeader />
       <Link
         href="/admin/news-event"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"

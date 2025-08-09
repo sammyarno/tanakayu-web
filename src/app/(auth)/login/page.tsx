@@ -43,7 +43,7 @@ const Login = () => {
 
   useEffect(() => {
     if (error) {
-      setErrorMessage(error);
+      setErrorMessage('Invalid credentials');
     }
   }, [error]);
 
@@ -91,7 +91,14 @@ const Login = () => {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required disabled={isLoading} />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    disabled={isLoading}
+                    placeholder="******"
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   Login

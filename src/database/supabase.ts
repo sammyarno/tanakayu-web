@@ -295,6 +295,7 @@ export type Database = {
           modified_at: string | null
           modified_by: string | null
           phone_number: string
+          role: string
           username: string
         }
         Insert: {
@@ -308,6 +309,7 @@ export type Database = {
           modified_at?: string | null
           modified_by?: string | null
           phone_number: string
+          role?: string
           username: string
         }
         Update: {
@@ -321,6 +323,7 @@ export type Database = {
           modified_at?: string | null
           modified_by?: string | null
           phone_number?: string
+          role?: string
           username?: string
         }
         Relationships: []

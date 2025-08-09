@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     const { data: userData, error } = await supabase
       .from('users')
-      .select('id, username, email, full_name, phone_number, address, created_at')
+      .select('id, username, email, full_name, phone_number, address, created_at, role')
       .eq('id', jwtPayload.id)
       .eq('username', jwtPayload.username)
       .single();
@@ -42,6 +42,7 @@ export async function GET(request: Request) {
         phone: userData.phone_number,
         address: userData.address,
         created_at: userData.created_at,
+        role: userData.role,
       },
     });
   } catch (error) {
