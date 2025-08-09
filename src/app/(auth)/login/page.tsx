@@ -25,14 +25,14 @@ const Login = () => {
 
     const formData = new FormData(e.currentTarget);
 
-    const email = formData.get('email')?.toString();
+    const username = formData.get('username')?.toString();
     const password = formData.get('password')?.toString();
 
-    if (!email || !password) {
+    if (!username || !password) {
       return;
     }
 
-    await signIn(email, password);
+    await signIn(username, password);
   };
 
   const handleFormError = (e: FormEvent<HTMLFormElement>) => {
@@ -79,12 +79,12 @@ const Login = () => {
             <form onSubmit={handleSignIn} onError={handleFormError}>
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="asdxx@email.com"
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Enter your username"
                     required
                     disabled={isLoading}
                   />

@@ -5,7 +5,7 @@ import { useUserAuthStore } from '@/store/userAuthStore';
 import { useAuth } from './useAuth';
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -22,7 +22,7 @@ export const useSignIn = () => {
     clearError();
 
     try {
-      const user = await signIn(payload.email, payload.password);
+      const user = await signIn(payload.username, payload.password);
       setIsSuccess(!!user);
       setIsError(!user);
       return { user };
@@ -45,5 +45,5 @@ export const useSignIn = () => {
 // Keep the original function for direct API calls if needed
 export const postSignIn = async (payload: LoginRequest) => {
   const { signIn } = useUserAuthStore.getState();
-  return { user: await signIn(payload.email, payload.password) };
+  return { user: await signIn(payload.username, payload.password) };
 };

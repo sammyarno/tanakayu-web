@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
 
 export interface EditAnnouncementRequest {
   id: string;
@@ -8,8 +9,8 @@ export interface EditAnnouncementRequest {
   actor: string;
 }
 
-const editAnnouncement = async (payload: EditAnnouncementRequest) => {
-  const response = await fetch(`/api/announcements/${payload.id}`, {
+const editAnnouncement = async (payload: EditAnnouncementRequest, authenticatedFetch: any) => {
+  const { data, error } = await authenticatedFetch(`/api/announcements/${payload.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -22,21 +23,19 @@ const editAnnouncement = async (payload: EditAnnouncementRequest) => {
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update announcement');
+  if (error) {
+    throw new Error(error);
   }
 
-  const { announcement } = await response.json();
-  return announcement;
+  return data.announcement;
 };
 
 export const useEditAnnouncement = () => {
   const queryClient = useQueryClient();
+  const { authenticatedFetch } = useAuthenticatedFetch();
 
   return useMutation({
-    mutationKey: ['edit-announcement'],
-    mutationFn: editAnnouncement,
+    mutationFn: (payload: EditAnnouncementRequest) => editAnnouncement(payload, authenticatedFetch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },

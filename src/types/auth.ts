@@ -1,5 +1,10 @@
 import { User } from '@supabase/supabase-js';
 
+export interface JwtUserData {
+  id: string;
+  username: string;
+}
+
 /**
  * Limited user data that we want to store
  * Contains only essential user information

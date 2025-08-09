@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useAuthenticatedFetch } from '@/hooks/auth/useAuthenticatedFetch';
 
 // Removed Supabase client import - now using API route for uploads
 
@@ -43,6 +44,7 @@ function RichTextEditor({
   fileNamePrefix = 'tanakayu',
 }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuillComponent | null>(null);
+  const { authenticatedFetch } = useAuthenticatedFetch();
 
   // Custom image upload handler
   const imageHandler = useCallback(async () => {
@@ -73,20 +75,18 @@ function RichTextEditor({
         formData.append('file', file);
         formData.append('folder', storageFolder);
 
-        const response = await fetch('/api/upload', {
+        const { data, error } = await authenticatedFetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          console.error('Upload error:', result.error);
+        if (error || !data.success) {
+          console.error('Upload error:', error || data.error);
           alert('Failed to upload image. Please try again.');
           return;
         }
 
-        const publicUrl = result.url;
+        const publicUrl = data.url;
 
         // Insert image into editor - proper way to get Quill instance
         if (quillRef.current && typeof quillRef.current.getEditor === 'function') {

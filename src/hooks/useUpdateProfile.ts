@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from './auth/useAuth';
+import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
 
 export interface UpdateProfileRequest {
   displayName?: string;
@@ -8,8 +9,8 @@ export interface UpdateProfileRequest {
   password?: string;
 }
 
-const updateProfile = async (payload: UpdateProfileRequest) => {
-  const response = await fetch('/api/profile', {
+const updateProfile = async (payload: UpdateProfileRequest, authenticatedFetch: any) => {
+  const { data, error } = await authenticatedFetch('/api/profile', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -21,32 +22,26 @@ const updateProfile = async (payload: UpdateProfileRequest) => {
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update profile');
+  if (error) {
+    throw new Error(error);
   }
 
-  const { user } = await response.json();
-  return user;
+  return data.user;
 };
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   const { updateUser } = useAuth();
+  const { authenticatedFetch } = useAuthenticatedFetch();
 
   return useMutation({
-    mutationFn: updateProfile,
-    onSuccess: data => {
-      // Update the user store with the new data
-      if (data) {
-        updateUser(data);
-      }
+    mutationFn: (payload: UpdateProfileRequest) => updateProfile(payload, authenticatedFetch),
+    onSuccess: (updatedUser) => {
+      // Update the user in the auth store
+      updateUser(updatedUser);
 
-      // Invalidate and refetch any user-related queries
+      // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-    onError: error => {
-      console.error('Profile update failed:', error);
     },
   });
 };

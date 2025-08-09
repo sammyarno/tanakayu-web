@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
 
 export interface DeleteAnnouncementRequest {
   id: string;
   actor: string;
 }
 
-const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
-  const response = await fetch(`/api/announcements/${payload.id}`, {
+const deleteAnnouncement = async (payload: DeleteAnnouncementRequest, authenticatedFetch: any) => {
+  const { data, error } = await authenticatedFetch(`/api/announcements/${payload.id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -16,21 +17,19 @@ const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to delete announcement');
+  if (error) {
+    throw new Error(error);
   }
 
-  const { announcement } = await response.json();
-  return announcement;
+  return data.announcement;
 };
 
 export const useDeleteAnnouncement = () => {
   const queryClient = useQueryClient();
+  const { authenticatedFetch } = useAuthenticatedFetch();
 
   return useMutation({
-    mutationKey: ['delete-announcement'],
-    mutationFn: deleteAnnouncement,
+    mutationFn: (payload: DeleteAnnouncementRequest) => deleteAnnouncement(payload, authenticatedFetch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },

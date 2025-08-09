@@ -16,7 +16,7 @@ interface UserAuthState extends PersistedState {
   isInitialized: boolean;
   error: string | null;
   fetchUser: (force?: boolean) => Promise<User | null>;
-  signIn: (email: string, password: string) => Promise<User | null>;
+  signIn: (username: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   clearError: () => void;
   updateUser: (user: User) => void;
@@ -105,29 +105,42 @@ export const useUserAuthStore = create<UserAuthState>()(
         }
       },
 
-      signIn: async (email: string, password: string) => {
+      signIn: async (username: string, password: string) => {
         set({ isLoading: true, error: null });
 
         try {
-          const response = await fetch('/api/auth/login', {
+          // First, authenticate and get JWT
+          const loginResponse = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ username, password }),
           });
 
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data?.error || 'Failed to sign in');
+          const loginData = await loginResponse.json();
+          if (!loginResponse.ok) {
+            throw new Error(loginData?.error || 'Failed to sign in');
           }
 
-          const limitedData = toLimitedUserData(data.user);
+          // Then fetch user data using the JWT
+          const userResponse = await fetch('/api/auth/user', {
+            headers: {
+              'Authorization': `Bearer ${loginData.jwt}`,
+            },
+          });
+
+          const userData = await userResponse.json();
+          if (!userResponse.ok || !userData?.user) {
+            throw new Error('Failed to fetch user data after login');
+          }
+
+          const limitedData = toLimitedUserData(userData.user);
           set({
             storedUserData: limitedData,
             lastFetched: getCurrentTimestamp(),
             isLoading: false,
           });
 
-          return data.user;
+          return userData.user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });

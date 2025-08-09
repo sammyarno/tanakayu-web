@@ -285,33 +285,42 @@ export type Database = {
       }
       users: {
         Row: {
+          address: string
           created_at: string
-          email: string | null
+          created_by: string
+          email: string
           full_name: string
           hashed_password: string
           id: string
-          phone_number: string | null
-          updated_at: string
+          modified_at: string | null
+          modified_by: string | null
+          phone_number: string
           username: string
         }
         Insert: {
+          address: string
           created_at?: string
-          email?: string | null
+          created_by: string
+          email: string
           full_name: string
           hashed_password: string
           id?: string
-          phone_number?: string | null
-          updated_at?: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number: string
           username: string
         }
         Update: {
+          address?: string
           created_at?: string
-          email?: string | null
+          created_by?: string
+          email?: string
           full_name?: string
           hashed_password?: string
           id?: string
-          phone_number?: string | null
-          updated_at?: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number?: string
           username?: string
         }
         Relationships: []
