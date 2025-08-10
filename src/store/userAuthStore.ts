@@ -68,18 +68,35 @@ export const useUserAuthStore = create<UserAuthState>()(
           const persistedData = await encryptedStorage.getItem('user-auth-storage');
           if (persistedData) {
             const parsed = JSON.parse(persistedData);
-            const { jwt, userInfo } = parsed.state || {};
-            
-            // Set the persisted data first
-            set({
-              jwt: jwt || null,
-              userInfo: userInfo || null,
-            });
+            const { jwt } = parsed.state || {};
+
+            if (jwt) {
+              const verifiedUserData = await get().verify(jwt);
+              if (verifiedUserData) {
+                set({
+                  jwt,
+                  userInfo: verifiedUserData,
+                });
+              } else {
+                set({
+                  jwt: null,
+                  userInfo: null,
+                });
+              }
+            } else {
+              set({
+                jwt: null,
+                userInfo: null,
+              });
+            }
           }
         } catch (error) {
           console.error('Failed to load persisted auth data:', error);
+          set({
+            jwt: null,
+            userInfo: null,
+          });
         } finally {
-          // Always set initialized to true, even if loading fails
           set({ isInitialized: true });
         }
       },
@@ -95,6 +112,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           });
 
           const loginData = await loginResponse.json();
+
           if (!loginResponse.ok) {
             throw new Error(loginData?.error || 'Failed to sign in');
           }
@@ -111,7 +129,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             isLoading: false,
           });
 
-          return userData;
+          return loginData.user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
@@ -168,7 +186,6 @@ export const useUserAuthStore = create<UserAuthState>()(
       storage: createJSONStorage(() => encryptedStorage),
       partialize: state => ({
         jwt: state.jwt,
-        userInfo: state.userInfo,
       }),
     }
   )
