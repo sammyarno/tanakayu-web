@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   return (
-    <PageContent isAdmin>
+    <PageContent mustAuthenticate>
       <TopHeader />
       <Link
         href="/admin/news-event"

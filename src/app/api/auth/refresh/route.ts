@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-import bcrypt, { hashWithSalt } from '@/lib/bcrypt';
+import { compareWithSalt, hashWithSalt } from '@/lib/bcrypt';
 import { signJwt, signRefreshJwt, verifyJwt, verifyRefreshJwt } from '@/lib/jwt';
 import { createServerClient } from '@/plugins/supabase/server';
 import { getDateAhead, getNowDate } from '@/utils/date';
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     // Check if any stored refresh token matches the provided one
     let validRefreshToken = null;
     for (const storedToken of refreshTokens) {
-      const isMatch = await bcrypt.compare(refreshTokenCookie, storedToken.hashed_token);
+      const isMatch = await compareWithSalt(refreshTokenCookie, storedToken.hashed_token);
       if (isMatch) {
         validRefreshToken = storedToken;
         break;
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     // Get user data for new tokens
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, username')
+      .select('id, username, role')
       .eq('id', refreshPayload.id)
       .single();
 
@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate new tokens
-    const newAccessToken = await signJwt({ id: userData.id, username: userData.username });
-    const newRefreshToken = await signRefreshJwt({ id: userData.id, username: userData.username });
+    const newAccessToken = await signJwt({ id: userData.id, username: userData.username, role: userData.role });
+    const newRefreshToken = await signRefreshJwt({ id: userData.id, username: userData.username, role: userData.role });
     const hashedNewRefreshToken = await hashWithSalt(newRefreshToken);
 
     // Update refresh token in database (replace the old one)

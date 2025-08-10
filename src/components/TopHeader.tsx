@@ -8,9 +8,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 const TopHeader = () => {
-  const { email, displayName, isLoading, user, error } = useAuth();
+  const { username, isLoading, user, error } = useAuth();
 
-  const displayText = displayName || email;
+  const displayText = username;
 
   if (isLoading) {
     return <Skeleton className="h-8 w-full" />;

@@ -19,19 +19,19 @@ interface PostCommentProps {
 
 const PostComment = (props: PostCommentProps) => {
   const { comments, postId, type, editable } = props;
-  const { displayName } = useAuth();
+  const { username } = useAuth();
   const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
   const { mutateAsync: moderateComment, isPending: isModerateLoading } = useModerateComment();
 
   const isLoading = isPostLoading || isModerateLoading;
 
   const handleApproveComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'approve',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment approved successfully', {
         duration: 3000,
@@ -46,12 +46,12 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleRejectComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'reject',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment rejected successfully', {
         duration: 3000,
@@ -66,12 +66,12 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'delete',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment deleted successfully', {
         duration: 3000,

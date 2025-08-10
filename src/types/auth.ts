@@ -3,6 +3,7 @@ import { User } from '@supabase/supabase-js';
 export interface JwtUserData {
   id: string;
   username: string;
+  role: string;
 }
 
 /**

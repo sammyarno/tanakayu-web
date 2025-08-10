@@ -22,7 +22,7 @@ const CreateDialog = () => {
   const [content, setContent] = useState('');
   const { mutateAsync, isPending } = useCreateAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ const CreateDialog = () => {
         title: title.trim(),
         content,
         categoryIds: categoryIds,
-        actor: displayName || '',
+        actor: username || '',
       });
 
       // Reset form

@@ -1,28 +1,23 @@
-import { LimitedUserData, toLimitedUserData } from '@/types/auth';
+import { JwtUserData } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
-import { User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { getCurrentTimestamp } from './utils';
-
 interface PersistedState {
-  storedUserData: LimitedUserData | null;
-  lastFetched: number | null;
+  jwt: string | null;
+  userInfo: JwtUserData | null;
 }
 
 interface UserAuthState extends PersistedState {
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
-  fetchUser: (force?: boolean) => Promise<User | null>;
-  signIn: (username: string, password: string) => Promise<User | null>;
+  initialize: () => Promise<void>;
+  signIn: (username: string, password: string) => Promise<JwtUserData | null>;
   signOut: () => Promise<void>;
+  verify: (token: string) => Promise<JwtUserData | null>;
   clearError: () => void;
-  updateUser: (user: User) => void;
 }
-
-const SESSION_TTL_MS = 1000 * 60 * 5; // 5 minutes
 
 const encryptedStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -61,47 +56,31 @@ const encryptedStorage = {
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
     (set, get) => ({
-      storedUserData: null,
-      lastFetched: null,
+      jwt: null,
+      userInfo: null,
       isLoading: false,
       isInitialized: false,
       error: null,
 
-      fetchUser: async (force = false) => {
-        const { lastFetched } = get();
-
-        if (!force && lastFetched && Date.now() - lastFetched < SESSION_TTL_MS) {
-          set({
-            isLoading: false,
-            isInitialized: true,
-          });
-
-          return null;
-        }
-
-        set({ isLoading: true, error: null });
-
+      initialize: async () => {
         try {
-          const response = await fetch('/api/auth/user');
-          const data = await response.json();
-
-          if (!response.ok || !data?.user) {
-            throw new Error('No user found');
+          // Manually load persisted data from storage
+          const persistedData = await encryptedStorage.getItem('user-auth-storage');
+          if (persistedData) {
+            const parsed = JSON.parse(persistedData);
+            const { jwt, userInfo } = parsed.state || {};
+            
+            // Set the persisted data first
+            set({
+              jwt: jwt || null,
+              userInfo: userInfo || null,
+            });
           }
-
-          const limitedData = toLimitedUserData(data.user);
-          set({
-            storedUserData: limitedData,
-            lastFetched: getCurrentTimestamp(),
-            isLoading: false,
-            isInitialized: true,
-          });
-
-          return data.user;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
-          set({ error: errorMessage, isLoading: false, storedUserData: null });
-          return null;
+          console.error('Failed to load persisted auth data:', error);
+        } finally {
+          // Always set initialized to true, even if loading fails
+          set({ isInitialized: true });
         }
       },
 
@@ -109,7 +88,6 @@ export const useUserAuthStore = create<UserAuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          // First, authenticate and get JWT
           const loginResponse = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -121,26 +99,19 @@ export const useUserAuthStore = create<UserAuthState>()(
             throw new Error(loginData?.error || 'Failed to sign in');
           }
 
-          // Then fetch user data using the JWT
-          const userResponse = await fetch('/api/auth/user', {
-            headers: {
-              Authorization: `Bearer ${loginData.jwt}`,
-            },
-          });
-
-          const userData = await userResponse.json();
-          if (!userResponse.ok || !userData?.user) {
-            throw new Error('Failed to fetch user data after login');
+          // Verify and decode the JWT to get user data
+          const userData = await get().verify(loginData.jwt);
+          if (!userData) {
+            throw new Error('Invalid JWT received from server');
           }
 
-          const limitedData = toLimitedUserData(userData.user);
           set({
-            storedUserData: limitedData,
-            lastFetched: getCurrentTimestamp(),
+            jwt: loginData.jwt,
+            userInfo: userData,
             isLoading: false,
           });
 
-          return userData.user;
+          return userData;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
@@ -159,32 +130,45 @@ export const useUserAuthStore = create<UserAuthState>()(
           }
 
           set({
-            storedUserData: null,
-            lastFetched: null,
+            jwt: null,
+            userInfo: null,
             isLoading: false,
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
-          set({ storedUserData: null, lastFetched: null, isLoading: false, error: errorMessage });
+          set({ jwt: null, userInfo: null, isLoading: false, error: errorMessage });
+        }
+      },
+
+      verify: async (token: string) => {
+        try {
+          const response = await fetch('/api/auth/verify', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            return null;
+          }
+
+          const userData = await response.json();
+          return userData as JwtUserData;
+        } catch (error) {
+          console.error('Token verification failed:', error);
+          return null;
         }
       },
 
       clearError: () => set({ error: null }),
-
-      updateUser: (user: User) => {
-        const limitedData = toLimitedUserData(user);
-        set({
-          storedUserData: limitedData,
-          lastFetched: getCurrentTimestamp(),
-        });
-      },
     }),
     {
       name: 'user-auth-storage',
       storage: createJSONStorage(() => encryptedStorage),
       partialize: state => ({
-        storedUserData: state.storedUserData,
-        lastFetched: state.lastFetched,
+        jwt: state.jwt,
+        userInfo: state.userInfo,
       }),
     }
   )

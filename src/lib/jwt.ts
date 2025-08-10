@@ -9,6 +9,7 @@ export const signJwt = async (payload: JwtUserData, expiresIn = '1h') => {
   const jwtPayload: JWTPayload = {
     jti: payload.id,
     sub: payload.username,
+    role: payload.role,
   };
 
   const jwt = await new SignJWT(jwtPayload)
@@ -37,10 +38,12 @@ export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '7d') => 
 
 export const verifyJwt = async (token: string): Promise<JwtUserData | null> => {
   try {
+    console.log('secret', SECRET);
     const { payload } = await jwtVerify(token, SECRET);
     return {
       id: payload.jti as string,
       username: payload.sub as string,
+      role: payload.role as string,
     };
   } catch {
     return null;
@@ -53,6 +56,7 @@ export const verifyRefreshJwt = async (token: string): Promise<JwtUserData | nul
     return {
       id: payload.jti as string,
       username: payload.sub as string,
+      role: payload.role as string,
     };
   } catch {
     return null;

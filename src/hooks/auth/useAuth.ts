@@ -1,42 +1,31 @@
-import { useUserAuthStore } from '@/store/userAuthStore';
 import { useMemo } from 'react';
 
+import { useUserAuthStore } from '@/store/userAuthStore';
+
 export const useAuth = () => {
-  const storedUserData = useUserAuthStore(state => state.storedUserData);
+  const userInfo = useUserAuthStore(state => state.userInfo);
   const isLoading = useUserAuthStore(state => state.isLoading);
   const isInitialized = useUserAuthStore(state => state.isInitialized);
   const error = useUserAuthStore(state => state.error);
   const signIn = useUserAuthStore(state => state.signIn);
   const signOut = useUserAuthStore(state => state.signOut);
-  const fetchUser = useUserAuthStore(state => state.fetchUser);
+  const initialize = useUserAuthStore(state => state.initialize);
   const clearError = useUserAuthStore(state => state.clearError);
-  const updateUser = useUserAuthStore(state => state.updateUser);
 
   return useMemo(
     () => ({
-      user: storedUserData,
-      userId: storedUserData?.id,
-      email: storedUserData?.email,
-      displayName: storedUserData?.display_name,
+      user: userInfo,
+      userId: userInfo?.id,
+      username: userInfo?.username,
+      role: userInfo?.role,
       isLoading,
       isInitialized,
       error,
       signIn,
       signOut,
-      fetchUser,
+      initialize,
       clearError,
-      updateUser,
     }),
-    [
-      storedUserData,
-      isLoading,
-      isInitialized,
-      error,
-      signIn,
-      signOut,
-      fetchUser,
-      clearError,
-      updateUser,
-    ]
+    [userInfo, isLoading, isInitialized, error, signIn, signOut, initialize, clearError]
   );
 };

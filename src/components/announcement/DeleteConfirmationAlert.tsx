@@ -18,12 +18,12 @@ import { Trash } from 'lucide-react';
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync, isPending: isLoading } = useDeleteAnnouncement();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleDelete = async () => {
     await mutateAsync({
       id: announcement.id,
-      actor: displayName || '',
+      actor: username || '',
     });
 
     setIsOpen(false);

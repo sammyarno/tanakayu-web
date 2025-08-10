@@ -23,7 +23,7 @@ const UploadExcelDialog = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const { mutateAsync, isPending } = useCompileTransactionSheet();
   const { mutateAsync: bulkCreateTransactions, isPending: isSaving } = useBulkCreateTransactions();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,7 +55,7 @@ const UploadExcelDialog = () => {
   };
 
   const handleSave = async () => {
-    if (!uploadResult || !displayName) {
+    if (!uploadResult || !username) {
       setErrorMessage('Missing upload data or user information');
       return;
     }
@@ -77,7 +77,7 @@ const UploadExcelDialog = () => {
 
       const result = await bulkCreateTransactions({
         transactions: allTransactions,
-        actor: displayName,
+        actor: username,
       });
 
       toast.success(`${result.count} transactions successfully uploaded`, {
@@ -227,7 +227,7 @@ const UploadExcelDialog = () => {
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!uploadResult || isPending || isSaving || !displayName}
+            disabled={!uploadResult || isPending || isSaving || !username}
             className="bg-green-600 hover:bg-green-700"
           >
             {isSaving ? 'Saving...' : 'Save'}

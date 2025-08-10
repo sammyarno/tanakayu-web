@@ -18,7 +18,7 @@ const CreateDialog = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [content, setContent] = useState('');
   const { mutateAsync, isPending } = useCreateNewsEvent();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleCreateSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +43,7 @@ const CreateDialog = () => {
         type: selectedType as 'news' | 'event',
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-        actor: displayName || '',
+        actor: username || '',
       });
 
       setIsOpen(false);

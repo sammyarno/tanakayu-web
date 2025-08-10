@@ -47,7 +47,7 @@ const profileSchema = z
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const ProfilePage = () => {
-  const { displayName, email } = useAuth();
+  const { username } = useAuth();
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
 
   const form = useForm<ProfileFormValues>({
@@ -62,15 +62,15 @@ const ProfilePage = () => {
 
   // Load user data when component mounts
   useEffect(() => {
-    if (displayName) {
+    if (username) {
       form.reset({
-        displayName: displayName || '',
-        email: email,
+        displayName: username || '',
+        email: '',
         password: '',
         confirmPassword: '',
       });
     }
-  }, [displayName, email, form]);
+  }, [username, form]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
@@ -101,7 +101,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <PageContent isAdmin>
+    <PageContent mustAuthenticate>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin/dashboard' },

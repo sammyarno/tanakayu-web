@@ -26,6 +26,8 @@ export const formatDateRange = (start: ConfigType, end: ConfigType) => {
 
 export const getNowDate = () => dayjs().toISOString();
 
+export const getNowDateInMillis = () => dayjs().valueOf();
+
 export const formatDate = (date: ConfigType) => dayjs(date).format('DD MMMM YYYY HH:mm');
 
 export const getDateAhead = (days: number): string => {

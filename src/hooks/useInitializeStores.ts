@@ -9,7 +9,7 @@ import { useAuth } from './auth/useAuth';
 export const useInitializeStores = () => {
   const pathname = usePathname();
   const fetchAnnouncementCategories = useAnnouncementCategoriesStore(state => state.fetchCategories);
-  const { fetchUser } = useAuth();
+  const { initialize } = useAuth();
 
   useEffect(() => {
     fetchAnnouncementCategories();
@@ -17,9 +17,9 @@ export const useInitializeStores = () => {
     const isRegisterPage = pathname.includes('/register');
 
     if (!isLoginPage && !isRegisterPage) {
-      fetchUser();
+      initialize();
     }
-  }, [fetchAnnouncementCategories, fetchUser, pathname]);
+  }, [fetchAnnouncementCategories, initialize, pathname]);
 
   return null;
 };

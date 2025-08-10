@@ -29,7 +29,7 @@ type EditNewsEventFormData = z.infer<typeof editNewsEventSchema>;
 const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: editNewsEvent, isPending } = useEditNewsEvent();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const {
     control,
@@ -56,7 +56,7 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
         type: data.type,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        actor: displayName || '',
+        actor: username || '',
       });
 
       setIsOpen(false);

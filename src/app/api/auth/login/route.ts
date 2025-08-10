@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-import bcrypt, { compareWithSalt, hashWithSalt } from '@/lib/bcrypt';
+import { compareWithSalt, hashWithSalt } from '@/lib/bcrypt';
 import { signJwt, signRefreshJwt } from '@/lib/jwt';
 import { loginSchema } from '@/lib/validations/auth';
 import { createServerClient } from '@/plugins/supabase/server';
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('users')
-      .select('id, username, hashed_password')
+      .select('id, username, hashed_password, role')
       .eq('username', username)
       .single();
 
@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
     }
 
     // generate JWT sign with a secret key
-    const jwt = await signJwt({ id: data.id, username: data.username });
+    const jwt = await signJwt({ id: data.id, username: data.username, role: data.role });
 
     // generate refresh token
-    const refreshToken = await signRefreshJwt({ id: data.id, username: data.username });
+    const refreshToken = await signRefreshJwt({ id: data.id, username: data.username, role: data.role });
     const hashedRefreshToken = await hashWithSalt(refreshToken);
 
     // store refresh token in database

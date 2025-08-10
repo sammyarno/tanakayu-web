@@ -20,7 +20,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
   const [content, setContent] = useState(announcement.content);
   const { mutateAsync, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +50,7 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
         title,
         content,
         categories: categoryIds,
-        actor: displayName || '',
+        actor: username || '',
       });
 
       setIsOpen(false);

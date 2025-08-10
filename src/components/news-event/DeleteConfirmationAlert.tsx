@@ -19,14 +19,14 @@ import { toast } from 'sonner';
 const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: deleteNewsEvent, isPending: isLoading } = useDeleteNewsEvent();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleDelete = async () => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await deleteNewsEvent({
         id: item.id,
-        actor: displayName,
+        actor: username,
       });
       setIsOpen(false);
       toast.success('News event deleted successfully', {

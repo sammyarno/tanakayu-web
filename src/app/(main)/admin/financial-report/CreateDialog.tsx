@@ -30,7 +30,7 @@ const CreateDialog = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [transactionType, setTransactionType] = useState<string>('');
   const { mutateAsync, isPending } = useCreateTransaction();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
@@ -70,7 +70,7 @@ const CreateDialog = () => {
         amount: amountNumber,
         category: selectedCategory,
         type: transactionType as 'income' | 'expense',
-        actor: displayName || '',
+        actor: username || '',
         date,
       });
 
