@@ -2,7 +2,7 @@ import { type NewsEventWithComment } from '@/types';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface ModerateCommentRequest {
   commentId: string;
@@ -10,31 +10,24 @@ export interface ModerateCommentRequest {
   actor: string;
 }
 
-const moderateComment = async (payload: ModerateCommentRequest, authenticatedFetch: any) => {
-  const { data, error } = await authenticatedFetch(`/api/comments/${payload.commentId}/moderate`, {
+const moderateComment = async (payload: ModerateCommentRequest) => {
+  const data = await authenticatedFetchJson(`/api/comments/${payload.commentId}/moderate`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       action: payload.action,
       actor: payload.actor,
     }),
   });
 
-  if (error) {
-    throw new Error(error);
-  }
-
   return data.comment;
 };
 
 export const useModerateComment = () => {
   const queryClient = useQueryClient();
-  const { authenticatedFetch } = useAuthenticatedFetch();
+
 
   return useMutation({
-    mutationFn: (payload: ModerateCommentRequest) => moderateComment(payload, authenticatedFetch),
+    mutationFn: (payload: ModerateCommentRequest) => moderateComment(payload),
     onSuccess: (_, variables) => {
       const currentTimestamp = getNowDate();
       const updateData: any = {};

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 interface Transaction {
   amount: number;
@@ -23,33 +23,23 @@ interface BulkCreateTransactionsResponse {
 }
 
 const bulkCreateTransactions = async (
-  { transactions, actor }: BulkCreateTransactionsParams,
-  authenticatedFetch: any
+  { transactions, actor }: BulkCreateTransactionsParams
 ): Promise<BulkCreateTransactionsResponse> => {
-  const { data, error } = await authenticatedFetch('/api/transactions/bulk', {
+  return authenticatedFetchJson('/api/transactions/bulk', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       transactions,
       actor,
     }),
   });
-
-  if (error) {
-    throw new Error(error);
-  }
-
-  return data;
 };
 
 export const useBulkCreateTransactions = () => {
   const queryClient = useQueryClient();
-  const { authenticatedFetch } = useAuthenticatedFetch();
+
 
   return useMutation({
-    mutationFn: (params: BulkCreateTransactionsParams) => bulkCreateTransactions(params, authenticatedFetch),
+    mutationFn: (params: BulkCreateTransactionsParams) => bulkCreateTransactions(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['transaction-date-range'] });

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface CreateAnnouncementRequest {
   title: string;
@@ -8,8 +8,8 @@ export interface CreateAnnouncementRequest {
   actor: string;
 }
 
-const createAnnouncement = async (payload: CreateAnnouncementRequest, authenticatedFetch: any) => {
-  const { data, error } = await authenticatedFetch('/api/announcements', {
+const createAnnouncement = async (payload: CreateAnnouncementRequest) => {
+  const { data, error } = await authenticatedFetchJson('/api/announcements', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,10 +31,10 @@ const createAnnouncement = async (payload: CreateAnnouncementRequest, authentica
 
 export const useCreateAnnouncement = () => {
   const queryClient = useQueryClient();
-  const { authenticatedFetch } = useAuthenticatedFetch();
+
 
   return useMutation({
-    mutationFn: (payload: CreateAnnouncementRequest) => createAnnouncement(payload, authenticatedFetch),
+      mutationFn: (payload: CreateAnnouncementRequest) => createAnnouncement(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },

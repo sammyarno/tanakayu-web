@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { useAuthenticatedFetch } from '@/hooks/auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 // Removed Supabase client import - now using API route for uploads
 
@@ -44,7 +44,6 @@ function RichTextEditor({
   fileNamePrefix = 'tanakayu',
 }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuillComponent | null>(null);
-  const { authenticatedFetch } = useAuthenticatedFetch();
 
   // Custom image upload handler
   const imageHandler = useCallback(async () => {
@@ -75,7 +74,7 @@ function RichTextEditor({
         formData.append('file', file);
         formData.append('folder', storageFolder);
 
-        const { data, error } = await authenticatedFetch('/api/upload', {
+        const { data, error } = await authenticatedFetchJson('/api/upload', {
           method: 'POST',
           body: formData,
         });

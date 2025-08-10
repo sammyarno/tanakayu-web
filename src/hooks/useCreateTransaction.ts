@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface CreateTransactionRequest {
   title: string;
@@ -11,12 +11,9 @@ export interface CreateTransactionRequest {
   actor: string;
 }
 
-const createTransaction = async (payload: CreateTransactionRequest, authenticatedFetch: any) => {
-  const { data, error } = await authenticatedFetch('/api/transactions', {
+const createTransaction = async (payload: CreateTransactionRequest) => {
+  const data = await authenticatedFetchJson('/api/transactions', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       title: payload.title,
       amount: payload.amount,
@@ -28,20 +25,16 @@ const createTransaction = async (payload: CreateTransactionRequest, authenticate
     }),
   });
 
-  if (error) {
-    throw new Error(error);
-  }
-
   return data.transaction;
 
 };
 
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
-  const { authenticatedFetch } = useAuthenticatedFetch();
+
 
   return useMutation({
-    mutationFn: (payload: CreateTransactionRequest) => createTransaction(payload, authenticatedFetch),
+    mutationFn: (payload: CreateTransactionRequest) => createTransaction(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },

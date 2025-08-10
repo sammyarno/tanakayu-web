@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useAuthenticatedFetch } from './auth/useAuthenticatedFetch';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface PostCommentRequest {
   comment: string;
@@ -8,12 +8,9 @@ export interface PostCommentRequest {
   actor: string;
 }
 
-const postComment = async (payload: PostCommentRequest, authenticatedFetch: any) => {
-  const { data, error } = await authenticatedFetch('/api/comments', {
+const postComment = async (payload: PostCommentRequest) => {
+  const data = await authenticatedFetchJson('/api/comments', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       comment: payload.comment,
       targetType: payload.targetType,
@@ -22,18 +19,14 @@ const postComment = async (payload: PostCommentRequest, authenticatedFetch: any)
     }),
   });
 
-  if (error) {
-    throw new Error(error);
-  }
-
   return data.comment;
 };
 
 export const usePostComment = () => {
-  const { authenticatedFetch } = useAuthenticatedFetch();
+
 
   return useMutation({
     mutationKey: ['post-comment'],
-    mutationFn: (payload: PostCommentRequest) => postComment(payload, authenticatedFetch),
+    mutationFn: (payload: PostCommentRequest) => postComment(payload),
   });
 };

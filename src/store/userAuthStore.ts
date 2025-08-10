@@ -16,6 +16,7 @@ interface UserAuthState extends PersistedState {
   signIn: (username: string, password: string) => Promise<JwtUserData | null>;
   signOut: () => Promise<void>;
   verify: (token: string) => Promise<JwtUserData | null>;
+  refreshToken: () => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -176,6 +177,40 @@ export const useUserAuthStore = create<UserAuthState>()(
         } catch (error) {
           console.error('Token verification failed:', error);
           return null;
+        }
+      },
+
+      refreshToken: async () => {
+        try {
+          const response = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            set({ jwt: null, userInfo: null, error: 'Session expired' });
+            return false;
+          }
+
+          const data = await response.json();
+          const { jwt: newJwt } = data;
+
+          // Verify the new token to get user info
+          const userInfo = await get().verify(newJwt);
+          if (userInfo) {
+            set({ jwt: newJwt, userInfo, error: null });
+            return true;
+          } else {
+            set({ jwt: null, userInfo: null, error: 'Invalid token received' });
+            return false;
+          }
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+          set({ jwt: null, userInfo: null, error: 'Token refresh failed' });
+          return false;
         }
       },
 
