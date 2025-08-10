@@ -1,4 +1,5 @@
 import { useUserAuthStore } from '@/store/userAuthStore';
+import type { FetchResponse } from '@/types/fetch';
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const { jwt, refreshToken, signOut } = useUserAuthStore.getState();
@@ -22,8 +23,10 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
   let response = await makeRequest(jwt);
 
   // try refresh once
+  console.log('response.status', response.status);
   if (response.status === 401) {
     const refreshed = await refreshToken();
+    console.log('refreshed', refreshed);
 
     if (refreshed) {
       // with new token
@@ -44,13 +47,21 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
   return response;
 };
 
-export const authenticatedFetchJson = async <T = any>(url: string, options: RequestInit = {}): Promise<T> => {
+export const authenticatedFetchJson = async <T = any>(
+  url: string,
+  options: RequestInit = {}
+): Promise<FetchResponse<T>> => {
   const response = await authenticatedFetch(url, options);
 
+  const jsonResponse: FetchResponse<T> = await response.json();
+
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`HTTP ${response.status}: ${errorText}`);
+    if (!jsonResponse.error) {
+      return {
+        error: `HTTP ${response.status}: Request failed`,
+      };
+    }
   }
 
-  return response.json();
+  return jsonResponse;
 };

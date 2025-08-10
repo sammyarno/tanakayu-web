@@ -84,6 +84,7 @@ const Login = () => {
                     name="username"
                     type="text"
                     placeholder="Enter your username"
+                    value="sammyarno"
                     required
                     disabled={isLoading}
                   />
@@ -97,6 +98,7 @@ const Login = () => {
                     required
                     disabled={isLoading}
                     placeholder="******"
+                    value="12345678"
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>

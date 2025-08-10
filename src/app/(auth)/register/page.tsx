@@ -63,11 +63,12 @@ const Register = () => {
 
   useEffect(() => {
     if (isSuccess && !error) {
+      setErrorMessage(undefined);
       toast.success('Member registered successfully', {
         duration: 3000,
         position: 'top-center',
       });
-      // router.push('/login');
+      router.push('/login');
     }
   }, [isSuccess, router, error]);
 
@@ -154,6 +155,7 @@ const Register = () => {
                         )}
                       />
                     </div>
+
                     <div className="col-span-3 grid gap-1">
                       <Label htmlFor="address">Address</Label>
                       <FormController

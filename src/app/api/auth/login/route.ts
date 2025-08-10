@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
     const hashedRefreshToken = await hashWithSalt(refreshToken);
 
     // store refresh token in database
-    await supabase.from('refresh_tokens').insert({
+    const supabaseWithAuth = createServerClient(cookieStore, true);
+    await supabaseWithAuth.from('refresh_tokens').insert({
       user_id: data.id,
       hashed_token: hashedRefreshToken,
       expired_at: getDateAhead(7),

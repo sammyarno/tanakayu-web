@@ -1,42 +1,48 @@
+import { User } from '@/types/auth';
+import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
-
 export interface UpdateProfileRequest {
-  displayName?: string;
+  id: string;
+  username?: string;
+  full_name?: string;
+  address?: string;
   email?: string;
+  phone_number?: string;
   password?: string;
 }
 
 const updateProfile = async (payload: UpdateProfileRequest) => {
-  const { data, error } = await authenticatedFetchJson('/api/profile', {
-    method: 'PUT',
+  const response = await authenticatedFetchJson<User>(`/api/profile/${payload.id}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      displayName: payload.displayName,
+      username: payload.username,
+      full_name: payload.full_name,
+      address: payload.address,
       email: payload.email,
+      phone_number: payload.phone_number,
       password: payload.password,
     }),
   });
 
-  if (error) {
-    throw new Error(error);
+  if (response.error) {
+    throw new Error(response.error);
   }
 
-  return data.user;
+  return response.data;
 };
 
-export const useUpdateProfile = () => {
+export const useUpdateProfile = (id: string) => {
   const queryClient = useQueryClient();
-
 
   return useMutation({
     mutationFn: (payload: UpdateProfileRequest) => updateProfile(payload),
     onSuccess: () => {
       // Invalidate and refetch user-related queries
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['profile', id] });
     },
   });
 };

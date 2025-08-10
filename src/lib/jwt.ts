@@ -21,7 +21,7 @@ export const signJwt = async (payload: JwtUserData, expiresIn = '1h') => {
   return jwt;
 };
 
-export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '7d') => {
+export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '1d') => {
   const jwtPayload: JWTPayload = {
     jti: payload.id,
     sub: payload.username,
@@ -38,7 +38,6 @@ export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '7d') => 
 
 export const verifyJwt = async (token: string): Promise<JwtUserData | null> => {
   try {
-    console.log('secret', SECRET);
     const { payload } = await jwtVerify(token, SECRET);
     return {
       id: payload.jti as string,

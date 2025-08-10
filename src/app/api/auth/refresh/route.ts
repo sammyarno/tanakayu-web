@@ -9,7 +9,7 @@ import { getDateAhead, getNowDate } from '@/utils/date';
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
 
     // Extract tokens from request
     const authHeader = request.headers.get('authorization');
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Verify refresh token JWT structure first
     const refreshPayload = await verifyRefreshJwt(refreshTokenCookie);
+    console.log('refreshPayload', refreshPayload);
     if (!refreshPayload) {
       return Response.json({ error: 'Invalid refresh token' }, { status: 401 });
     }

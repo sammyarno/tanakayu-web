@@ -65,7 +65,6 @@ export const useUserAuthStore = create<UserAuthState>()(
 
       initialize: async () => {
         try {
-          // Manually load persisted data from storage
           const persistedData = await encryptedStorage.getItem('user-auth-storage');
           if (persistedData) {
             const parsed = JSON.parse(persistedData);
@@ -79,10 +78,13 @@ export const useUserAuthStore = create<UserAuthState>()(
                   userInfo: verifiedUserData,
                 });
               } else {
-                set({
-                  jwt: null,
-                  userInfo: null,
-                });
+                const refreshed = await get().refreshToken();
+                if (!refreshed) {
+                  set({
+                    jwt: null,
+                    userInfo: null,
+                  });
+                }
               }
             } else {
               set({
