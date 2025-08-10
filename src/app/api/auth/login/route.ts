@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-import bcrypt, { hashWithSalt } from '@/lib/bcrypt';
+import bcrypt, { compareWithSalt, hashWithSalt } from '@/lib/bcrypt';
 import { signJwt, signRefreshJwt } from '@/lib/jwt';
 import { loginSchema } from '@/lib/validations/auth';
 import { createServerClient } from '@/plugins/supabase/server';
@@ -16,10 +16,7 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validationResult = loginSchema.safeParse(body);
     if (!validationResult.success) {
-      return Response.json(
-        { error: 'Invalid input', details: validationResult.error.issues },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Invalid input', details: validationResult.error.issues }, { status: 400 });
     }
 
     const { username, password } = validationResult.data;
@@ -34,7 +31,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, data.hashed_password);
+    const isPasswordValid = await compareWithSalt(password, data.hashed_password);
 
     if (!isPasswordValid) {
       return Response.json({ error: 'Invalid Credentials' }, { status: 401 });

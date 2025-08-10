@@ -9,19 +9,16 @@ import { getNowDate } from '@/utils/date';
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     // Validate input
     const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {
-      return Response.json(
-        { error: 'Invalid input', details: validationResult.error.issues },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Invalid input', details: validationResult.error.issues }, { status: 400 });
     }
 
-    const { username, full_name, email, password, phone_number, address } = validationResult.data;
+    const { username, full_name, email, password, phone_number, address, cluster } = validationResult.data;
 
     const hashedPassword = await hashWithSalt(password);
 
@@ -31,9 +28,9 @@ export async function POST(request: NextRequest) {
         username,
         email,
         phone_number,
-        address,
+        address: `${cluster}, ${address}`,
         created_at: getNowDate(),
-        created_by: 'register',
+        created_by: `register:${username}`,
         full_name,
         hashed_password: hashedPassword,
       })
@@ -45,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     return Response.json({ id: data.id }, { status: 200 });
-  } catch {
+  } catch (error) {
+    console.log(error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

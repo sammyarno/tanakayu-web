@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -60,13 +60,12 @@ const Login = () => {
           <Link href="/">
             <section
               id="bannner"
-              className="bg-tanakayu-dark text-tanakayu-accent mb-4 rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
+              className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
             >
               <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
               <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
             </section>
           </Link>
-          <CardTitle className="font-serif text-xl tracking-wider">Welcome Back!</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
@@ -107,7 +106,9 @@ const Login = () => {
             </form>
             <div className="text-center text-sm">
               <p>Don&apos;t have an account?</p>
-              <p className="underline">Ask other admin to be invited!</p>
+              <Link href="/register" className="underline">
+                Register here
+              </Link>
             </div>
           </div>
         </CardContent>
