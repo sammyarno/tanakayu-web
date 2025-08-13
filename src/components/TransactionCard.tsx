@@ -1,6 +1,6 @@
 'use client';
 
-import { TransactionsByDate } from '@/types';
+import type { TransactionsByDate } from '@/types/transaction';
 import { formatDateForTransaction } from '@/utils/date';
 
 interface TransactionCardProps {
