@@ -122,7 +122,7 @@ const ProfilePage = () => {
   }, [isError, error]);
 
   return (
-    <PageContent mustAuthenticate>
+    <PageContent allowedRoles={['ADMIN']} fallbackPath="/login">
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin/dashboard' },

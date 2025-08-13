@@ -70,7 +70,7 @@ const NewsEventContent = () => {
   }, [filterParams, handleFilterChange]);
 
   return (
-    <PageContent mustAuthenticate>
+    <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin/dashboard' },

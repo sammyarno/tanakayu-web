@@ -33,7 +33,7 @@ const Announcement = () => {
   }, [categories]);
 
   return (
-    <PageContent mustAuthenticate>
+    <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin/dashboard' },
