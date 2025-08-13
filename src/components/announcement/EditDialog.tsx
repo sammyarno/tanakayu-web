@@ -47,7 +47,6 @@ const EditDialog = ({ announcement }: EditDialogProps) => {
     handleSubmit,
     reset,
     formState: { errors },
-    getValues,
   } = methods;
 
   const onSubmit = async (data: EditAnnouncementFormData) => {

@@ -1,6 +1,6 @@
 import { fetchJson } from '@/lib/fetch';
 import type { DateRangeResponse } from '@/types/date';
-import dayjs, { generateMonthOptions } from '@/utils/date';
+import { generateMonthOptions } from '@/utils/date';
 import { useQuery } from '@tanstack/react-query';
 
 const fetchTransactionDateRange = async (): Promise<DateRangeResponse> => {

@@ -1,5 +1,5 @@
-import { authenticatedFetchJson, fetchJson } from '@/lib/fetch';
-import { SimpleResponse } from '@/types/fetch';
+import { fetchJson } from '@/lib/fetch';
+import type { SimpleResponse } from '@/types/fetch';
 import { useMutation } from '@tanstack/react-query';
 
 export interface PostCommentRequest {
