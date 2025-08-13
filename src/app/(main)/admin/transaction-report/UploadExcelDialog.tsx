@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useBulkCreateTransactions } from '@/hooks/useBulkCreateTransactions';
 import { useCompileTransactionSheet } from '@/hooks/useCompileTransactionSheet';
-import { UploadTransactionResult } from '@/types';
+import type { UploadTransactionResult } from '@/types/transaction';
 import { AlertCircleIcon, FileSpreadsheetIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -131,7 +131,7 @@ const UploadExcelDialog = () => {
           Upload Excel/CSV
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[90vw] sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Upload Transaction Sheet</DialogTitle>
         </DialogHeader>
@@ -222,15 +222,11 @@ const UploadExcelDialog = () => {
 
         {/* Action Section */}
         <DialogFooter className="mt-6">
-          <Button variant="destructive" onClick={handleCancel} disabled={isPending || isSaving}>
+          <Button variant="outline" onClick={handleCancel} disabled={isPending || isSaving}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!uploadResult || isPending || isSaving || !username}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isSaving ? 'Saving...' : 'Save'}
+          <Button onClick={handleSave} disabled={!uploadResult || isPending || isSaving || !username}>
+            Upload
           </Button>
         </DialogFooter>
       </DialogContent>

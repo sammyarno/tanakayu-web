@@ -6,8 +6,8 @@ import 'react-quill-new/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { cn } from '@/lib/utils';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 // Removed Supabase client import - now using API route for uploads
 

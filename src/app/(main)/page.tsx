@@ -39,7 +39,7 @@ const Home = async () => {
           <p className="text-sm">Informasi penting seperti pemadaman listrik, perbaikan, dll.</p>
         </Link>
         <Link
-          href="/financial-report"
+          href="/transaction-report"
           className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
         >
           <h2 className="mb-1 text-lg font-semibold">💰 Laporan Keuangan</h2>

@@ -18,12 +18,12 @@ const TopHeader = () => {
 
   if (!error && user) {
     return (
-      <Link href="/admin/dashboard">
-        <div className="flex w-full items-center justify-end gap-2">
+      <div className="flex w-full items-center justify-end gap-2">
+        <Link href="/admin/dashboard">
           <p className="flex text-center font-bold">Welcome back, {displayText}!</p>
-          <SignOutButton size="sm" variant="ghost" />
-        </div>
-      </Link>
+        </Link>
+        <SignOutButton size="sm" variant="ghost" />
+      </div>
     );
   }
 

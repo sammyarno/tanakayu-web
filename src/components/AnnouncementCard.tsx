@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { categoryDisplayMap } from '@/data/announcements';
-import { Announcement } from '@/types';
+import type { Announcement } from '@/types/announcement';
 import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';
 

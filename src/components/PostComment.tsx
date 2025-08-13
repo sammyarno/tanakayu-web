@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useModerateComment } from '@/hooks/useModerateComment';
 import { usePostComment } from '@/hooks/usePostComment';
-import { Comment } from '@/types';
+import type { Comment } from '@/types';
 import { Check, Trash, X } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -102,13 +102,9 @@ const PostComment = (props: PostCommentProps) => {
         targetType: type,
       });
       form.reset();
-      toast('Your comment has been submitted and is pending admin approval.', {
-        duration: 5000,
+      toast.success('Comment posted successfully', {
+        duration: 3000,
         position: 'top-center',
-        action: {
-          label: <X />,
-          onClick: () => toast.dismiss(),
-        },
       });
     }
   };
@@ -168,7 +164,7 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleRenderCommentForm = () => {
-    if (!editable) return <></>;
+    if (editable) return <></>;
 
     return (
       <div className="border-tanakayu-dark/35 border-t py-2">

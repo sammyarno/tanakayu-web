@@ -27,7 +27,6 @@ const NewsEventContent = () => {
 
   const isLoading = isFetchLoading;
 
-  // Filter categories
   const filterCategories: Category[] = useMemo(
     () => [
       { label: 'Semua', code: '', id: 'semua' },

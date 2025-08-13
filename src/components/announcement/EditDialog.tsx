@@ -1,76 +1,91 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import CategorySelector from '@/components/CategorySelector';
+import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
- import { Label } from '@/components/ui/label';
+import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useEditAnnouncement } from '@/hooks/useEditAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
-import { Announcement } from '@/types';
+import { editAnnouncementSchema } from '@/lib/validations/announcement';
+import type { Announcement } from '@/types/announcement';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
+import { toast } from 'sonner';
+import z from 'zod';
 
-const EditDialog = ({ announcement }: { announcement: Announcement }) => {
+interface EditDialogProps {
+  announcement: Announcement;
+}
+
+type EditAnnouncementFormData = z.infer<typeof editAnnouncementSchema>;
+
+const defaultFormValues: EditAnnouncementFormData = {
+  title: '',
+  content: '',
+  categories: [],
+};
+
+const EditDialog = ({ announcement }: EditDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [tempCategories, setTempCategories] = useState<string[]>(announcement.categories.map(x => x.code));
-  const [content, setContent] = useState(announcement.content);
-  const { mutateAsync, isPending } = useEditAnnouncement();
+  const { mutateAsync: editAnnouncement, isPending } = useEditAnnouncement();
   const { data: categories } = useAnnouncementCategories();
   const { username } = useAuth();
 
-  const handleEditSubmission = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage(undefined);
-    const formData = new FormData(e.currentTarget);
+  const methods = useForm<EditAnnouncementFormData>({
+    resolver: zodResolver(editAnnouncementSchema),
+    defaultValues: defaultFormValues,
+  });
 
-    const title = formData.get('title')?.toString();
-    const categoryCodes = tempCategories;
+  const {
+    handleSubmit,
+    reset,
+    formState: { errors },
+    getValues,
+  } = methods;
 
-    if (!title || !content.trim() || !categoryCodes.length) {
-      setErrorMessage('Please fill in all required fields');
-      return;
-    }
-
-    // Strip HTML tags for basic content validation
-    const textContent = content.replace(/<[^>]*>/g, '').trim();
-    if (!textContent) {
-      setErrorMessage('Please enter some content');
-      return;
-    }
-
-    const categoryIds = categoryCodes.map(x => categories?.find(c => c.code === x)?.id || '');
-
+  const onSubmit = async (data: EditAnnouncementFormData) => {
     try {
-      await mutateAsync({
+      const categoryIds = data.categories.map(code => categories?.find(c => c.code === code)?.id || '');
+
+      await editAnnouncement({
         id: announcement.id,
-        title,
-        content,
+        title: data.title,
+        content: data.content,
         categories: categoryIds,
         actor: username || '',
       });
 
       setIsOpen(false);
-      setErrorMessage(undefined);
-    } catch (error) {
-      setErrorMessage('Failed to update announcement');
-      console.error(error);
+      toast.success('Announcement updated successfully', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    } catch {
+      toast.error('Failed to update announcement', {
+        duration: 3000,
+        position: 'top-center',
+      });
     }
   };
 
-  const handleFormError = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage('Invalid form submission');
-  };
-
   useEffect(() => {
-    if (!isOpen) return;
-    setTempCategories(announcement.categories.map(x => x.code));
-    setContent(announcement.content);
-  }, [isOpen, announcement]);
+    if (isOpen && announcement) {
+      reset({
+        title: announcement.title,
+        content: announcement.content,
+        categories: announcement.categories.map(x => x.code),
+      });
+    } else if (!isOpen) {
+      reset(defaultFormValues);
+    }
+  }, [isOpen, announcement, reset]);
 
   return (
     <>
@@ -85,52 +100,71 @@ const EditDialog = ({ announcement }: { announcement: Announcement }) => {
             <DialogTitle>Edit Announcement</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleEditSubmission} onError={handleFormError}>
-            <div className="grid gap-4">
-              {errorMessage && (
-                <Alert variant="destructive" className="border-red-600 bg-red-300/40">
-                  <AlertCircleIcon />
-                  <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
-                </Alert>
-              )}
-              <div className="grid gap-3">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
+          <FormSchemaProvider schema={editAnnouncementSchema} methods={methods}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="grid gap-4">
+                {(errors.title || errors.content || errors.categories) && (
+                  <Alert variant="destructive" className="border-red-600 bg-red-300/40">
+                    <AlertCircleIcon />
+                    <AlertTitle className="tracking-wider capitalize">
+                      {errors.title?.message || errors.content?.message || errors.categories?.message}
+                    </AlertTitle>
+                  </Alert>
+                )}
+                <FormController
                   name="title"
-                  autoFocus={false}
-                  defaultValue={announcement.title}
-                  disabled={isPending}
+                  renderInput={field => (
+                    <div className="grid gap-3">
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        {...field}
+                        id="title"
+                        autoFocus={false}
+                        placeholder="Enter announcement title"
+                        disabled={isPending}
+                      />
+                    </div>
+                  )}
+                />
+                <FormController
+                  name="categories"
+                  renderInput={field => (
+                    <CategorySelector
+                      name="categories"
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  )}
+                />
+                <FormController
+                  name="content"
+                  renderInput={field => (
+                    <div className="grid gap-3">
+                      <Label htmlFor="content">Content</Label>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Write your announcement content here. You can format text, add images, and create lists."
+                        disabled={isPending}
+                        className="min-h-[200px] w-[386px]"
+                        storageFolder="announcements"
+                        fileNamePrefix="announcement"
+                      />
+                    </div>
+                  )}
                 />
               </div>
-              <CategorySelector
-                name="categories"
-                defaultValue={tempCategories}
-                onValueChange={setTempCategories}
-                disabled={isPending}
-              />
-              <div className="grid gap-3">
-                <Label htmlFor="content">Content</Label>
-                <RichTextEditor
-                  value={content}
-                  onChange={setContent}
-                  placeholder="Write your announcement content here. You can format text, add images, and create lists."
-                  disabled={isPending}
-                  className="min-h-[300px]"
-                  storageFolder="announcements"
-                  fileNamePrefix="announcement"
-                />
-              </div>
-            </div>
-            <DialogFooter className="mt-4">
-              <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                <Edit2Icon /> Edit
-              </Button>
-            </DialogFooter>
-          </form>
+              <DialogFooter className="mt-4">
+                <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  <Edit2Icon /> Update
+                </Button>
+              </DialogFooter>
+            </form>
+          </FormSchemaProvider>
         </DialogContent>
       </Dialog>
     </>

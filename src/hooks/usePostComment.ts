@@ -1,5 +1,6 @@
+import { authenticatedFetchJson, fetchJson } from '@/lib/fetch';
+import { SimpleResponse } from '@/types/fetch';
 import { useMutation } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface PostCommentRequest {
   comment: string;
@@ -9,7 +10,7 @@ export interface PostCommentRequest {
 }
 
 const postComment = async (payload: PostCommentRequest) => {
-  const data = await authenticatedFetchJson('/api/comments', {
+  const response = await fetchJson<SimpleResponse>('/api/comments', {
     method: 'POST',
     body: JSON.stringify({
       comment: payload.comment,
@@ -19,12 +20,14 @@ const postComment = async (payload: PostCommentRequest) => {
     }),
   });
 
-  return data.comment;
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  return response.data;
 };
 
 export const usePostComment = () => {
-
-
   return useMutation({
     mutationKey: ['post-comment'],
     mutationFn: (payload: PostCommentRequest) => postComment(payload),

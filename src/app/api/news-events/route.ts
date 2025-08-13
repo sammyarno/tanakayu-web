@@ -2,11 +2,10 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
-import { Comment, NewsEventWithComment } from '@/types';
-import { FetchResponse } from '@/types/fetch';
+import type { FetchResponse } from '@/types/fetch';
 
 export async function GET(request: NextRequest) {
-  const response: FetchResponse<NewsEventWithComment[]> = {};
+  const response: FetchResponse<any[]> = {};
 
   try {
     const cookieStore = await cookies();
@@ -48,32 +47,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data
-    const result: NewsEventWithComment[] = newsEvents.map(
-      (event): NewsEventWithComment => ({
-        ...event,
-        createdAt: event.created_at,
-        createdBy: event.created_by,
-        startDate: event.start_date,
-        endDate: event.end_date,
-        comments: (comments || [])
-          .filter(c => c.target_id === event.id)
-          .map(
-            (c): Comment => ({
-              ...c,
-              id: c.id,
-              comment: c.comment,
-              deletedAt: c.deleted_at || undefined,
-              deletedBy: c.deleted_by || undefined,
-              createdAt: c.created_at,
-              createdBy: c.created_by,
-              approvedAt: c.approved_at || undefined,
-              approvedBy: c.approved_by || undefined,
-              rejectedAt: c.rejected_at || undefined,
-              rejectedBy: c.rejected_by || undefined,
-            })
-          ),
-      })
-    );
+    const result: any[] = newsEvents.map((event): any => ({
+      ...event,
+      comments: (comments || []).filter(c => c.target_id === event.id),
+    }));
 
     response.data = result;
 
@@ -88,7 +65,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     const { title, content, type, startDate, endDate, actor } = body;

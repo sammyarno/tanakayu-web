@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServerClient(cookieStore);
     const body = await request.json();
 
-    const { targetID, targetType, comment, actor } = body;
+    const { targetId, targetType, comment, actor } = body;
 
     const { data, error } = await supabase
       .from('comments')
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         {
           comment,
           created_by: actor,
-          target_id: targetID,
+          target_id: targetId,
           target_type: targetType,
         },
       ])

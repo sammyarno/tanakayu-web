@@ -1,3 +1,4 @@
+import type { MonthOption } from '@/types/date';
 import dayjs, { type ConfigType } from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -72,3 +73,26 @@ export const parseExcelDate = (dateValue: any): string | null => {
 };
 
 export default dayjs;
+
+export const generateMonthOptions = (minDate: string | null, maxDate: string | null): MonthOption[] => {
+  if (!minDate || !maxDate) {
+    return [];
+  }
+
+  const startMonth = dayjs(minDate).startOf('month');
+  const endMonth = dayjs(maxDate).startOf('month');
+
+  const options: MonthOption[] = [];
+  let currentMonth = startMonth;
+
+  while (currentMonth.isSame(endMonth, 'month') || currentMonth.isBefore(endMonth, 'month')) {
+    const value = currentMonth.format('MMYYYY'); // e.g., "072025"
+    const label = currentMonth.format('MMMM YYYY'); // e.g., "July 2025"
+
+    options.push({ value, label });
+    currentMonth = currentMonth.add(1, 'month');
+  }
+
+  // Sort in descending order (newest first)
+  return options.reverse();
+};

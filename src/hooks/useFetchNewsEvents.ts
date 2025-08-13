@@ -1,18 +1,18 @@
-import type { NewsEventWithComment } from '@/types';
+import { fetchJson } from '@/lib/fetch';
+import { NewsEventWithComment } from '@/types/news-event';
+import { snakeToCamel } from '@/utils/transformer';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from './auth/useAuth';
 
-export const fetchNewsEvents = async (isAdmin = false) => {
-  const response = await fetch(`/api/news-events?admin=${isAdmin}`);
+export const fetchNewsEvents = async (isAdmin = false): Promise<NewsEventWithComment[]> => {
+  const response = await fetchJson(`/api/news-events?admin=${isAdmin}`);
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch news events');
+  if (response.error) {
+    throw new Error(response.error);
   }
 
-  const { newsEvents } = await response.json();
-  return newsEvents as NewsEventWithComment[];
+  return snakeToCamel<NewsEventWithComment[]>(response.data) || [];
 };
 
 export const useNewsEvents = () => {

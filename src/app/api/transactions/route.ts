@@ -1,8 +1,13 @@
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
+import type { TransactionsResult } from '@/types/transaction';
+
 export async function GET(request: NextRequest) {
+  const response: FetchResponse<TransactionsResult> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -32,11 +37,16 @@ export async function GET(request: NextRequest) {
     const { data: transactions, error } = await query;
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     if (!transactions) {
-      return Response.json({ balance: 0, transactions: [] });
+      response.data = {
+        balance: 0,
+        transactions: [],
+      };
+      return Response.json(response, { status: 200 });
     }
 
     // Transform data to camelCase
@@ -54,37 +64,45 @@ export async function GET(request: NextRequest) {
 
     // Calculate balance (income - expense)
     const balance = transformedTransactions.reduce((acc, transaction) => {
-      return transaction.type === 'income'
-        ? acc + transaction.amount
-        : acc - transaction.amount;
+      return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
     }, 0);
 
     // Group transactions by date
-    const transactionsByDate = transformedTransactions.reduce((acc, transaction) => {
-      const date = transaction.date;
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(transaction);
-      return acc;
-    }, {} as Record<string, typeof transformedTransactions>);
+    const transactionsByDate = transformedTransactions.reduce(
+      (acc, transaction) => {
+        const date = transaction.date;
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(transaction);
+        return acc;
+      },
+      {} as Record<string, typeof transformedTransactions>
+    );
 
-    return Response.json({ balance, transactions: transactionsByDate });
+    response.data = {
+      balance,
+      transactions: Object.entries(transactionsByDate).map(([date, details]) => ({
+        date,
+        details,
+      })),
+    };
+    return Response.json(response, { status: 200 });
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
-    
+
     const { title, description, amount, category, type, actor, date } = body;
 
     const { data, error } = await supabase
@@ -101,15 +119,15 @@ export async function POST(request: NextRequest) {
       .select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data: data?.[0]?.id });
+    response.data = data[0];
+    return Response.json(response, { status: 200 });
   } catch (error) {
     console.error('Error creating transaction:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

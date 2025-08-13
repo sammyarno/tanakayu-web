@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
-import { Announcement } from '@/types';
+import type { Announcement } from '@/types/announcement';
 import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     const { title, content, categoryIds, actor } = body;

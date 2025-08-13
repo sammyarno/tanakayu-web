@@ -1,5 +1,5 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface EditAnnouncementRequest {
   id: string;
@@ -10,8 +10,8 @@ export interface EditAnnouncementRequest {
 }
 
 const editAnnouncement = async (payload: EditAnnouncementRequest) => {
-  const data = await authenticatedFetchJson(`/api/announcements/${payload.id}`, {
-    method: 'PUT',
+  const response = await authenticatedFetchJson(`/api/announcements/${payload.id}`, {
+    method: 'PATCH',
     body: JSON.stringify({
       title: payload.title,
       content: payload.content,
@@ -20,12 +20,15 @@ const editAnnouncement = async (payload: EditAnnouncementRequest) => {
     }),
   });
 
-  return data.announcement;
+  if (response.error) {
+    throw new Error(response.error || 'Failed to edit announcement');
+  }
+
+  return response.data || [];
 };
 
 export const useEditAnnouncement = () => {
   const queryClient = useQueryClient();
-
 
   return useMutation({
     mutationFn: (payload: EditAnnouncementRequest) => editAnnouncement(payload),

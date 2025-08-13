@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server';
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
+
+import { createServerClient } from '@/plugins/supabase/server';
 
 interface BulkTransactionRequest {
   transactions: Array<{
@@ -64,26 +65,17 @@ function validateTransaction(transaction: any): string[] {
 export async function POST(request: NextRequest) {
   try {
     const body: BulkTransactionRequest = await request.json();
-    
+
     if (!body.transactions || !Array.isArray(body.transactions)) {
-      return Response.json(
-        { error: 'Transactions array is required' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Transactions array is required' }, { status: 400 });
     }
 
     if (!body.actor?.trim()) {
-      return Response.json(
-        { error: 'Actor is required' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Actor is required' }, { status: 400 });
     }
 
     if (body.transactions.length === 0) {
-      return Response.json(
-        { error: 'At least one transaction is required' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'At least one transaction is required' }, { status: 400 });
     }
 
     // Validate all transactions
@@ -96,45 +88,32 @@ export async function POST(request: NextRequest) {
     });
 
     if (validationErrors.length > 0) {
-      return Response.json(
-        { error: `Validation failed: ${validationErrors.join('; ')}` },
-        { status: 400 }
-      );
+      return Response.json({ error: `Validation failed: ${validationErrors.join('; ')}` }, { status: 400 });
     }
 
     // Prepare transactions for insert
     const transactionsToInsert = body.transactions.map(transaction => ({
       ...transaction,
       created_by: body.actor,
-      amount: Number(transaction.amount)
+      amount: Number(transaction.amount),
     }));
 
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
-    const { data, error } = await supabase
-      .from('transactions')
-      .insert(transactionsToInsert)
-      .select();
+    const supabase = createServerClient(cookieStore, true);
+    const { data, error } = await supabase.from('transactions').insert(transactionsToInsert).select();
 
     if (error) {
       console.error('Supabase error:', error);
-      return Response.json(
-        { error: `Failed to insert transactions: ${error.message}` },
-        { status: 500 }
-      );
+      return Response.json({ error: `Failed to insert transactions: ${error.message}` }, { status: 500 });
     }
 
     return Response.json({
       success: true,
       count: data?.length || 0,
-      transactions: data
+      transactions: data,
     });
-
   } catch (error) {
     console.error('Bulk transaction creation error:', error);
-    return Response.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
   }
 }

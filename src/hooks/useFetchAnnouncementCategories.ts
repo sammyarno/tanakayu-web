@@ -1,16 +1,15 @@
+import { fetchJson } from '@/lib/fetch';
 import type { Category } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 
-export const fetchAnnouncementCategories = async () => {
-  const response = await fetch('/api/announcement-categories');
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch announcement categories');
+export const fetchAnnouncementCategories = async (): Promise<Category[]> => {
+  const response = await fetchJson('/api/announcement-categories');
+
+  if (response.error) {
+    throw new Error(response.error || 'Failed to fetch announcement categories');
   }
-  
-  const { categories } = await response.json();
-  return categories as Category[];
+
+  return response.data || [];
 };
 
 export const useAnnouncementCategories = () => {

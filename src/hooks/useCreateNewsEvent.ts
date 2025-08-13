@@ -1,5 +1,5 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 interface CreateNewsEventParams {
   title: string;
@@ -11,7 +11,7 @@ interface CreateNewsEventParams {
 }
 
 const createNewsEvent = async (params: CreateNewsEventParams) => {
-  const data = await authenticatedFetchJson('/api/news-events', {
+  const response = await authenticatedFetchJson('/api/news-events', {
     method: 'POST',
     body: JSON.stringify({
       title: params.title,
@@ -23,12 +23,15 @@ const createNewsEvent = async (params: CreateNewsEventParams) => {
     }),
   });
 
-  return data.newsEvent;
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  return response.data;
 };
 
 export const useCreateNewsEvent = () => {
   const queryClient = useQueryClient();
-
 
   return useMutation({
     mutationFn: (params: CreateNewsEventParams) => createNewsEvent(params),

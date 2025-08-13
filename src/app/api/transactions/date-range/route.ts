@@ -1,8 +1,11 @@
 import { cookies } from 'next/headers';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse } from '@/types/fetch';
 
 export async function GET() {
+  const response: FetchResponse<{ minDate: string | null; maxDate: string | null; hasTransactions: boolean }> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -14,37 +17,42 @@ export async function GET() {
     ]);
 
     if (minResult.error?.code === 'PGRST116' || maxResult.error?.code === 'PGRST116') {
-      return Response.json({
+      response.data = {
         minDate: null,
         maxDate: null,
         hasTransactions: false,
-      });
+      };
+      return Response.json(response);
     }
 
     // Handle other errors
     if (minResult.error || maxResult.error) {
       console.error('Error fetching date range:', minResult.error || maxResult.error);
-      return Response.json({ error: 'Failed to fetch date range' }, { status: 500 });
+      response.error = 'Failed to fetch date range';
+      return Response.json(response, { status: 500 });
     }
 
     if (!minResult.data || !maxResult.data) {
-      return Response.json({
+      response.data = {
         minDate: null,
         maxDate: null,
         hasTransactions: false,
-      });
+      };
+      return Response.json(response);
     }
 
     const minDate = minResult.data.date;
     const maxDate = maxResult.data.date;
 
-    return Response.json({
+    response.data = {
       minDate,
       maxDate,
       hasTransactions: true,
-    });
+    };
+    return Response.json(response);
   } catch (error) {
     console.error('Error fetching transaction date range:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

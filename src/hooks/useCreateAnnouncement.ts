@@ -1,5 +1,5 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface CreateAnnouncementRequest {
   title: string;
@@ -32,9 +32,8 @@ const createAnnouncement = async (payload: CreateAnnouncementRequest) => {
 export const useCreateAnnouncement = () => {
   const queryClient = useQueryClient();
 
-
   return useMutation({
-      mutationFn: (payload: CreateAnnouncementRequest) => createAnnouncement(payload),
+    mutationFn: (payload: CreateAnnouncementRequest) => createAnnouncement(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
     },

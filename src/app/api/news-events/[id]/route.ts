@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const { id } = await params;
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     const { title, content, type, startDate, endDate, actor } = body;
@@ -39,8 +39,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (endDate !== undefined) updateData.end_date = endDate;
     }
 
-    const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
+    console.log('update', id, updateData);
 
+    const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
+    console.log('response', data, error);
     if (error) {
       response.error = error.message;
       return Response.json(response, { status: 500 });
@@ -60,7 +62,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
     const { id } = await params;
 

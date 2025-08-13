@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers';
 
 import { createServerClient } from '@/plugins/supabase/server';
-import { NewsEvent } from '@/types';
+import type { NearestEvent } from '@/types';
 import type { FetchResponse } from '@/types/fetch';
 
 export async function GET() {
-  const response: FetchResponse<NewsEvent[]> = {};
+  const response: FetchResponse<NearestEvent[]> = {};
 
   try {
     const cookieStore = await cookies();
@@ -28,11 +28,13 @@ export async function GET() {
     }
 
     // Transform data
-    const result = data.map(event => ({
-      ...event,
-      startDate: event.start_date,
-      endDate: event.end_date,
-    }));
+    const result = data.map(
+      (event): NearestEvent => ({
+        ...event,
+        start: event.start_date ?? '',
+        end: event.end_date ?? '',
+      })
+    );
 
     response.data = result;
     return Response.json(response);

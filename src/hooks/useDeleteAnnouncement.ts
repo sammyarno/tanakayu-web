@@ -1,5 +1,5 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface DeleteAnnouncementRequest {
   id: string;
@@ -19,7 +19,6 @@ const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
 
 export const useDeleteAnnouncement = () => {
   const queryClient = useQueryClient();
-
 
   return useMutation({
     mutationFn: (payload: DeleteAnnouncementRequest) => deleteAnnouncement(payload),

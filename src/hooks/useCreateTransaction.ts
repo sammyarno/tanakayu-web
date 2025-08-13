@@ -1,5 +1,6 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
+import { SimpleResponse } from '@/types/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetchJson } from '@/utils/authenticatedFetch';
 
 export interface CreateTransactionRequest {
   title: string;
@@ -11,8 +12,8 @@ export interface CreateTransactionRequest {
   actor: string;
 }
 
-const createTransaction = async (payload: CreateTransactionRequest) => {
-  const data = await authenticatedFetchJson('/api/transactions', {
+const createTransaction = async (payload: CreateTransactionRequest): Promise<SimpleResponse> => {
+  const response = await authenticatedFetchJson('/api/transactions', {
     method: 'POST',
     body: JSON.stringify({
       title: payload.title,
@@ -25,13 +26,15 @@ const createTransaction = async (payload: CreateTransactionRequest) => {
     }),
   });
 
-  return data.transaction;
+  if (response.error) {
+    throw new Error(response.error);
+  }
 
+  return response.data;
 };
 
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
-
 
   return useMutation({
     mutationFn: (payload: CreateTransactionRequest) => createTransaction(payload),

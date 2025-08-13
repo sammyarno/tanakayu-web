@@ -1,18 +1,17 @@
-import type { Announcement } from '@/types';
+import { fetchJson } from '@/lib/fetch';
+import type { Announcement } from '@/types/announcement';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from './auth/useAuth';
 
-export const fetchAnnouncements = async (isAdmin = false) => {
-  const response = await fetch(`/api/announcements?admin=${isAdmin}`);
+export const fetchAnnouncements = async (isAdmin = false): Promise<Announcement[]> => {
+  const response = await fetchJson(`/api/announcements?admin=${isAdmin}`);
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch announcements');
+  if (response.error) {
+    throw new Error(response.error || 'Failed to fetch announcements');
   }
 
-  const { announcements } = await response.json();
-  return announcements as Announcement[];
+  return response.data || [];
 };
 
 export const useAnnouncements = () => {
