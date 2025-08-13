@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 
 import { verifyRefreshJwt } from '@/lib/jwt';
 import { createServerClient } from '@/plugins/supabase/server';
-import { FetchResponse, SimpleResponse } from '@/types/fetch';
 
 export async function POST() {
   try {
