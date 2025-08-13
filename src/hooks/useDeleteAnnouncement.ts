@@ -7,14 +7,18 @@ export interface DeleteAnnouncementRequest {
 }
 
 const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
-  const data = await authenticatedFetchJson(`/api/announcements/${payload.id}`, {
+  const response = await authenticatedFetchJson(`/api/announcements/${payload.id}`, {
     method: 'DELETE',
     body: JSON.stringify({
       deletedBy: payload.actor,
     }),
   });
 
-  return data.announcement;
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  return response.data;
 };
 
 export const useDeleteAnnouncement = () => {

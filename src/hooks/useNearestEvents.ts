@@ -1,6 +1,6 @@
 import { fetchJson } from '@/lib/fetch';
 import { getQueryClient } from '@/plugins/react-query/client';
-import type { NearestEvent } from '@/types';
+import type { NearestEvent } from '@/types/news-event';
 import { dehydrate, useQuery } from '@tanstack/react-query';
 
 export const fetchNearestEvents = async (): Promise<NearestEvent[]> => {
