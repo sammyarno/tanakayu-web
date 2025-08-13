@@ -1,11 +1,13 @@
-import { JwtUserData } from '@/types/auth';
-import { JWTPayload, SignJWT, jwtVerify } from 'jose';
+import type { JwtUserData } from '@/types/auth';
+import { type JWTPayload, SignJWT, jwtVerify } from 'jose';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
+const JWT_REFRESH_EXPIRE_DURATION = process.env.JWT_REFRESH_EXPIRES_IN || '1d';
+const JWT_EXPIRE_DURATION = process.env.JWT_REFRESH_EXPIRES_IN || '15m';
 const alg = 'HS256';
 
-export const signJwt = async (payload: JwtUserData, expiresIn = '1h') => {
+export const signJwt = async (payload: JwtUserData, expiresIn = JWT_EXPIRE_DURATION) => {
   const jwtPayload: JWTPayload = {
     jti: payload.id,
     sub: payload.username,
@@ -21,7 +23,7 @@ export const signJwt = async (payload: JwtUserData, expiresIn = '1h') => {
   return jwt;
 };
 
-export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '1d') => {
+export const signRefreshJwt = async (payload: JwtUserData, expiresIn = JWT_REFRESH_EXPIRE_DURATION) => {
   const jwtPayload: JWTPayload = {
     jti: payload.id,
     sub: payload.username,

@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await compareWithSalt(password, data.hashed_password);
 
     if (!isPasswordValid) {
-      return Response.json({ error: 'Invalid Credentials' }, { status: 401 });
+      return Response.json({ error: 'Invalid Credentials' }, { status: 400 });
     }
 
     // generate JWT sign with a secret key
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const response = Response.json({ jwt });
     response.headers.set(
       'Set-Cookie',
-      `refresh_token=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 60 * 60}`
+      `refresh_token=${refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${1 * 24 * 60 * 60}`
     );
 
     return response;
