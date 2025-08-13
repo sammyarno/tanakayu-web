@@ -36,7 +36,7 @@ const Announcement = () => {
     <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin/dashboard' },
+          { label: 'Home', link: '/admin' },
           { label: 'Pengumuman', link: '/admin/announcement' },
         ]}
       />

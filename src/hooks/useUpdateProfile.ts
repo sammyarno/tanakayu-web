@@ -1,29 +1,17 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
 import { User } from '@/types/auth';
+import { UpdateProfileRequest } from '@/types/profile';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-export interface UpdateProfileRequest {
-  id: string;
-  username?: string;
-  full_name?: string;
-  address?: string;
-  email?: string;
-  phone_number?: string;
-  password?: string;
-}
 
 const updateProfile = async (payload: UpdateProfileRequest) => {
   const response = await authenticatedFetchJson<User>(`/api/profile/${payload.id}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       username: payload.username,
-      full_name: payload.full_name,
+      full_name: payload.fullName,
       address: payload.address,
       email: payload.email,
-      phone_number: payload.phone_number,
+      phone_number: payload.phoneNumber,
       password: payload.password,
     }),
   });

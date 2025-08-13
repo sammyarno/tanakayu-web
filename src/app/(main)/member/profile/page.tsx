@@ -40,7 +40,6 @@ const ProfilePage = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const { data: profileRes, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
   const { mutate: updateProfile, isPending, isSuccess, isError, error } = useUpdateProfile(userId || '');
-
   const isLoading = isFetching || isPending;
 
   const methods = useForm<ProfileFormData>({
@@ -93,11 +92,11 @@ const ProfilePage = () => {
   }, [isError, error]);
 
   return (
-    <PageContent allowedRoles={['ADMIN']} fallbackPath="/admin">
+    <PageContent allowedRoles={['MEMBER']} fallbackPath="/member">
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin' },
-          { label: 'Profile', link: '/admin/profile' },
+          { label: 'Home', link: '/member' },
+          { label: 'Profile', link: '/member/profile' },
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">
@@ -123,9 +122,9 @@ const ProfilePage = () => {
               </div>
 
               <div className="grid gap-1">
-                <Label htmlFor="full_name">Full Name</Label>
+                <Label htmlFor="fullName">Full Name</Label>
                 <FormController
-                  name="full_name"
+                  name="fullName"
                   renderInput={field => <Input {...field} placeholder="Enter your full name" disabled={isLoading} />}
                 />
               </div>
@@ -141,9 +140,9 @@ const ProfilePage = () => {
               </div>
 
               <div className="grid gap-1">
-                <Label htmlFor="phone_number">Phone Number</Label>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
                 <FormController
-                  name="phone_number"
+                  name="phoneNumber"
                   renderInput={field => <Input {...field} placeholder="08xxxxxxxxxx" disabled={isLoading} />}
                 />
               </div>

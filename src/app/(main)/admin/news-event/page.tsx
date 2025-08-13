@@ -73,7 +73,7 @@ const NewsEventContent = () => {
     <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin/dashboard' },
+          { label: 'Home', link: '/admin' },
           { label: 'Berita & Acara', link: '/admin/news-event' },
         ]}
       />

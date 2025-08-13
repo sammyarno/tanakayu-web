@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { AlertCircleIcon } from 'lucide-react';
 
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
   const { signIn, clearError, error, isLoading, user } = useAuth();
+  const { isAdmin, isMember } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,9 +51,13 @@ const Login = () => {
 
   useEffect(() => {
     if (user && !error) {
-      router.push('/admin/dashboard');
+      if (isAdmin()) {
+        router.push('/admin');
+      } else if (isMember()) {
+        router.push('/member');
+      }
     }
-  }, [user, error, router]);
+  }, [user, error, router, isAdmin, isMember]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">

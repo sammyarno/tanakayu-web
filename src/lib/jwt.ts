@@ -25,6 +25,7 @@ export const signRefreshJwt = async (payload: JwtUserData, expiresIn = '1d') => 
   const jwtPayload: JWTPayload = {
     jti: payload.id,
     sub: payload.username,
+    role: payload.role,
   };
 
   const jwt = await new SignJWT(jwtPayload)
