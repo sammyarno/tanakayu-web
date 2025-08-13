@@ -101,7 +101,7 @@ const ProfilePage = () => {
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">👥 Profile</h2>
+        <h2 className="font-sans text-3xl font-bold uppercase">👥 Profil</h2>
       </section>
       <section className="flex flex-col gap-4">
         {errorMessage && (

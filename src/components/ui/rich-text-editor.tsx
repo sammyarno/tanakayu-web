@@ -58,7 +58,7 @@ function RichTextEditor({
 
       // Validate file size (max 200KB)
       if (file.size > 200 * 1024) {
-        alert('Image size must be less than 5MB');
+        alert('Image size must be less than 200KB');
         return;
       }
 

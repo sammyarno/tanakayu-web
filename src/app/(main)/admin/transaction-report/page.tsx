@@ -46,15 +46,15 @@ const FinancialReport = () => {
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin' },
-          { label: 'Laporan Keuangan', link: '/admin/transaction-report' },
+          { label: 'Laporan Transaksi', link: '/admin/transaction-report' },
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">💰 Laporan Keuangan</h2>
+        <h2 className="font-sans text-3xl font-bold uppercase">💰 Laporan Transaksi</h2>
         <div className="flex items-center">
-          <div className="flex-3/5 relative flex h-full items-center justify-start gap-2">
+          <div className="relative flex h-full flex-3/5 items-center justify-start gap-2">
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="flex-3/5 h-full">
+              <SelectTrigger className="h-full flex-3/5">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
@@ -79,7 +79,7 @@ const FinancialReport = () => {
               <RefreshCw />
             </Button>
           </div>
-          <div className="flex-2/5 flex flex-col">
+          <div className="flex flex-2/5 flex-col">
             <p className="text-right text-sm">Saldo</p>
             <p className="text-right font-bold">
               {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}

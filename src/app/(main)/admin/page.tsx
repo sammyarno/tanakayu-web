@@ -24,7 +24,7 @@ const Dashboard = () => {
         href="/admin/transaction-report"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
-        <p className="text-center text-lg font-bold tracking-wider">💰 Laporan Keuangan 💰</p>
+        <p className="text-center text-lg font-bold tracking-wider">💰 Laporan Transaksi 💰</p>
       </Link>
       <Link
         // href="/admin/contact"
@@ -44,7 +44,7 @@ const Dashboard = () => {
         href="/admin/profile"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
-        <p className="text-center text-lg font-bold tracking-wider">👥 Profile 👥</p>
+        <p className="text-center text-lg font-bold tracking-wider">👥 Profil 👥</p>
       </Link>
     </PageContent>
   );
