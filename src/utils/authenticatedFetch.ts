@@ -23,7 +23,6 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
   let response = await makeRequest(jwt);
 
   // try refresh once
-  console.log('response.status', response.status);
   if (response.status === 401) {
     const refreshed = await refreshToken();
     console.log('refreshed', refreshed);

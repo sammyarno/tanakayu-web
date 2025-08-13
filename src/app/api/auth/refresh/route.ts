@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
 
     // Verify refresh token JWT structure first
     const refreshPayload = await verifyRefreshJwt(refreshTokenCookie);
-    console.log('refreshPayload', refreshPayload);
     if (!refreshPayload) {
       return Response.json({ error: 'Invalid refresh token' }, { status: 401 });
     }

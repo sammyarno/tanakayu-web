@@ -2,9 +2,12 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -26,18 +29,22 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       updateData.deleted_at = currentTimestamp;
       updateData.deleted_by = actor;
     } else {
-      return Response.json({ error: 'Invalid action' }, { status: 400 });
+      response.error = 'Invalid action';
+      return Response.json(response, { status: 400 });
     }
 
     const { data, error } = await supabase.from('comments').update(updateData).eq('id', id).select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error moderating comment:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

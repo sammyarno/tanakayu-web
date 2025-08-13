@@ -1,13 +1,17 @@
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
+
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
     const body = await request.json();
-    
+
     const { targetID, targetType, comment, actor } = body;
 
     const { data, error } = await supabase
@@ -23,15 +27,15 @@ export async function POST(request: NextRequest) {
       .select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error posting comment:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

@@ -39,7 +39,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json(response, { status: 400 });
     }
 
-    console.log(id, updateData);
     const { data, error } = await supabase
       .from('users')
       .update({

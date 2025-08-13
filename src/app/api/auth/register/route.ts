@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     return Response.json({ id: data.id }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error('Error registering user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
