@@ -1,5 +1,5 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
-import { SimpleResponse } from '@/types/fetch';
+import type { SimpleResponse } from '@/types/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface CreateTransactionRequest {

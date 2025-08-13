@@ -1,5 +1,5 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
-import { User } from '@/types/auth';
+import type { User } from '@/types/auth';
 import { useQuery } from '@tanstack/react-query';
 
 export interface FetchProfileRequest {

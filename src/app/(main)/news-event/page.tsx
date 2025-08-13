@@ -12,7 +12,7 @@ import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
 import { usePostComment } from '@/hooks/usePostComment';
-import { Category } from '@/types';
+import type { Category } from '@/types';
 
 const ITEMS_PER_PAGE = 5;
 

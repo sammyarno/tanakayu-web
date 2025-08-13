@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
-import { NewsEventWithComment } from '@/types';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 

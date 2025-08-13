@@ -1,5 +1,5 @@
 import { fetchJson } from '@/lib/fetch';
-import { NewsEventWithComment } from '@/types/news-event';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { snakeToCamel } from '@/utils/transformer';
 import { useQuery } from '@tanstack/react-query';
 

@@ -1,6 +1,6 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
-import type { NewsEventWithComment } from '@/types';
 import type { SimpleResponse } from '@/types/fetch';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 

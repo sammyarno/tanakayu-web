@@ -1,8 +1,8 @@
 import { cookies } from 'next/headers';
 
 import { createServerClient } from '@/plugins/supabase/server';
-import type { NearestEvent } from '@/types';
 import type { FetchResponse } from '@/types/fetch';
+import type { NearestEvent } from '@/types/news-event';
 
 export async function GET() {
   const response: FetchResponse<NearestEvent[]> = {};

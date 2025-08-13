@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useDeleteAnnouncement } from '@/hooks/useDeleteAnnouncement';
-import { Announcement } from '@/types';
+import type { Announcement } from '@/types/announcement';
 import { Trash } from 'lucide-react';
 
 const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }) => {

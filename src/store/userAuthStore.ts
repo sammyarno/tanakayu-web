@@ -1,4 +1,4 @@
-import { JwtUserData } from '@/types/auth';
+import type { JwtUserData } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';

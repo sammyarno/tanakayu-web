@@ -1,6 +1,6 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
-import { User } from '@/types/auth';
-import { UpdateProfileRequest } from '@/types/profile';
+import type { User } from '@/types/auth';
+import type { UpdateProfileRequest } from '@/types/profile';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const updateProfile = async (payload: UpdateProfileRequest) => {
