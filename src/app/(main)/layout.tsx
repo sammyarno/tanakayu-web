@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 
 import Banner from '@/components/Banner';
 import Providers from '@/components/Providers';
