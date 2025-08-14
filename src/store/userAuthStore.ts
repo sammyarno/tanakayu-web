@@ -64,26 +64,56 @@ export const useUserAuthStore = create<UserAuthState>()(
       error: null,
 
       initialize: async () => {
+        const { isLoading, isInitialized } = get();
+        
+        // Prevent multiple simultaneous initialization calls
+        if (isLoading || isInitialized) {
+          return;
+        }
+        
+        set({ isLoading: true });
+        
         try {
           const persistedData = await encryptedStorage.getItem('user-auth-storage');
           if (persistedData) {
             const parsed = JSON.parse(persistedData);
-            const { jwt } = parsed.state || {};
+            const { jwt, userInfo } = parsed.state || {};
 
             if (jwt) {
-              const verifiedUserData = await get().verify(jwt);
-              if (verifiedUserData) {
-                set({
-                  jwt,
-                  userInfo: verifiedUserData,
-                });
-              } else {
-                const refreshed = await get().refreshToken();
-                if (!refreshed) {
+              // If we have both jwt and userInfo, verify the token is still valid
+              if (userInfo) {
+                const verifiedUserData = await get().verify(jwt);
+                if (verifiedUserData) {
                   set({
-                    jwt: null,
-                    userInfo: null,
+                    jwt,
+                    userInfo: verifiedUserData,
                   });
+                } else {
+                  // Token invalid, try refresh
+                  const refreshed = await get().refreshToken();
+                  if (!refreshed) {
+                    set({
+                      jwt: null,
+                      userInfo: null,
+                    });
+                  }
+                }
+              } else {
+                // Only jwt persisted, verify and get user info
+                const verifiedUserData = await get().verify(jwt);
+                if (verifiedUserData) {
+                  set({
+                    jwt,
+                    userInfo: verifiedUserData,
+                  });
+                } else {
+                  const refreshed = await get().refreshToken();
+                  if (!refreshed) {
+                    set({
+                      jwt: null,
+                      userInfo: null,
+                    });
+                  }
                 }
               }
             } else {
@@ -100,7 +130,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             userInfo: null,
           });
         } finally {
-          set({ isInitialized: true });
+          set({ isLoading: false, isInitialized: true });
         }
       },
 
@@ -132,7 +162,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             isLoading: false,
           });
 
-          return loginData.user;
+          return userData;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
@@ -200,13 +230,20 @@ export const useUserAuthStore = create<UserAuthState>()(
           const data = await response.json();
           const { jwt: newJwt } = data;
 
-          // Verify the new token to get user info
-          const userInfo = await get().verify(newJwt);
-          if (userInfo) {
+          // Get user info using the new token
+          const userResponse = await fetch('/api/auth/user', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${newJwt}`,
+            },
+          });
+
+          if (userResponse.ok) {
+            const userInfo = await userResponse.json();
             set({ jwt: newJwt, userInfo, error: null });
             return true;
           } else {
-            set({ jwt: null, userInfo: null, error: 'Invalid token received' });
+            set({ jwt: null, userInfo: null, error: 'Failed to get user info' });
             return false;
           }
         } catch (error) {
@@ -223,6 +260,7 @@ export const useUserAuthStore = create<UserAuthState>()(
       storage: createJSONStorage(() => encryptedStorage),
       partialize: state => ({
         jwt: state.jwt,
+        userInfo: state.userInfo,
       }),
     }
   )

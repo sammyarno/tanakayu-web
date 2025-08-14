@@ -17,7 +17,7 @@ import { AlertCircleIcon } from 'lucide-react';
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { signIn, clearError, error, isLoading, user } = useAuth();
+  const { signIn, clearError, error, isLoading, user, isInitialized } = useAuth();
   const { isAdmin, isMember } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
@@ -50,14 +50,14 @@ const Login = () => {
   }, [error]);
 
   useEffect(() => {
-    if (user && !error) {
+    if (isInitialized && !isLoading && user && !error) {
       if (isAdmin()) {
         router.push('/admin');
       } else if (isMember()) {
         router.push('/member');
       }
     }
-  }, [user, error, router, isAdmin, isMember]);
+  }, [user, error, router, isAdmin, isMember, isInitialized, isLoading]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">

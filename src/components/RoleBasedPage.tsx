@@ -30,9 +30,15 @@ const RoleBasedPage = ({
         return;
       }
 
-      // Authenticated but wrong role - redirect to fallback
+      // Authenticated but wrong role - redirect to appropriate page based on actual role
       if (role && !allowedRoles.includes(role as UserRole)) {
-        router.push(fallbackPath);
+        if (role === 'ADMIN') {
+          router.push('/admin');
+        } else if (role === 'MEMBER') {
+          router.push('/member');
+        } else {
+          router.push(fallbackPath);
+        }
         return;
       }
     }

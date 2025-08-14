@@ -4,7 +4,7 @@ import { type JWTPayload, SignJWT, jwtVerify } from 'jose';
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 const JWT_REFRESH_EXPIRE_DURATION = process.env.JWT_REFRESH_EXPIRES_IN || '1d';
-const JWT_EXPIRE_DURATION = process.env.JWT_REFRESH_EXPIRES_IN || '15m';
+const JWT_EXPIRE_DURATION = process.env.JWT_EXPIRES_IN || '15m';
 const alg = 'HS256';
 
 export const signJwt = async (payload: JwtUserData, expiresIn = JWT_EXPIRE_DURATION) => {
