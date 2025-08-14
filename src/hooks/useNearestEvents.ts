@@ -1,25 +1,16 @@
+import { fetchJson } from '@/lib/fetch';
 import { getQueryClient } from '@/plugins/react-query/client';
+import type { NearestEvent } from '@/types/news-event';
 import { dehydrate, useQuery } from '@tanstack/react-query';
 
-interface NearestEvent {
-  id: string;
-  title: string;
-  type: string;
-  content: string;
-  start: string;
-  end: string;
-}
-
 export const fetchNearestEvents = async (): Promise<NearestEvent[]> => {
-  const response = await fetch('/api/events/nearest');
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch nearest events');
+  const response = await fetchJson<NearestEvent[]>('/api/events/nearest');
+
+  if (response.error) {
+    throw new Error(response.error);
   }
-  
-  const { events } = await response.json();
-  return events as NearestEvent[];
+
+  return response.data || [];
 };
 
 export const useNearestEvents = () => {

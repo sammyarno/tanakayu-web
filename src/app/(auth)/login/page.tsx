@@ -7,16 +7,18 @@ import { useRouter } from 'next/navigation';
 
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { AlertCircleIcon } from 'lucide-react';
 
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
   const { signIn, clearError, error, isLoading, user } = useAuth();
+  const { isAdmin, isMember } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,14 +27,14 @@ const Login = () => {
 
     const formData = new FormData(e.currentTarget);
 
-    const email = formData.get('email')?.toString();
+    const username = formData.get('username')?.toString();
     const password = formData.get('password')?.toString();
 
-    if (!email || !password) {
+    if (!username || !password) {
       return;
     }
 
-    await signIn(email, password);
+    await signIn(username, password);
   };
 
   const handleFormError = (e: FormEvent<HTMLFormElement>) => {
@@ -43,15 +45,19 @@ const Login = () => {
 
   useEffect(() => {
     if (error) {
-      setErrorMessage(error);
+      setErrorMessage('Invalid credentials');
     }
   }, [error]);
 
   useEffect(() => {
     if (user && !error) {
-      router.push('/admin/dashboard');
+      if (isAdmin()) {
+        router.push('/admin');
+      } else if (isMember()) {
+        router.push('/member');
+      }
     }
-  }, [user, error, router]);
+  }, [user, error, router, isAdmin, isMember]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">
@@ -60,13 +66,12 @@ const Login = () => {
           <Link href="/">
             <section
               id="bannner"
-              className="bg-tanakayu-dark text-tanakayu-accent mb-4 rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
+              className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
             >
               <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
               <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
             </section>
           </Link>
-          <CardTitle className="font-serif text-xl tracking-wider">Welcome Back!</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
@@ -79,19 +84,26 @@ const Login = () => {
             <form onSubmit={handleSignIn} onError={handleFormError}>
               <div className="grid gap-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="asdxx@email.com"
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Enter your username"
                     required
                     disabled={isLoading}
                   />
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required disabled={isLoading} />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    disabled={isLoading}
+                    placeholder="******"
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   Login
@@ -100,7 +112,9 @@ const Login = () => {
             </form>
             <div className="text-center text-sm">
               <p>Don&apos;t have an account?</p>
-              <p className="underline">Ask other admin to be invited!</p>
+              <Link href="/register" className="underline">
+                Register here
+              </Link>
             </div>
           </div>
         </CardContent>

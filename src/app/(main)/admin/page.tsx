@@ -1,13 +1,13 @@
 import Link from 'next/link';
 
-import AdminTitleSign from '@/components/AdminTitleSign';
 import PageContent from '@/components/PageContent';
+import TopHeader from '@/components/TopHeader';
 import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   return (
-    <PageContent isAdmin>
-      <AdminTitleSign />
+    <PageContent allowedRoles={['ADMIN']}>
+      <TopHeader />
       <Link
         href="/admin/news-event"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
@@ -21,10 +21,10 @@ const Dashboard = () => {
         <p className="text-center text-lg font-bold tracking-wider">📢 Pengumuman 📢</p>
       </Link>
       <Link
-        href="/admin/financial-report"
+        href="/admin/transaction-report"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
-        <p className="text-center text-lg font-bold tracking-wider">💰 Laporan Keuangan 💰</p>
+        <p className="text-center text-lg font-bold tracking-wider">💰 Laporan Transaksi 💰</p>
       </Link>
       <Link
         // href="/admin/contact"
@@ -44,7 +44,7 @@ const Dashboard = () => {
         href="/admin/profile"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
-        <p className="text-center text-lg font-bold tracking-wider">👥 Ubah Profil 👥</p>
+        <p className="text-center text-lg font-bold tracking-wider">👥 Profil 👥</p>
       </Link>
     </PageContent>
   );

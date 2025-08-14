@@ -1,28 +1,24 @@
-import { LimitedUserData, toLimitedUserData } from '@/types/auth';
+import type { JwtUserData } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
-import { User } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { getCurrentTimestamp } from './utils';
-
 interface PersistedState {
-  storedUserData: LimitedUserData | null;
-  lastFetched: number | null;
+  jwt: string | null;
+  userInfo: JwtUserData | null;
 }
 
 interface UserAuthState extends PersistedState {
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
-  fetchUser: (force?: boolean) => Promise<User | null>;
-  signIn: (email: string, password: string) => Promise<User | null>;
+  initialize: () => Promise<void>;
+  signIn: (username: string, password: string) => Promise<JwtUserData | null>;
   signOut: () => Promise<void>;
+  verify: (token: string) => Promise<JwtUserData | null>;
+  refreshToken: () => Promise<boolean>;
   clearError: () => void;
-  updateUser: (user: User) => void;
 }
-
-const SESSION_TTL_MS = 1000 * 60 * 5; // 5 minutes
 
 const encryptedStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -61,73 +57,82 @@ const encryptedStorage = {
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
     (set, get) => ({
-      storedUserData: null,
-      lastFetched: null,
+      jwt: null,
+      userInfo: null,
       isLoading: false,
       isInitialized: false,
       error: null,
 
-      fetchUser: async (force = false) => {
-        const { lastFetched } = get();
-
-        if (!force && lastFetched && Date.now() - lastFetched < SESSION_TTL_MS) {
-          set({
-            isLoading: false,
-            isInitialized: true,
-          });
-
-          return null;
-        }
-
-        set({ isLoading: true, error: null });
-
+      initialize: async () => {
         try {
-          const response = await fetch('/api/auth/user');
-          const data = await response.json();
+          const persistedData = await encryptedStorage.getItem('user-auth-storage');
+          if (persistedData) {
+            const parsed = JSON.parse(persistedData);
+            const { jwt } = parsed.state || {};
 
-          if (!response.ok || !data?.user) {
-            throw new Error('No user found');
+            if (jwt) {
+              const verifiedUserData = await get().verify(jwt);
+              if (verifiedUserData) {
+                set({
+                  jwt,
+                  userInfo: verifiedUserData,
+                });
+              } else {
+                const refreshed = await get().refreshToken();
+                if (!refreshed) {
+                  set({
+                    jwt: null,
+                    userInfo: null,
+                  });
+                }
+              }
+            } else {
+              set({
+                jwt: null,
+                userInfo: null,
+              });
+            }
           }
-
-          const limitedData = toLimitedUserData(data.user);
-          set({
-            storedUserData: limitedData,
-            lastFetched: getCurrentTimestamp(),
-            isLoading: false,
-            isInitialized: true,
-          });
-
-          return data.user;
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user';
-          set({ error: errorMessage, isLoading: false, storedUserData: null });
-          return null;
+          console.error('Failed to load persisted auth data:', error);
+          set({
+            jwt: null,
+            userInfo: null,
+          });
+        } finally {
+          set({ isInitialized: true });
         }
       },
 
-      signIn: async (email: string, password: string) => {
+      signIn: async (username: string, password: string) => {
         set({ isLoading: true, error: null });
 
         try {
-          const response = await fetch('/api/auth/login', {
+          const loginResponse = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ username, password }),
           });
 
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data?.error || 'Failed to sign in');
+          const loginData = await loginResponse.json();
+
+          if (!loginResponse.ok) {
+            throw new Error(loginData?.error || 'Failed to sign in');
           }
 
-          const limitedData = toLimitedUserData(data.user);
+          // Verify and decode the JWT to get user data
+          const userData = await get().verify(loginData.jwt);
+          if (!userData) {
+            throw new Error('Invalid JWT received from server');
+          }
+
           set({
-            storedUserData: limitedData,
-            lastFetched: getCurrentTimestamp(),
+            jwt: loginData.jwt,
+            userInfo: userData,
             isLoading: false,
           });
 
-          return data.user;
+          return loginData.user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
@@ -146,36 +151,79 @@ export const useUserAuthStore = create<UserAuthState>()(
           }
 
           set({
-            storedUserData: null,
-            lastFetched: null,
+            jwt: null,
+            userInfo: null,
             isLoading: false,
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
-          set({ storedUserData: null, lastFetched: null, isLoading: false, error: errorMessage });
+          set({ jwt: null, userInfo: null, isLoading: false, error: errorMessage });
+        }
+      },
+
+      verify: async (token: string) => {
+        try {
+          const response = await fetch('/api/auth/verify', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            return null;
+          }
+
+          const userData = await response.json();
+          return userData as JwtUserData;
+        } catch (error) {
+          console.error('Token verification failed:', error);
+          return null;
+        }
+      },
+
+      refreshToken: async () => {
+        try {
+          const response = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+          });
+
+          if (!response.ok) {
+            set({ jwt: null, userInfo: null, error: 'Session expired' });
+            return false;
+          }
+
+          const data = await response.json();
+          const { jwt: newJwt } = data;
+
+          // Verify the new token to get user info
+          const userInfo = await get().verify(newJwt);
+          if (userInfo) {
+            set({ jwt: newJwt, userInfo, error: null });
+            return true;
+          } else {
+            set({ jwt: null, userInfo: null, error: 'Invalid token received' });
+            return false;
+          }
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+          set({ jwt: null, userInfo: null, error: 'Token refresh failed' });
+          return false;
         }
       },
 
       clearError: () => set({ error: null }),
-
-      updateUser: (user: User) => {
-        const limitedData = toLimitedUserData(user);
-        set({
-          storedUserData: limitedData,
-          lastFetched: getCurrentTimestamp(),
-        });
-      },
     }),
     {
       name: 'user-auth-storage',
       storage: createJSONStorage(() => encryptedStorage),
       partialize: state => ({
-        storedUserData: state.storedUserData,
-        lastFetched: state.lastFetched,
+        jwt: state.jwt,
       }),
-      onRehydrateStorage: () => state => {
-        state?.fetchUser?.();
-      },
     }
   )
 );

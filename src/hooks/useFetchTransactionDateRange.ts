@@ -1,49 +1,16 @@
+import { fetchJson } from '@/lib/fetch';
+import type { DateRangeResponse } from '@/types/date';
+import { generateMonthOptions } from '@/utils/date';
 import { useQuery } from '@tanstack/react-query';
-import dayjs from '@/utils/date';
-
-interface DateRangeResponse {
-  minDate: string | null;
-  maxDate: string | null;
-  hasTransactions: boolean;
-}
-
-interface MonthOption {
-  value: string; // Format: MMYYYY (e.g., "072025")
-  label: string; // Format: "Month YYYY" (e.g., "July 2025")
-}
 
 const fetchTransactionDateRange = async (): Promise<DateRangeResponse> => {
-  const response = await fetch('/api/transactions/date-range');
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch transaction date range');
-  }
-  
-  return response.json();
-};
+  const response = await fetchJson<DateRangeResponse>('/api/transactions/date-range');
 
-const generateMonthOptions = (minDate: string | null, maxDate: string | null): MonthOption[] => {
-  if (!minDate || !maxDate) {
-    return [];
+  if (response.error || !response.data) {
+    throw new Error(response.error || 'Failed to fetch transaction date range');
   }
-  
-  const startMonth = dayjs(minDate).startOf('month');
-  const endMonth = dayjs(maxDate).startOf('month');
-  
-  const options: MonthOption[] = [];
-  let currentMonth = startMonth;
-  
-  while (currentMonth.isSame(endMonth, 'month') || currentMonth.isBefore(endMonth, 'month')) {
-    const value = currentMonth.format('MMYYYY'); // e.g., "072025"
-    const label = currentMonth.format('MMMM YYYY'); // e.g., "July 2025"
-    
-    options.push({ value, label });
-    currentMonth = currentMonth.add(1, 'month');
-  }
-  
-  // Sort in descending order (newest first)
-  return options.reverse();
+
+  return response.data;
 };
 
 export const useFetchTransactionDateRange = () => {
@@ -53,12 +20,9 @@ export const useFetchTransactionDateRange = () => {
     staleTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
   });
-  
-  const monthOptions = generateMonthOptions(
-    query.data?.minDate || null,
-    query.data?.maxDate || null
-  );
-  
+
+  const monthOptions = generateMonthOptions(query.data?.minDate || null, query.data?.maxDate || null);
+
   return {
     ...query,
     monthOptions,

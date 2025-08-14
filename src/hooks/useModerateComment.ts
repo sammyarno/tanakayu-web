@@ -1,4 +1,6 @@
-import { type NewsEventWithComment } from '@/types';
+import { authenticatedFetchJson } from '@/lib/fetch';
+import type { SimpleResponse } from '@/types/fetch';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -9,32 +11,26 @@ export interface ModerateCommentRequest {
 }
 
 const moderateComment = async (payload: ModerateCommentRequest) => {
-  const response = await fetch(`/api/comments/${payload.commentId}/moderate`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const response = await authenticatedFetchJson<SimpleResponse>(`/api/comments/${payload.commentId}/moderate`, {
+    method: 'PATCH',
     body: JSON.stringify({
       action: payload.action,
       actor: payload.actor,
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to moderate comment');
+  if (response.error) {
+    throw new Error(response.error);
   }
 
-  const { comment } = await response.json();
-  return comment;
+  return response.data;
 };
 
 export const useModerateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ['moderate-comment'],
-    mutationFn: moderateComment,
+    mutationFn: (payload: ModerateCommentRequest) => moderateComment(payload),
     onSuccess: (_, variables) => {
       const currentTimestamp = getNowDate();
       const updateData: any = {};
@@ -64,7 +60,6 @@ export const useModerateComment = () => {
                   ? event.comments.filter(comment => comment.id !== variables.commentId)
                   : event.comments.map(comment => {
                       if (comment.id === variables.commentId) {
-                        console.log('comment', comment, updateData);
                         return {
                           ...comment,
                           ...updateData,

@@ -1,7 +1,8 @@
+import type { MonthOption } from '@/types/date';
 import dayjs, { type ConfigType } from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
-import timezone from 'dayjs/plugin/timezone';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(timezone);
@@ -26,7 +27,13 @@ export const formatDateRange = (start: ConfigType, end: ConfigType) => {
 
 export const getNowDate = () => dayjs().toISOString();
 
+export const getNowDateInMillis = () => dayjs().valueOf();
+
 export const formatDate = (date: ConfigType) => dayjs(date).format('DD MMMM YYYY HH:mm');
+
+export const getDateAhead = (days: number): string => {
+  return dayjs().add(days, 'day').toISOString();
+};
 
 export const formatDateForTransaction = (dateString: string) => {
   const date = new Date(dateString);
@@ -43,10 +50,10 @@ export const parseExcelDate = (dateValue: any): string | null => {
     const excelDate = dayjs('1900-01-01').add(dateValue - 2, 'day');
     return excelDate.format('YYYY-MM-DD');
   }
-  
+
   if (typeof dateValue === 'string') {
     const dateStr = dateValue.trim();
-    
+
     // Handle DD/MM/YYYY format (e.g., "16/07/2025")
     if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
       const parsedDate = dayjs(dateStr, 'DD/MM/YYYY');
@@ -54,15 +61,38 @@ export const parseExcelDate = (dateValue: any): string | null => {
         return parsedDate.format('YYYY-MM-DD');
       }
     }
-    
+
     // Try other common formats
     const parsedDate = dayjs(dateStr);
     if (parsedDate.isValid()) {
       return parsedDate.format('YYYY-MM-DD');
     }
   }
-  
+
   return null;
 };
 
 export default dayjs;
+
+export const generateMonthOptions = (minDate: string | null, maxDate: string | null): MonthOption[] => {
+  if (!minDate || !maxDate) {
+    return [];
+  }
+
+  const startMonth = dayjs(minDate).startOf('month');
+  const endMonth = dayjs(maxDate).startOf('month');
+
+  const options: MonthOption[] = [];
+  let currentMonth = startMonth;
+
+  while (currentMonth.isSame(endMonth, 'month') || currentMonth.isBefore(endMonth, 'month')) {
+    const value = currentMonth.format('MMYYYY'); // e.g., "072025"
+    const label = currentMonth.format('MMMM YYYY'); // e.g., "July 2025"
+
+    options.push({ value, label });
+    currentMonth = currentMonth.add(1, 'month');
+  }
+
+  // Sort in descending order (newest first)
+  return options.reverse();
+};

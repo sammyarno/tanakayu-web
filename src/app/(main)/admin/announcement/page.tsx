@@ -9,7 +9,6 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
-import type { Announcement } from '@/types';
 
 import CreateDialog from './CreateDialog';
 
@@ -24,7 +23,7 @@ const Announcement = () => {
     if (!announcements) return [];
 
     return selectedCategory !== ''
-      ? announcements.filter(a => a.categories.map(x => x.code).includes(selectedCategory))
+      ? announcements.filter(announcement => announcement.categories.map(x => x.code).includes(selectedCategory))
       : announcements;
   }, [selectedCategory, announcements]);
 
@@ -34,10 +33,10 @@ const Announcement = () => {
   }, [categories]);
 
   return (
-    <PageContent isAdmin>
+    <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin/dashboard' },
+          { label: 'Home', link: '/admin' },
           { label: 'Pengumuman', link: '/admin/announcement' },
         ]}
       />

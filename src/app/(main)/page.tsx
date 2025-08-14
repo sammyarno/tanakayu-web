@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
-import AdminTitleSign from '@/components/AdminTitleSign';
 import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
+import TopHeader from '@/components/TopHeader';
 import { Badge } from '@/components/ui/badge';
 import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
 
@@ -22,7 +22,7 @@ const Home = async () => {
 
   return (
     <PageContent>
-      <AdminTitleSign />
+      <TopHeader />
       <section className="flex flex-col gap-4">
         <Link
           href="/news-event"
@@ -39,10 +39,10 @@ const Home = async () => {
           <p className="text-sm">Informasi penting seperti pemadaman listrik, perbaikan, dll.</p>
         </Link>
         <Link
-          href="/financial-report"
+          href="/transaction-report"
           className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
         >
-          <h2 className="mb-1 text-lg font-semibold">💰 Laporan Keuangan</h2>
+          <h2 className="mb-1 text-lg font-semibold">💰 Laporan Transaksi</h2>
           <p className="text-sm">Lihat detail transaksi keuangan komunitas dengan transparansi penuh.</p>
         </Link>
         <Link

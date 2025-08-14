@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useBulkCreateTransactions } from '@/hooks/useBulkCreateTransactions';
 import { useCompileTransactionSheet } from '@/hooks/useCompileTransactionSheet';
-import { UploadTransactionResult } from '@/types';
+import type { UploadTransactionResult } from '@/types/transaction';
 import { AlertCircleIcon, FileSpreadsheetIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,7 +23,7 @@ const UploadExcelDialog = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const { mutateAsync, isPending } = useCompileTransactionSheet();
   const { mutateAsync: bulkCreateTransactions, isPending: isSaving } = useBulkCreateTransactions();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,7 +55,7 @@ const UploadExcelDialog = () => {
   };
 
   const handleSave = async () => {
-    if (!uploadResult || !displayName) {
+    if (!uploadResult || !username) {
       setErrorMessage('Missing upload data or user information');
       return;
     }
@@ -77,7 +77,7 @@ const UploadExcelDialog = () => {
 
       const result = await bulkCreateTransactions({
         transactions: allTransactions,
-        actor: displayName,
+        actor: username,
       });
 
       toast.success(`${result.count} transactions successfully uploaded`, {
@@ -131,7 +131,7 @@ const UploadExcelDialog = () => {
           Upload Excel/CSV
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[90vw] sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Upload Transaction Sheet</DialogTitle>
         </DialogHeader>
@@ -222,15 +222,11 @@ const UploadExcelDialog = () => {
 
         {/* Action Section */}
         <DialogFooter className="mt-6">
-          <Button variant="destructive" onClick={handleCancel} disabled={isPending || isSaving}>
+          <Button variant="outline" onClick={handleCancel} disabled={isPending || isSaving}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!uploadResult || isPending || isSaving || !displayName}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isSaving ? 'Saving...' : 'Save'}
+          <Button onClick={handleSave} disabled={!uploadResult || isPending || isSaving || !username}>
+            Upload
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -206,6 +206,41 @@ export type Database = {
         }
         Relationships: []
       }
+      refresh_tokens: {
+        Row: {
+          created_at: string
+          expired_at: string
+          hashed_token: string
+          id: number
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expired_at: string
+          hashed_token: string
+          id?: number
+          user_agent: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expired_at?: string
+          hashed_token?: string
+          id?: number
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refresh_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -245,6 +280,51 @@ export type Database = {
           modified_by?: string | null
           title?: string
           type?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          address: string
+          created_at: string
+          created_by: string
+          email: string
+          full_name: string
+          hashed_password: string
+          id: string
+          modified_at: string | null
+          modified_by: string | null
+          phone_number: string
+          role: string
+          username: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          created_by: string
+          email: string
+          full_name: string
+          hashed_password: string
+          id?: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number: string
+          role?: string
+          username: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          created_by?: string
+          email?: string
+          full_name?: string
+          hashed_password?: string
+          id?: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number?: string
+          role?: string
+          username?: string
         }
         Relationships: []
       }

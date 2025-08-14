@@ -6,10 +6,12 @@ import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import TransactionCard from '@/components/TransactionCard';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
+import { RefreshCw } from 'lucide-react';
 
 import CreateTransactionDialog from './CreateDialog';
 import UploadExcelDialog from './UploadExcelDialog';
@@ -35,19 +37,23 @@ const FinancialReport = () => {
     return transactionsData.transactions.map(dayGroup => <TransactionCard key={dayGroup.date} dayGroup={dayGroup} />);
   };
 
+  const handleResetFilter = () => {
+    setSelectedPeriod('');
+  };
+
   return (
     <PageContent>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin/dashboard' },
-          { label: 'Laporan Keuangan', link: '/admin/financial-report' },
+          { label: 'Home', link: '/admin' },
+          { label: 'Laporan Transaksi', link: '/admin/transaction-report' },
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">💰 Laporan Keuangan</h2>
+        <h2 className="font-sans text-3xl font-bold uppercase">💰 Laporan Transaksi</h2>
         <div className="flex items-center">
-          <div className="relative h-full w-[200px]">
-            <Select onValueChange={setSelectedPeriod}>
+          <div className="relative flex h-full flex-3/5 items-center justify-start gap-2">
+            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
               <SelectTrigger className="h-full flex-3/5">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
@@ -69,6 +75,9 @@ const FinancialReport = () => {
                 )}
               </SelectContent>
             </Select>
+            <Button variant="outline" onClick={handleResetFilter}>
+              <RefreshCw />
+            </Button>
           </div>
           <div className="flex flex-2/5 flex-col">
             <p className="text-right text-sm">Saldo</p>

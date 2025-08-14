@@ -26,7 +26,7 @@ export default function AuthRootLayout({
         <main className="mx-auto h-dvh w-full max-w-lg p-2 antialiased">
           <Providers>{children}</Providers>
         </main>
-        <Toaster />
+        <Toaster richColors />
       </body>
     </html>
   );

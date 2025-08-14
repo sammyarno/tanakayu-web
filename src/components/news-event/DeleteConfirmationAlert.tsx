@@ -12,21 +12,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
-import { NewsEventWithComment } from '@/types';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: deleteNewsEvent, isPending: isLoading } = useDeleteNewsEvent();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
 
   const handleDelete = async () => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await deleteNewsEvent({
         id: item.id,
-        actor: displayName,
+        actor: username,
       });
       setIsOpen(false);
       toast.success('News event deleted successfully', {

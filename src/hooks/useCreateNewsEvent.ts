@@ -1,3 +1,4 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface CreateNewsEventParams {
@@ -9,34 +10,31 @@ interface CreateNewsEventParams {
   actor: string;
 }
 
+const createNewsEvent = async (params: CreateNewsEventParams) => {
+  const response = await authenticatedFetchJson('/api/news-events', {
+    method: 'POST',
+    body: JSON.stringify({
+      title: params.title,
+      type: params.type,
+      content: params.content,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      actor: params.actor,
+    }),
+  });
+
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  return response.data;
+};
+
 export const useCreateNewsEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: CreateNewsEventParams) => {
-      const response = await fetch('/api/news-events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: params.title,
-          type: params.type,
-          content: params.content,
-          startDate: params.startDate,
-          endDate: params.endDate,
-          actor: params.actor,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create news event');
-      }
-
-      const { newsEvent } = await response.json();
-      return newsEvent;
-    },
+    mutationFn: (params: CreateNewsEventParams) => createNewsEvent(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news-events'] });
     },

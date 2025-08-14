@@ -2,9 +2,13 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { Announcement } from '@/types/announcement';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
 export async function GET() {
+  const response: FetchResponse<Announcement[]> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -31,7 +35,8 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Transform data
@@ -48,24 +53,29 @@ export async function GET() {
       })),
     }));
 
-    return Response.json({ announcements: result });
+    response.data = result;
+    return Response.json(response);
   } catch (error) {
     console.error('Error fetching announcements:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     const { title, content, categoryIds, actor } = body;
 
     // Validate input
     if (!title || !content || !categoryIds || !actor) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
+      response.error = 'Missing required fields';
+      return Response.json(response, { status: 400 });
     }
 
     // Insert the announcement
@@ -80,11 +90,13 @@ export async function POST(request: NextRequest) {
       .select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     if (!data || data.length === 0) {
-      return Response.json({ error: 'Failed to create announcement' }, { status: 500 });
+      response.error = 'Failed to create announcement';
+      return Response.json(response, { status: 500 });
     }
 
     const announcementId = data[0].id;
@@ -100,12 +112,15 @@ export async function POST(request: NextRequest) {
     );
 
     if (categoryInsertError) {
-      return Response.json({ error: categoryInsertError.message }, { status: 500 });
+      response.error = categoryInsertError.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data: data[0] });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error creating announcement:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

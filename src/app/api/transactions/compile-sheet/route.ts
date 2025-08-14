@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
-import type { UploadTransactionResult } from '@/types';
+import type { FetchResponse } from '@/types/fetch';
+import type { UploadTransactionResult } from '@/types/transaction';
 import { getNowDate, parseExcelDate } from '@/utils/date';
 import * as XLSX from 'xlsx';
 
@@ -13,16 +14,20 @@ const allowedTypes = [
 ];
 
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<UploadTransactionResult> = {};
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return Response.json({ error: 'No file uploaded' }, { status: 400 });
+      response.error = 'No file uploaded';
+      return Response.json(response, { status: 400 });
     }
 
     if (!allowedTypes.includes(file.type)) {
-      return Response.json({ error: 'Invalid file type. Please upload an Excel or CSV file.' }, { status: 400 });
+      response.error = 'Invalid file type. Please upload an Excel or CSV file.';
+      return Response.json(response, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -36,7 +41,8 @@ export async function POST(request: NextRequest) {
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
     if (!jsonData || jsonData.length < 2) {
-      return Response.json({ error: 'Excel file is empty' }, { status: 400 });
+      response.error = 'Excel file is empty';
+      return Response.json(response, { status: 400 });
     }
 
     const headers = jsonData[0] as string[];
@@ -52,13 +58,9 @@ export async function POST(request: NextRequest) {
       descriptionColumnIndex === -1 ||
       amountColumnIndex === -1
     ) {
-      return Response.json(
-        {
-          error:
-            'Required columns not found. Please ensure your Excel file has "Tanggal Transaksi", "Keterangan", and "Jumlah" columns.',
-        },
-        { status: 400 }
-      );
+      response.error =
+        'Required columns not found. Please ensure your Excel file has "Tanggal Transaksi", "Keterangan", and "Jumlah" columns.';
+      return Response.json(response, { status: 400 });
     }
 
     const transactions = [];
@@ -123,7 +125,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (transactions.length === 0) {
-      return Response.json({ error: 'No valid transactions found in the Excel file' }, { status: 400 });
+      response.error = 'No valid transactions found in the Excel file';
+      return Response.json(response, { status: 400 });
     }
 
     const balance = transactions.reduce((acc, transaction) => {
@@ -147,7 +150,7 @@ export async function POST(request: NextRequest) {
       details,
     }));
 
-    const res: UploadTransactionResult = {
+    response.data = {
       balance,
       transactions: transactionsByDate,
       summary: {
@@ -157,9 +160,10 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    return Response.json(res);
+    return Response.json(response);
   } catch (error) {
     console.error('Error processing Excel file:', error);
-    return Response.json({ error: 'Internal server error while processing Excel file' }, { status: 500 });
+    response.error = 'Internal server error while processing Excel file';
+    return Response.json(response, { status: 500 });
   }
 }

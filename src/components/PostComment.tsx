@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useModerateComment } from '@/hooks/useModerateComment';
 import { usePostComment } from '@/hooks/usePostComment';
-import { Comment } from '@/types';
+import type { Comment } from '@/types';
 import { Check, Trash, X } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -19,19 +19,19 @@ interface PostCommentProps {
 
 const PostComment = (props: PostCommentProps) => {
   const { comments, postId, type, editable } = props;
-  const { displayName } = useAuth();
+  const { username } = useAuth();
   const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
   const { mutateAsync: moderateComment, isPending: isModerateLoading } = useModerateComment();
 
   const isLoading = isPostLoading || isModerateLoading;
 
   const handleApproveComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'approve',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment approved successfully', {
         duration: 3000,
@@ -46,12 +46,12 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleRejectComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'reject',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment rejected successfully', {
         duration: 3000,
@@ -66,12 +66,12 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!displayName) return;
+    if (!username) return;
     try {
       await moderateComment({
         commentId,
         action: 'delete',
-        actor: displayName,
+        actor: username,
       });
       toast.success('Comment deleted successfully', {
         duration: 3000,
@@ -102,13 +102,9 @@ const PostComment = (props: PostCommentProps) => {
         targetType: type,
       });
       form.reset();
-      toast('Your comment has been submitted and is pending admin approval.', {
-        duration: 5000,
+      toast.success('Comment posted successfully', {
+        duration: 3000,
         position: 'top-center',
-        action: {
-          label: <X />,
-          onClick: () => toast.dismiss(),
-        },
       });
     }
   };
@@ -168,7 +164,7 @@ const PostComment = (props: PostCommentProps) => {
   };
 
   const handleRenderCommentForm = () => {
-    if (!editable) return <></>;
+    if (editable) return <></>;
 
     return (
       <div className="border-tanakayu-dark/35 border-t py-2">

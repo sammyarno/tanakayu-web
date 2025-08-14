@@ -10,7 +10,7 @@ export const useSignOut = () => {
 
   const handleSignOut = useCallback(async () => {
     await signOut();
-    router.push('/login');
+    // router.push('/login');
   }, [signOut, router]);
 
   return {

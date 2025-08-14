@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 
 import DeleteConfirmationAlert from '@/components/news-event/DeleteConfirmationAlert';
 import EditDialog from '@/components/news-event/EditDialog';
-import type { NewsEventWithComment } from '@/types';
+import type { NewsEventWithComment } from '@/types/news-event';
 import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';
 import { Calendar } from 'lucide-react';
@@ -77,7 +77,6 @@ const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: Ne
           <p className="mb-2 text-xs text-gray-600">
             {item.createdBy} | {formatDate(item.createdAt)}
           </p>
-          <ContentWithToggle content={item.content} />
         </div>
         {editable && (
           <div className="ml-2 flex items-center gap-1">
@@ -86,6 +85,7 @@ const NewsEventCard = memo(function NewsEventCard({ item, editable = false }: Ne
           </div>
         )}
       </div>
+      <ContentWithToggle content={item.content} />
       <hr className="my-2" />
       <PostComment comments={item.comments} editable={editable} postId={item.id} type="news_event" />
     </div>

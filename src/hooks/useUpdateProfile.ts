@@ -1,52 +1,36 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
+import type { User } from '@/types/auth';
+import type { UpdateProfileRequest } from '@/types/profile';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useAuth } from './auth/useAuth';
-
-export interface UpdateProfileRequest {
-  displayName?: string;
-  email?: string;
-  password?: string;
-}
-
 const updateProfile = async (payload: UpdateProfileRequest) => {
-  const response = await fetch('/api/profile', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const response = await authenticatedFetchJson<User>(`/api/profile/${payload.id}`, {
+    method: 'PATCH',
     body: JSON.stringify({
-      displayName: payload.displayName,
+      username: payload.username,
+      full_name: payload.fullName,
+      address: payload.address,
       email: payload.email,
+      phone_number: payload.phoneNumber,
       password: payload.password,
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update profile');
+  if (response.error) {
+    throw new Error(response.error);
   }
 
-  const { user } = await response.json();
-  return user;
+  return response.data;
 };
 
-export const useUpdateProfile = () => {
+export const useUpdateProfile = (id: string) => {
   const queryClient = useQueryClient();
-  const { updateUser } = useAuth();
 
   return useMutation({
-    mutationFn: updateProfile,
-    onSuccess: data => {
-      // Update the user store with the new data
-      if (data) {
-        updateUser(data);
-      }
-
-      // Invalidate and refetch any user-related queries
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-    },
-    onError: error => {
-      console.error('Profile update failed:', error);
+    mutationFn: (payload: UpdateProfileRequest) => updateProfile(payload),
+    onSuccess: () => {
+      // Invalidate and refetch user-related queries
+      queryClient.invalidateQueries({ queryKey: ['profile', id] });
     },
   });
 };

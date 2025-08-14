@@ -6,6 +6,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { cn } from '@/lib/utils';
 
 // Removed Supabase client import - now using API route for uploads
@@ -57,7 +58,7 @@ function RichTextEditor({
 
       // Validate file size (max 200KB)
       if (file.size > 200 * 1024) {
-        alert('Image size must be less than 5MB');
+        alert('Image size must be less than 200KB');
         return;
       }
 
@@ -73,20 +74,18 @@ function RichTextEditor({
         formData.append('file', file);
         formData.append('folder', storageFolder);
 
-        const response = await fetch('/api/upload', {
+        const { data, error } = await authenticatedFetchJson('/api/upload', {
           method: 'POST',
           body: formData,
         });
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          console.error('Upload error:', result.error);
+        if (error || !data.success) {
+          console.error('Upload error:', error || data.error);
           alert('Failed to upload image. Please try again.');
           return;
         }
 
-        const publicUrl = result.url;
+        const publicUrl = data.url;
 
         // Insert image into editor - proper way to get Quill instance
         if (quillRef.current && typeof quillRef.current.getEditor === 'function') {

@@ -1,46 +1,48 @@
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(request: NextRequest) {
+import { createServerClient } from '@/plugins/supabase/server';
+import { User } from '@/types/auth';
+import { FetchResponse } from '@/types/fetch';
+
+export async function GET(request: NextRequest) {
+  const response: FetchResponse<User> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
-    const body = await request.json();
-    
-    const { displayName, email, password } = body;
 
-    // Prepare the update data for Supabase auth
-    const updateData: any = {};
-    
-    if (email) {
-      updateData.email = email;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const username = searchParams.get('username');
+
+    if (!id && !username) {
+      response.error = 'Either id or username parameter is required';
+      return NextResponse.json(response, { status: 400 });
     }
-    
-    if (password) {
-      updateData.password = password;
+
+    let query = supabase.from('users').select('id, username, email, full_name, address, phone_number');
+
+    if (id) {
+      query = query.eq('id', id);
+    } else if (username) {
+      query = query.eq('username', username);
     }
-    
-    // Update user metadata for display name
-    if (displayName) {
-      updateData.data = {
-        display_name: displayName, 
-        full_name: displayName
-      };
-    }
-    
-    const { data: updatedUser, error } = await supabase.auth.updateUser(updateData);
-    
+
+    const { data, error } = await query.single();
+
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      console.error('Error fetching user:', error);
+      response.error = 'User not found';
+      return NextResponse.json(response, { status: 404 });
     }
-    
-    return Response.json({ user: updatedUser });
+
+    response.data = data;
+
+    return NextResponse.json(response);
   } catch (error) {
-    console.error('Error updating profile:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Error fetching profile:', error);
+    response.error = 'Internal server error';
+    return NextResponse.json(response, { status: 500 });
   }
 }

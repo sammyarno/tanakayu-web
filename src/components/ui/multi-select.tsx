@@ -138,7 +138,6 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     };
 
     const toggleOption = (option: string) => {
-      console.log('toggleOption', option);
       const newSelectedValues = selectedValues.includes(option)
         ? selectedValues.filter(value => value !== option)
         : [...selectedValues, option];

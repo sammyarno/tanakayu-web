@@ -11,7 +11,7 @@ import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
-import { Category } from '@/types';
+import type { Category } from '@/types';
 
 import CreateDialog from './CreateDialog';
 
@@ -27,7 +27,6 @@ const NewsEventContent = () => {
 
   const isLoading = isFetchLoading;
 
-  // Filter categories
   const filterCategories: Category[] = useMemo(
     () => [
       { label: 'Semua', code: '', id: 'semua' },
@@ -71,10 +70,10 @@ const NewsEventContent = () => {
   }, [filterParams, handleFilterChange]);
 
   return (
-    <PageContent isAdmin>
+    <PageContent allowedRoles={['ADMIN']}>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin/dashboard' },
+          { label: 'Home', link: '/admin' },
           { label: 'Berita & Acara', link: '/admin/news-event' },
         ]}
       />

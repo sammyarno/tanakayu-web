@@ -36,9 +36,9 @@ import { useUserAuthStore } from '@/store/userAuthStore';
 const LoginComponent = () => {
   const { signIn, isLoading, error } = useUserAuthStore();
   
-  const handleLogin = async (email, password) => {
-    await signIn(email, password);
-  };
+  const handleLogin = async (username, password) => {
+     await signIn(username, password);
+   };
   
   return (
     <form onSubmit={(e) => {

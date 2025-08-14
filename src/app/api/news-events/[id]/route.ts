@@ -2,13 +2,16 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const { id } = await params;
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
     const { title, content, type, startDate, endDate, actor } = body;
@@ -36,36 +39,34 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (endDate !== undefined) updateData.end_date = endDate;
     }
 
-    const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
+    console.log('update', id, updateData);
 
+    const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
+    console.log('response', data, error);
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error updating news event:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
     const { id } = await params;
-    
-    const { actor } = body;
 
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { actor } = body;
 
     // Perform soft delete by updating deleted_at and deleted_by columns
     const updateData = {
@@ -75,22 +76,22 @@ export async function DELETE(
       modified_at: getNowDate(),
     };
 
-    const { data, error } = await supabase
-      .from('news_events')
-      .update(updateData)
-      .eq('id', id)
-      .select('id');
+    const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    if (data) {
+      response.data = {
+        id,
+      };
+    }
+    return Response.json(response);
   } catch (error) {
     console.error('Error deleting news event:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

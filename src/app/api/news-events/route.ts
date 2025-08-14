@@ -1,8 +1,12 @@
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse } from '@/types/fetch';
+
 export async function GET(request: NextRequest) {
+  const response: FetchResponse<any[]> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -19,7 +23,8 @@ export async function GET(request: NextRequest) {
       });
 
     if (newsEventsError) {
-      return Response.json({ error: newsEventsError.message }, { status: 500 });
+      response.error = newsEventsError.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Fetch comments
@@ -37,49 +42,32 @@ export async function GET(request: NextRequest) {
 
     const { data: comments, error: commentError } = await commentsQuery;
     if (commentError) {
-      return Response.json({ error: commentError.message }, { status: 500 });
+      response.error = commentError.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Transform data
-    const result = newsEvents.map((event) => ({
+    const result: any[] = newsEvents.map((event): any => ({
       ...event,
-      createdAt: event.created_at,
-      createdBy: event.created_by,
-      startDate: event.start_date,
-      endDate: event.end_date,
-      comments: (comments || [])
-        .filter(c => c.target_id === event.id)
-        .map((c) => ({
-          ...c,
-          id: c.id,
-          comment: c.comment,
-          deletedAt: c.deleted_at || undefined,
-          deletedBy: c.deleted_by || undefined,
-          createdAt: c.created_at,
-          createdBy: c.created_by,
-          approvedAt: c.approved_at || undefined,
-          approvedBy: c.approved_by || undefined,
-          rejectedAt: c.rejected_at || undefined,
-          rejectedBy: c.rejected_by || undefined,
-        })),
+      comments: (comments || []).filter(c => c.target_id === event.id),
     }));
 
-    return Response.json({ newsEvents: result });
+    response.data = result;
+
+    return Response.json(response);
   } catch (error) {
     console.error('Error fetching news events:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
-    
+
     const { title, content, type, startDate, endDate, actor } = body;
 
     const { data, error } = await supabase
@@ -103,9 +91,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ data });
   } catch (error) {
     console.error('Error creating news event:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -11,15 +11,17 @@
  * 3. Not prefixed with NEXT_PUBLIC_ if possible (server-side only)
  * 4. Rotated periodically according to security policies
  */
-const ENCRYPTION_SALT = process.env.NEXT_PUBLIC_ENCRYPTION_SALT || 'default-salt';
-const ENCRYPTION_KEY_SECRET = process.env.NEXT_PUBLIC_ENCRYPTION_KEY_SECRET || 'default-key';
+const ENCRYPTION_SALT = process.env.PEPPER || 'default-salt';
+const ENCRYPTION_KEY_SECRET = process.env.SECRET_KEY || 'default-key';
 
 // Check if Web Crypto API is available
 function isCryptoAvailable(): boolean {
-  return typeof window !== 'undefined' && 
-         window.crypto && 
-         window.crypto.subtle && 
-         typeof window.crypto.subtle.importKey === 'function';
+  return (
+    typeof window !== 'undefined' &&
+    window.crypto &&
+    window.crypto.subtle &&
+    typeof window.crypto.subtle.importKey === 'function'
+  );
 }
 
 // Key derivation function to generate encryption key
@@ -114,10 +116,10 @@ export async function decryptData<T>(encryptedData: string): Promise<T | null> {
 
     // Validate and sanitize base64 string
     const sanitizedData = encryptedData.replace(/[^A-Za-z0-9+/]/g, '');
-    
+
     // Add padding if necessary
     const paddedData = sanitizedData + '='.repeat((4 - (sanitizedData.length % 4)) % 4);
-    
+
     // Convert from base64
     const binaryString = atob(paddedData);
     const bytes = new Uint8Array(binaryString.length);

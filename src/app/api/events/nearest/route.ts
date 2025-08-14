@@ -1,7 +1,12 @@
-import { createServerClient } from '@/plugins/supabase/server';
 import { cookies } from 'next/headers';
 
+import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse } from '@/types/fetch';
+import type { NearestEvent } from '@/types/news-event';
+
 export async function GET() {
+  const response: FetchResponse<NearestEvent[]> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
@@ -18,22 +23,24 @@ export async function GET() {
       });
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Transform data
-    const result = data.map((event) => ({
-      ...event,
-      startDate: event.start_date,
-      endDate: event.end_date,
-    }));
+    const result = data.map(
+      (event): NearestEvent => ({
+        ...event,
+        start: event.start_date ?? '',
+        end: event.end_date ?? '',
+      })
+    );
 
-    return Response.json({ events: result });
+    response.data = result;
+    return Response.json(response);
   } catch (error) {
     console.error('Error fetching nearest events:', error);
-    return Response.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

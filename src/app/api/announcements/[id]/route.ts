@@ -2,12 +2,15 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
     const { id } = await params;
 
@@ -15,7 +18,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Validate input
     if (!title || !content || !categoryIds || !actor) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
+      response.error = 'Missing required fields';
+      return Response.json(response, { status: 400 });
     }
 
     // Update announcement
@@ -31,7 +35,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Delete existing category mappings
@@ -41,7 +46,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .eq('announcement_id', id);
 
     if (categoryError) {
-      return Response.json({ error: categoryError.message }, { status: 500 });
+      response.error = categoryError.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Insert new category mappings
@@ -55,20 +61,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     );
 
     if (categoryInsertError) {
-      return Response.json({ error: categoryInsertError.message }, { status: 500 });
+      response.error = categoryInsertError.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error updating announcement:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const response: FetchResponse<SimpleResponse> = {};
+
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
     const { id } = await params;
 
@@ -84,12 +95,15 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       .select('id');
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
-    return Response.json({ data });
+    response.data = data[0];
+    return Response.json(response);
   } catch (error) {
     console.error('Error deleting announcement:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }

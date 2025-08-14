@@ -6,11 +6,13 @@ import SignOutButton from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
+import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 
-const AdminTitleSign = () => {
-  const { email, displayName, isLoading, user, error } = useAuth();
+const TopHeader = () => {
+  const { username, isLoading, user, error } = useAuth();
+  const { isAdmin } = useRoleCheck();
 
-  const displayText = displayName || email;
+  const displayText = username;
 
   if (isLoading) {
     return <Skeleton className="h-8 w-full" />;
@@ -18,18 +20,18 @@ const AdminTitleSign = () => {
 
   if (!error && user) {
     return (
-      <Link href="/admin/dashboard">
-        <div className="flex w-full items-center justify-end gap-2">
+      <div className="flex w-full items-center justify-end gap-2">
+        <Link href={`/${isAdmin() ? 'admin' : 'member'}`}>
           <p className="flex text-center font-bold">Welcome back, {displayText}!</p>
-          <SignOutButton size="sm" variant="ghost" />
-        </div>
-      </Link>
+        </Link>
+        <SignOutButton size="sm" variant="ghost" />
+      </div>
     );
   }
 
   return (
     <section className="flex items-center justify-end gap-2">
-      <p className="text-sm font-bold">Are you an admin?</p>
+      <p className="text-sm font-bold">Have an account?</p>
       <Button variant="outline" size="sm" asChild>
         <Link href="/login">Login</Link>
       </Button>
@@ -37,4 +39,4 @@ const AdminTitleSign = () => {
   );
 };
 
-export default AdminTitleSign;
+export default TopHeader;

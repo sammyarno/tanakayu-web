@@ -1,51 +1,63 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
+import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
-import { NewsEventWithComment } from '@/types';
+import { editNewsEventSchema } from '@/lib/validations/news-event';
+import {
+  EVENT_TYPE,
+  NEWS_EVENT_TYPES,
+  NEWS_TYPE,
+  type NewsEventType,
+  type NewsEventWithComment,
+} from '@/types/news-event';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const editNewsEventSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  content: z.string().min(1, 'Content is required'),
-  type: z.enum(['news', 'event'], { message: 'Type is required' }),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-});
+interface EditDialogProps {
+  item: NewsEventWithComment;
+}
 
 type EditNewsEventFormData = z.infer<typeof editNewsEventSchema>;
 
-const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
+const defaultFormValues: EditNewsEventFormData = {
+  title: '',
+  content: '',
+  type: NEWS_TYPE,
+  startDate: '',
+  endDate: '',
+};
+
+const EditDialog = (props: EditDialogProps) => {
+  const { item } = props;
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: editNewsEvent, isPending } = useEditNewsEvent();
-  const { displayName } = useAuth();
+  const { username } = useAuth();
+
+  const methods = useForm<EditNewsEventFormData>({
+    resolver: zodResolver(editNewsEventSchema),
+    defaultValues: defaultFormValues,
+  });
 
   const {
-    control,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<EditNewsEventFormData>({
-    resolver: zodResolver(editNewsEventSchema),
-    defaultValues: {
-      title: item.title,
-      content: item.content,
-      type: item.type as 'news' | 'event',
-      startDate: item.startDate || '',
-      endDate: item.endDate || '',
-    },
-  });
+  } = methods;
+  const selectedType = watch('type');
 
   const onSubmit = async (data: EditNewsEventFormData) => {
     try {
@@ -56,7 +68,7 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
         type: data.type,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        actor: displayName || '',
+        actor: username || '',
       });
 
       setIsOpen(false);
@@ -73,16 +85,18 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
   };
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && item) {
       reset({
         title: item.title,
         content: item.content,
-        type: item.type as 'news' | 'event',
         startDate: item.startDate || '',
         endDate: item.endDate || '',
+        type: item.type as NewsEventType,
       });
+    } else if (!isOpen) {
+      reset(defaultFormValues);
     }
-  }, [isOpen, item, reset]);
+  }, [item, reset, isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -91,101 +105,117 @@ const EditDialog = ({ item }: { item: NewsEventWithComment }) => {
           <Edit2Icon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[90vw] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit {item.type === 'news' ? 'Berita' : 'Acara'}</DialogTitle>
+          <DialogTitle>Edit {NEWS_EVENT_TYPES.find(type => type.value === item.type)?.label}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-4">
-            {(errors.title || errors.content || errors.type) && (
-              <Alert variant="destructive" className="border-red-600 bg-red-300/40">
-                <AlertCircleIcon />
-                <AlertTitle className="tracking-wider capitalize">
-                  {errors.title?.message || errors.content?.message || errors.type?.message}
-                </AlertTitle>
-              </Alert>
-            )}
-            <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
-              <Controller
+        <FormSchemaProvider schema={editNewsEventSchema} methods={methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="grid gap-4">
+              {(errors.title || errors.content || errors.type) && (
+                <Alert variant="destructive" className="border-red-600 bg-red-300/40">
+                  <AlertCircleIcon />
+                  <AlertTitle className="tracking-wider capitalize">
+                    {errors.title?.message || errors.content?.message || errors.type?.message}
+                  </AlertTitle>
+                </Alert>
+              )}
+              <FormController
                 name="title"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="title"
-                    autoFocus={true}
-                    placeholder="Enter news/event title"
-                    disabled={isPending}
-                  />
+                renderInput={field => (
+                  <div className="grid gap-1">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      {...field}
+                      id="title"
+                      autoFocus={true}
+                      placeholder="Enter news/event title"
+                      disabled={isPending}
+                    />
+                  </div>
                 )}
               />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="type">Type</Label>
-              <Controller
+              <FormController
                 name="type"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="news">Berita</SelectItem>
-                      <SelectItem value="event">Acara</SelectItem>
-                    </SelectContent>
-                  </Select>
+                renderInput={field => (
+                  <div className="grid gap-1">
+                    <Label htmlFor="type">Type</Label>
+                    <Select
+                      value={field.value}
+                      onValueChange={value => {
+                        field.onChange(value);
+                        if (value === NEWS_TYPE) {
+                          setValue('startDate', '');
+                          setValue('endDate', '');
+                        }
+                      }}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NEWS_EVENT_TYPES.map(type => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
               />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label htmlFor="startDate">Start Date (Optional)</Label>
-                <Controller
-                  name="startDate"
-                  control={control}
-                  render={({ field }) => <Input {...field} id="startDate" type="date" disabled={isPending} />}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="endDate">End Date (Optional)</Label>
-                <Controller
-                  name="endDate"
-                  control={control}
-                  render={({ field }) => <Input {...field} id="endDate" type="date" disabled={isPending} />}
-                />
-              </div>
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="content">Content</Label>
-              <Controller
-                name="content"
-                control={control}
-                render={({ field }) => (
-                  <RichTextEditor
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Write your news/event content here. You can format text, add images, and create lists."
-                    disabled={isPending}
-                    className="min-h-[200px]"
-                    storageFolder="news-events"
-                    fileNamePrefix="news-event"
+              {selectedType === EVENT_TYPE && (
+                <div className="grid grid-cols-2 gap-3">
+                  <FormController
+                    name="startDate"
+                    renderInput={field => (
+                      <div className="grid gap-1">
+                        <Label htmlFor="startDate">Start Date</Label>
+                        <Input {...field} id="startDate" type="date" disabled={isPending} />
+                      </div>
+                    )}
                   />
+                  <FormController
+                    name="endDate"
+                    renderInput={field => (
+                      <div className="grid gap-1">
+                        <Label htmlFor="endDate">End Date (Optional)</Label>
+                        <Input {...field} id="endDate" type="date" disabled={isPending} />
+                      </div>
+                    )}
+                  />
+                </div>
+              )}
+              <FormController
+                name="content"
+                renderInput={field => (
+                  <div className="grid gap-1">
+                    <Label htmlFor="content">Content</Label>
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Write your news/event content here. You can format text, add images, and create lists."
+                      disabled={isPending}
+                      className="min-h-[200px]"
+                      storageFolder="news-events"
+                      fileNamePrefix="news-event"
+                    />
+                  </div>
                 )}
               />
             </div>
-          </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              <Edit2Icon /> Update
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="mt-4">
+              <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                <Edit2Icon /> Update
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormSchemaProvider>
       </DialogContent>
     </Dialog>
   );

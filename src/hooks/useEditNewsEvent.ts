@@ -1,3 +1,4 @@
+import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface EditNewsEventRequest {
@@ -11,8 +12,8 @@ export interface EditNewsEventRequest {
 }
 
 const editNewsEvent = async (payload: EditNewsEventRequest) => {
-  const response = await fetch(`/api/news-events/${payload.id}`, {
-    method: 'PUT',
+  const { data, error } = await authenticatedFetchJson(`/api/news-events/${payload.id}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -26,21 +27,18 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update news event');
+  if (error) {
+    throw new Error(error);
   }
 
-  const { newsEvent } = await response.json();
-  return newsEvent;
+  return data.newsEvent;
 };
 
 export const useEditNewsEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ['edit-news-event'],
-    mutationFn: editNewsEvent,
+    mutationFn: (payload: EditNewsEventRequest) => editNewsEvent(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news-events'] });
     },
