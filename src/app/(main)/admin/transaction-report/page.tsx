@@ -14,7 +14,7 @@ import { formatCurrencyToIDR } from '@/utils/currency';
 import { RefreshCw } from 'lucide-react';
 
 import CreateTransactionDialog from './CreateDialog';
-import UploadExcelDialog from './UploadExcelDialog';
+import UploadDialog from './UploadDialog';
 
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
@@ -89,7 +89,7 @@ const FinancialReport = () => {
         <hr />
         <div className="flex w-full items-center gap-2">
           <CreateTransactionDialog />
-          <UploadExcelDialog />
+          <UploadDialog />
         </div>
         <hr />
       </section>

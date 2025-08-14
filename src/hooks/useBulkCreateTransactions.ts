@@ -15,8 +15,11 @@ const bulkCreateTransactions = async ({
   });
 
   if (response.error || !response.data) {
+    console.log('response', response);
     throw new Error(response.error || 'Failed to bulk create transactions');
   }
+
+  console.log('response', response);
 
   return response.data;
 };
