@@ -66,7 +66,7 @@ const Login = () => {
           <Link href="/">
             <section
               id="bannner"
-              className="bg-tanakayu-dark text-tanakayu-accent rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
+              className="bg-tanakayu-dark text-tanakayu-accent border-tanakayu-highlight rounded-lg border-4 bg-[url('/leaf.png')] bg-cover bg-center p-5 text-center"
             >
               <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
               <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
