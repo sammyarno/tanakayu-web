@@ -1,7 +1,8 @@
 import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse } from '@/types/fetch';
 
 interface BulkTransactionRequest {
   transactions: Array<{
@@ -63,19 +64,24 @@ function validateTransaction(transaction: any): string[] {
 }
 
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<{ success: boolean; count: number; transactions: any[] }> = {};
+
   try {
     const body: BulkTransactionRequest = await request.json();
 
     if (!body.transactions || !Array.isArray(body.transactions)) {
-      return Response.json({ error: 'Transactions array is required' }, { status: 400 });
+      response.error = 'Transactions array is required';
+      return NextResponse.json(response, { status: 400 });
     }
 
     if (!body.actor?.trim()) {
-      return Response.json({ error: 'Actor is required' }, { status: 400 });
+      response.error = 'Actor is required';
+      return NextResponse.json(response, { status: 400 });
     }
 
     if (body.transactions.length === 0) {
-      return Response.json({ error: 'At least one transaction is required' }, { status: 400 });
+      response.error = 'At least one transaction is required';
+      return NextResponse.json(response, { status: 400 });
     }
 
     // Validate all transactions
@@ -88,7 +94,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (validationErrors.length > 0) {
-      return Response.json({ error: `Validation failed: ${validationErrors.join('; ')}` }, { status: 400 });
+      response.error = `Validation failed: ${validationErrors.join('; ')}`;
+      return NextResponse.json(response, { status: 400 });
     }
 
     // Prepare transactions for insert
@@ -104,16 +111,19 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error);
-      return Response.json({ error: `Failed to insert transactions: ${error.message}` }, { status: 500 });
+      response.error = `Failed to insert transactions: ${error.message}`;
+      return NextResponse.json(response, { status: 500 });
     }
 
-    return Response.json({
+    response.data = {
       success: true,
       count: data?.length || 0,
       transactions: data,
-    });
+    };
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Bulk transaction creation error:', error);
-    return Response.json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
+    response.error = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json(response, { status: 500 });
   }
 }

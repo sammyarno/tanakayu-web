@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import Banner from '@/components/Banner';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -82,15 +83,7 @@ const Register = () => {
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">
       <Card>
         <CardHeader className="text-center">
-          <Link href="/">
-            <section
-              id="banner"
-              className="bg-tanakayu-dark text-tanakayu-accent mb-4 rounded bg-[url('/leaf.jpg')] bg-cover bg-center p-5 text-center"
-            >
-              <p className="text-tanakayu-highlight font-serif text-5xl font-bold tracking-widest">TANAKAYU</p>
-              <p className="font-sub-serif text-lg tracking-wider">From The Origin</p>
-            </section>
-          </Link>
+          <Banner />
           <CardTitle className="font-serif text-xl tracking-wider">Register New Member</CardTitle>
         </CardHeader>
         <CardContent>

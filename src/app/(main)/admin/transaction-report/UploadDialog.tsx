@@ -16,7 +16,7 @@ import type { UploadTransactionResult } from '@/types/transaction';
 import { AlertCircleIcon, FileSpreadsheetIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-const UploadExcelDialog = () => {
+const UploadDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadResult, setUploadResult] = useState<UploadTransactionResult | null>(null);
@@ -234,4 +234,4 @@ const UploadExcelDialog = () => {
   );
 };
 
-export default UploadExcelDialog;
+export default UploadDialog;
