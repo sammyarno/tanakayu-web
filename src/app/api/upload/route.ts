@@ -2,33 +2,34 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import type { FetchResponse } from '@/types/fetch';
 
 export async function POST(request: NextRequest) {
+  const response: FetchResponse<{
+    success: boolean;
+    fileName: string;
+    url: string;
+    path: string;
+  }> = {};
+
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
-
-    // Check if user is authenticated
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const folder = (formData.get('folder') as string) || 'uploads'; // Default to uploads
 
     if (!file) {
-      return Response.json({ error: 'No file provided' }, { status: 400 });
+      response.error = 'No file provided';
+      return Response.json(response, { status: 400 });
     }
 
     // Validate folder (security check)
     const allowedFolders = ['announcements', 'news-events', 'uploads'];
     if (!allowedFolders.includes(folder)) {
-      return Response.json({ error: 'Invalid folder specified' }, { status: 400 });
+      response.error = 'Invalid folder specified';
+      return Response.json(response, { status: 400 });
     }
 
     // Generate unique filename
@@ -50,20 +51,23 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Storage upload error:', error);
-      return Response.json({ error: error.message }, { status: 500 });
+      response.error = error.message;
+      return Response.json(response, { status: 500 });
     }
 
     // Get public URL
     const { data: urlData } = supabase.storage.from('tanakayu').getPublicUrl(fileName);
 
-    return Response.json({
+    response.data = {
       success: true,
       fileName,
       url: urlData.publicUrl,
       path: data.path,
-    });
+    };
+    return Response.json(response);
   } catch (error) {
     console.error('Upload API error:', error);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    response.error = 'Internal server error';
+    return Response.json(response, { status: 500 });
   }
 }
