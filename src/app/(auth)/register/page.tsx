@@ -15,7 +15,7 @@ import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLUSTER_LIST } from '@/data/clusters';
+import { CLUSTER_LABELS, CLUSTER_LIST } from '@/data/clusters';
 import { useRegister } from '@/hooks/auth/useRegister';
 import { registerSchema } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -140,7 +140,7 @@ const Register = () => {
                             <SelectContent>
                               {CLUSTER_LIST.map(cluster => (
                                 <SelectItem key={cluster} value={cluster} className="capitalize">
-                                  {cluster}
+                                  {CLUSTER_LABELS[cluster]}
                                 </SelectItem>
                               ))}
                             </SelectContent>

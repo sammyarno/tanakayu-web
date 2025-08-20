@@ -11,7 +11,9 @@ const Banner = () => (
       <div className="relative mb-4 h-16 w-full">
         <Image src="/tanakayu.png" alt="tanakayu" fill objectFit="contain" />
       </div>
-      <p className="font-serif tracking-wider uppercase">Nomor AHU 0004548.AH.01.07.Tahun 2025</p>
+      <p className="text-tanakayu-highlight font-serif font-bold tracking-wider uppercase">
+        Nomor AHU 0004548.AH.01.07.Tahun 2025
+      </p>
     </section>
   </Link>
 );
