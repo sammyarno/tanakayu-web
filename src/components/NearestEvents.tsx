@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useNearestEvents } from '@/hooks/useNearestEvents';
 import { formatDateRange } from '@/utils/date';
 
-const NearestEvents = () => {
-  const { data: events } = useNearestEvents();
+import { Skeleton } from './ui/skeleton';
 
-  if (!events) return <></>;
+const NearestEvents = () => {
+  const { data: events, isFetching } = useNearestEvents();
+
+  if (!events || isFetching) return <Skeleton className="h-[200px] w-full" />;
 
   return (
     <section className="border-tanakayu-accent rounded border bg-white p-5 shadow-sm">
