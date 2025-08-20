@@ -6,7 +6,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { customFetch } from '@/lib/fetch';
+import { authenticatedCustomFetch } from '@/lib/fetch';
 import { cn } from '@/lib/utils';
 
 // Removed Supabase client import - now using API route for uploads
@@ -74,7 +74,7 @@ function RichTextEditor({
         formData.append('file', file);
         formData.append('folder', storageFolder);
 
-        const { data, error } = await customFetch('/api/upload', {
+        const { data, error } = await authenticatedCustomFetch('/api/upload', {
           method: 'POST',
           body: formData,
         });

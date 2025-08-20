@@ -1,4 +1,4 @@
-import { customFetch } from '@/lib/fetch';
+import { authenticatedCustomFetch } from '@/lib/fetch';
 import type { UploadTransactionResult } from '@/types/transaction';
 import { useMutation } from '@tanstack/react-query';
 
@@ -6,7 +6,7 @@ const compileTransactionSheet = async (file: File): Promise<UploadTransactionRes
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await customFetch('/api/transactions/compile-sheet', {
+  const response = await authenticatedCustomFetch('/api/transactions/compile-sheet', {
     method: 'POST',
     body: formData,
   });

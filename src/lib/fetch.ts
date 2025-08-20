@@ -15,7 +15,6 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
       headers: {
         ...options.headers,
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
       credentials: 'include',
     });
@@ -51,7 +50,13 @@ export const authenticatedFetchJson = async <T = any>(
   url: string,
   options: RequestInit = {}
 ): Promise<FetchResponse<T>> => {
-  const response = await authenticatedFetch(url, options);
+  const response = await authenticatedFetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json',
+    },
+  });
 
   const jsonResponse: FetchResponse<T> = await response.json();
 
@@ -90,6 +95,27 @@ export const fetchJson = async <T = any>(url: string, options: RequestInit = {})
 
 export const customFetch = async <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> => {
   const response = await fetch(url, {
+    ...options,
+  });
+
+  const jsonResponse: FetchResponse<T> = await response.json();
+
+  if (!response.ok) {
+    if (!jsonResponse.error) {
+      return {
+        error: `HTTP ${response.status}: Request failed`,
+      };
+    }
+  }
+
+  return snakeToCamel(jsonResponse);
+};
+
+export const authenticatedCustomFetch = async <T = any>(
+  url: string,
+  options: RequestInit = {}
+): Promise<FetchResponse<T>> => {
+  const response = await authenticatedFetch(url, {
     ...options,
   });
 
