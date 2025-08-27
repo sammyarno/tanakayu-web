@@ -1,11 +1,9 @@
-import { FC } from 'react';
-
 interface LoadingIndicatorProps {
   isLoading: boolean;
   fullPage?: boolean;
 }
 
-const LoadingIndicator: FC<LoadingIndicatorProps> = ({ isLoading, fullPage = false }) => {
+const LoadingIndicator = ({ isLoading, fullPage = false }: LoadingIndicatorProps) => {
   if (!isLoading) return null;
   
   if (fullPage) {
