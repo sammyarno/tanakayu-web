@@ -46,6 +46,13 @@ const Home = async () => {
           <p className="text-sm">Lihat detail transaksi keuangan komunitas dengan transparansi penuh.</p>
         </Link>
         <Link
+          href="/expenditure-report"
+          className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
+        >
+          <h2 className="mb-1 text-lg font-semibold">💸 Laporan Keuangan</h2>
+          <p className="text-sm">Lihat detail transaksi keuangan komunitas.</p>
+        </Link>
+        <Link
           // href="/contact"
           href="#"
           className="border-tanakayu-accent relative cursor-pointer rounded border bg-white p-3 hover:shadow-lg"

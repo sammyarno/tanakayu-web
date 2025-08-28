@@ -22,7 +22,7 @@ const TopHeader = () => {
     return (
       <div className="flex w-full items-center justify-end gap-2">
         <Link href={`/${isAdmin() ? 'admin' : 'member'}`}>
-          <p className="flex text-center font-bold">Welcome back, {displayText}!</p>
+          <p className="flex text-center font-bold">Welcome, {displayText}!</p>
         </Link>
         <SignOutButton size="sm" variant="ghost" />
       </div>
@@ -31,7 +31,7 @@ const TopHeader = () => {
 
   return (
     <section className="flex items-center justify-end gap-2">
-      <p className="text-sm font-bold">Have an account?</p>
+      <p className="text-sm font-bold">Sudah punya akun?</p>
       <Button variant="outline" size="sm" asChild>
         <Link href="/login">Login</Link>
       </Button>
