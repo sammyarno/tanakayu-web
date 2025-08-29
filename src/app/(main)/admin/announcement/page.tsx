@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from 'react';
 
-import AnnouncementCard from '@/components/AnnouncementCard';
 import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import AnnouncementCard from '@/components/announcement/Card';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
 

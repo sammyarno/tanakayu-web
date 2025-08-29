@@ -7,7 +7,7 @@ import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';
 import { Calendar } from 'lucide-react';
 
-import PostComment from './PostComment';
+import PostComment from '../PostComment';
 
 interface NewsEventCardProps {
   item: NewsEventWithComment;

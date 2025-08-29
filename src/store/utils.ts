@@ -13,7 +13,6 @@ export function monitorStore<T>(store: UseBoundStore<StoreApi<T>>, name: string)
   // Subscribe to all state changes
   const unsubscribe = store.subscribe(state => {
     console.group(`[${name}] State updated`);
-    console.log('New state:', state);
     console.groupEnd();
   });
 

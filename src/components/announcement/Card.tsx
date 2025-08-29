@@ -6,8 +6,8 @@ import type { Announcement } from '@/types/announcement';
 import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';
 
-import DeleteConfirmatonAlert from './announcement/DeleteConfirmationAlert';
-import EditDialog from './announcement/EditDialog';
+import DeleteConfirmatonAlert from './DeleteConfirmationAlert';
+import EditDialog from './EditDialog';
 
 interface Props {
   announcement: Announcement;

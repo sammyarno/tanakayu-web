@@ -39,10 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       if (endDate !== undefined) updateData.end_date = endDate;
     }
 
-    console.log('update', id, updateData);
-
     const { data, error } = await supabase.from('news_events').update(updateData).eq('id', id).select('id');
-    console.log('response', data, error);
     if (error) {
       response.error = error.message;
       return Response.json(response, { status: 500 });

@@ -25,7 +25,6 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
   // try refresh once
   if (response.status === 401) {
     const refreshed = await refreshToken();
-    console.log('refreshed', refreshed);
 
     if (refreshed) {
       // with new token

@@ -61,8 +61,6 @@ const CreateDialog = () => {
     setErrorMessage(undefined);
     setIsUploading(true);
 
-    console.log('user', user);
-
     try {
       // Upload image first
       const imageUrl = await uploadImage(data.image);

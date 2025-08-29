@@ -55,9 +55,10 @@ export default function RootLayout({
       </head>
       <body>
         <main className="mx-auto w-full max-w-lg p-2 antialiased">
-          <Banner />
-
-          <Providers>{children}</Providers>
+          <Providers>
+            <Banner />
+            {children}
+          </Providers>
 
           {/* footer */}
           <footer className="bg-tanakayu-dark rounded p-2 text-center text-white shadow-sm">

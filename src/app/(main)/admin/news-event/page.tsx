@@ -7,9 +7,9 @@ import { useSearchParams } from 'next/navigation';
 import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
-import NewsEventCard from '@/components/NewsEventCard';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
+import NewsEventCard from '@/components/news-event/Card';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
 import type { Category } from '@/types';
 

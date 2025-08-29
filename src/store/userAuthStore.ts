@@ -239,8 +239,8 @@ export const useUserAuthStore = create<UserAuthState>()(
           });
 
           if (userResponse.ok) {
-            const userInfo = await userResponse.json();
-            set({ jwt: newJwt, userInfo, error: null });
+            const response = await userResponse.json();
+            set({ jwt: newJwt, userInfo: response.user, error: null });
             return true;
           } else {
             set({ jwt: null, userInfo: null, error: 'Failed to get user info' });
