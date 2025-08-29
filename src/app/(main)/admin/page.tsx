@@ -27,6 +27,12 @@ const Dashboard = () => {
         <p className="text-center text-lg font-bold tracking-wider">💰 Laporan Transaksi 💰</p>
       </Link>
       <Link
+        href="/admin/expenditure-report"
+        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
+      >
+        <p className="text-center text-lg font-bold tracking-wider">💸 Laporan Keuangan 💸</p>
+      </Link>
+      <Link
         // href="/admin/contact"
         href="#"
         className="border-tanakayu-accent relative cursor-pointer rounded border bg-white p-3 hover:shadow-lg"

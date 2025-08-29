@@ -65,14 +65,14 @@ export const useUserAuthStore = create<UserAuthState>()(
 
       initialize: async () => {
         const { isLoading, isInitialized } = get();
-        
+
         // Prevent multiple simultaneous initialization calls
         if (isLoading || isInitialized) {
           return;
         }
-        
+
         set({ isLoading: true });
-        
+
         try {
           const persistedData = await encryptedStorage.getItem('user-auth-storage');
           if (persistedData) {
