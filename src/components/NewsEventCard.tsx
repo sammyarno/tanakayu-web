@@ -44,7 +44,7 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   return (
     <div className="w-full space-y-1">
       <div
-        className="prose prose-sm max-w-none cursor-pointer text-sm text-gray-700"
+        className="max-w-none cursor-pointer text-sm text-gray-700 [&_a]:text-blue-500 [&_a]:underline"
         dangerouslySetInnerHTML={{
           __html:
             typeof window !== 'undefined'
