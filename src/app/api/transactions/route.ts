@@ -62,10 +62,67 @@ export async function GET(request: NextRequest) {
       createdBy: t.created_by,
     }));
 
-    // Calculate balance (income - expense)
-    const balance = transformedTransactions.reduce((acc, transaction) => {
-      return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
-    }, 0);
+    // Calculate balance based on constraint:
+    // If monthFilter exists: balance = last month balance + current month income - current month expenses
+    // Otherwise: standard calculation (income - expense)
+    let balance = 0;
+    
+    if (monthFilter && monthFilter.length === 6) {
+      // Get previous month data for balance calculation
+      const currentMonth = parseInt(monthFilter.substring(0, 2), 10);
+      const currentYear = parseInt(monthFilter.substring(2), 10);
+      
+      let prevMonth = currentMonth - 1;
+      let prevYear = currentYear;
+      if (prevMonth === 0) {
+        prevMonth = 12;
+        prevYear = currentYear - 1;
+      }
+      
+      const prevMonthStr = `${prevMonth.toString().padStart(2, '0')}${prevYear}`;
+      
+      try {
+        // Fetch previous month's balance
+        const prevStartDate = new Date(prevYear, prevMonth - 1, 1);
+        const prevEndDate = new Date(prevYear, prevMonth, 0, 23, 59, 59, 999);
+        const prevStartDateStr = prevStartDate.toISOString().split('T')[0];
+        const prevEndDateStr = prevEndDate.toISOString().split('T')[0];
+        
+        const { data: prevTransactions } = await supabase
+          .from('transactions')
+          .select('amount, type')
+          .gte('date', prevStartDateStr)
+          .lte('date', prevEndDateStr);
+        
+        const lastMonthBalance = prevTransactions
+          ? prevTransactions.reduce((acc, t) => {
+              return t.type === 'income' ? acc + t.amount : acc - t.amount;
+            }, 0)
+          : 0;
+        
+        // Calculate current month's income and expenses
+        const currentIncome = transformedTransactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + t.amount, 0);
+        const currentExpenses = transformedTransactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + t.amount, 0);
+        
+        // Apply constraint formula
+        balance = lastMonthBalance + currentIncome - currentExpenses;
+      } catch (error) {
+        console.warn('Could not fetch previous month data, using current calculation:', error);
+        // Fallback to standard calculation
+        balance = transformedTransactions.reduce((acc, transaction) => {
+          return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
+        }, 0);
+      }
+    } else {
+      // Standard balance calculation for non-filtered requests
+      balance = transformedTransactions.reduce((acc, transaction) => {
+        return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
+      }, 0);
+    }
 
     // Group transactions by date
     const transactionsByDate = transformedTransactions.reduce(
