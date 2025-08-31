@@ -2,18 +2,18 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
-import type { FetchResponse } from '@/types/fetch';
 import type { Expenditure, UpdateExpenditureRequest } from '@/types/expenditure';
+import type { FetchResponse } from '@/types/fetch';
 
-// PUT - Update expenditure
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// PATCH - Update expenditure
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const response: FetchResponse<Expenditure> = {};
 
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
-    const { id } = params;
+    const { id } = await params;
     const body: UpdateExpenditureRequest = await request.json();
     const { date, description, image_path, actor } = body;
 
@@ -32,12 +32,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (description) updateData.description = description;
     if (image_path) updateData.image_path = image_path;
 
-    const { data, error } = await supabase
-      .from('expenditures')
-      .update(updateData)
-      .eq('id', id)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('expenditures').update(updateData).eq('id', id).select().single();
 
     if (error) {
       console.error('Database error:', error);
@@ -79,10 +74,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     const { id } = params;
 
-    const { error } = await supabase
-      .from('expenditures')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('expenditures').delete().eq('id', id);
 
     if (error) {
       console.error('Database error:', error);

@@ -1,7 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
 import { authenticatedFetchJson } from '@/lib/fetch';
 import type { Expenditure, UpdateExpenditureRequest } from '@/types/expenditure';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useUpdateExpenditure = () => {
   const queryClient = useQueryClient();
@@ -9,7 +8,7 @@ export const useUpdateExpenditure = () => {
   return useMutation({
     mutationFn: async (data: UpdateExpenditureRequest) => {
       const response = await authenticatedFetchJson<Expenditure>(`/api/expenditures/${data.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(data),
       });
 
