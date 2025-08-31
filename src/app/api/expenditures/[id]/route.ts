@@ -65,14 +65,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 // DELETE - Delete expenditure
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const response: FetchResponse<{ success: boolean }> = {};
 
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
-    const { id } = params;
+    const { id } = await params;
 
     const { error } = await supabase.from('expenditures').delete().eq('id', id);
 
