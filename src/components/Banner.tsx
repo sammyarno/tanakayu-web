@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 const Banner = () => {
-  const { role, user } = useAuth();
+  const { role } = useAuth();
 
   return (
     <Link href={role === 'ADMIN' ? '/admin' : '/'}>

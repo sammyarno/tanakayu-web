@@ -11,7 +11,7 @@ export function monitorStore<T>(store: UseBoundStore<StoreApi<T>>, name: string)
   if (process.env.NODE_ENV !== 'development') return;
 
   // Subscribe to all state changes
-  const unsubscribe = store.subscribe(state => {
+  const unsubscribe = store.subscribe(() => {
     console.group(`[${name}] State updated`);
     console.groupEnd();
   });

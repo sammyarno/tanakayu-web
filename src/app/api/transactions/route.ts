@@ -79,8 +79,6 @@ export async function GET(request: NextRequest) {
         prevYear = currentYear - 1;
       }
       
-      const prevMonthStr = `${prevMonth.toString().padStart(2, '0')}${prevYear}`;
-      
       try {
         // Fetch previous month's balance
         const prevStartDate = new Date(prevYear, prevMonth - 1, 1);

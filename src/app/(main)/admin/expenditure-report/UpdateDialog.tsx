@@ -28,7 +28,7 @@ interface UpdateDialogProps {
 const UpdateDialog = ({ expenditure, isOpen, onClose }: UpdateDialogProps) => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isUploading, setIsUploading] = useState(false);
-  const { username, user } = useAuth();
+  const { username } = useAuth();
   const { mutate, isPending, isSuccess, isError } = useUpdateExpenditure();
 
   const methods = useForm<UpdateExpenditureFormData>({

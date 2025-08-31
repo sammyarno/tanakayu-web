@@ -28,7 +28,7 @@ const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isUploading, setIsUploading] = useState(false);
-  const { username, user } = useAuth();
+  const { username } = useAuth();
   const { mutate, isPending, isSuccess, isError } = useCreateExpenditure();
 
   const methods = useForm<CreateExpenditureFormData>({

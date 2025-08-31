@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useFetchExpenditures } from '@/hooks/useFetchExpenditures';
 import { formatDate } from '@/utils/date';
 import dayjs from 'dayjs';
-import { CalendarIcon, EditIcon, PlusIcon } from 'lucide-react';
+import { CalendarIcon, EditIcon } from 'lucide-react';
 
 import CreateDialog from './CreateDialog';
 import UpdateDialog from './UpdateDialog';
