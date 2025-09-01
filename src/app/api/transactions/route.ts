@@ -80,20 +80,18 @@ export async function GET(request: NextRequest) {
       }
       
       try {
-        // Fetch previous month's balance
-        const prevStartDate = new Date(prevYear, prevMonth - 1, 1);
-        const prevEndDate = new Date(prevYear, prevMonth, 0, 23, 59, 59, 999);
-        const prevStartDateStr = prevStartDate.toISOString().split('T')[0];
-        const prevEndDateStr = prevEndDate.toISOString().split('T')[0];
+        // Fetch ALL transactions from the beginning up until the day before current month
+        const currentStartDate = new Date(currentYear, currentMonth - 1, 1);
+        const beforeCurrentMonthStr = new Date(currentStartDate.getTime() - 1).toISOString().split('T')[0]; // Day before current month
         
-        const { data: prevTransactions } = await supabase
+        const { data: allPrevTransactions } = await supabase
           .from('transactions')
           .select('amount, type')
-          .gte('date', prevStartDateStr)
-          .lte('date', prevEndDateStr);
+          .lte('date', beforeCurrentMonthStr)
+          .order('date', { ascending: true });
         
-        const lastMonthBalance = prevTransactions
-          ? prevTransactions.reduce((acc, t) => {
+        const lastMonthBalance = allPrevTransactions
+          ? allPrevTransactions.reduce((acc, t) => {
               return t.type === 'income' ? acc + t.amount : acc - t.amount;
             }, 0)
           : 0;
