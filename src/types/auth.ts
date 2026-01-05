@@ -5,10 +5,11 @@ export interface JwtUserData {
 }
 
 export interface User {
-  address: string;
+  id: string;
+  username: string;
   email: string;
   full_name: string;
-  id: string;
   phone_number: string;
-  username: string;
+  address: string;
+  role: string;
 }

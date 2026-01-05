@@ -11,6 +11,7 @@ export const useAuth = () => {
   const signOut = useUserAuthStore(state => state.signOut);
   const initialize = useUserAuthStore(state => state.initialize);
   const clearError = useUserAuthStore(state => state.clearError);
+  const updateUser = useUserAuthStore(state => state.updateUser);
 
   return useMemo(
     () => ({
@@ -25,7 +26,8 @@ export const useAuth = () => {
       signOut,
       initialize,
       clearError,
+      updateUser,
     }),
-    [userInfo, isLoading, isInitialized, error, signIn, signOut, initialize, clearError]
+    [userInfo, isLoading, isInitialized, error, signIn, signOut, initialize, clearError, updateUser]
   );
 };

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 
-import SignOutButton from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -24,7 +23,6 @@ const TopHeader = () => {
         <Link href={`/${isAdmin() ? 'admin' : 'member'}`}>
           <p className="flex text-center font-bold">Welcome, {displayText}!</p>
         </Link>
-        <SignOutButton size="sm" variant="ghost" />
       </div>
     );
   }

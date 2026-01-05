@@ -8,7 +8,7 @@ import { Cpu, Nfc } from 'lucide-react';
 
 export const MembershipCard = () => {
   const { userInfo } = useUserAuthStore();
-  const username = userInfo?.username || 'Member';
+  const username = userInfo?.full_name || userInfo?.username || 'Member';
   const userId = userInfo?.id || '00000000';
 
   // Card UI Component to be reused in trigger and content

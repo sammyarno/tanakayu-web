@@ -1,22 +1,23 @@
-import type { JwtUserData } from '@/types/auth';
+import type { User } from '@/types/auth';
 import { decryptData, encryptData } from '@/utils/encryption';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 interface PersistedState {
-  jwt: string | null;
-  userInfo: JwtUserData | null;
+  userInfo: User | null;
 }
 
 interface UserAuthState extends PersistedState {
+  jwt: string | null;
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
   initialize: () => Promise<void>;
-  signIn: (username: string, password: string) => Promise<JwtUserData | null>;
+  signIn: (username: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
-  verify: (token: string) => Promise<JwtUserData | null>;
+  verify: (token: string) => Promise<User | null>;
   refreshToken: () => Promise<boolean>;
+  updateUser: (user: Partial<User>) => void;
   clearError: () => void;
 }
 
@@ -41,7 +42,9 @@ const encryptedStorage = {
 
     try {
       const data = JSON.parse(value) as PersistedState;
-      const encrypted = await encryptData(data);
+      // Ensure we only persist userInfo
+      const toPersist = { userInfo: data.userInfo };
+      const encrypted = await encryptData(toPersist);
       localStorage.setItem(name, encrypted);
     } catch {
       console.error('Encryption failed. Not storing data.');
@@ -79,56 +82,19 @@ export const useUserAuthStore = create<UserAuthState>()(
             const parsed = JSON.parse(persistedData);
             const { jwt, userInfo } = parsed.state || {};
 
-            if (jwt) {
-              // If we have both jwt and userInfo, verify the token is still valid
-              if (userInfo) {
-                const verifiedUserData = await get().verify(jwt);
-                if (verifiedUserData) {
-                  set({
-                    jwt,
-                    userInfo: verifiedUserData,
-                  });
-                } else {
-                  // Token invalid, try refresh
-                  const refreshed = await get().refreshToken();
-                  if (!refreshed) {
-                    set({
-                      jwt: null,
-                      userInfo: null,
-                    });
-                  }
-                }
-              } else {
-                // Only jwt persisted, verify and get user info
-                const verifiedUserData = await get().verify(jwt);
-                if (verifiedUserData) {
-                  set({
-                    jwt,
-                    userInfo: verifiedUserData,
-                  });
-                } else {
-                  const refreshed = await get().refreshToken();
-                  if (!refreshed) {
-                    set({
-                      jwt: null,
-                      userInfo: null,
-                    });
-                  }
-                }
-              }
-            } else {
-              set({
-                jwt: null,
-                userInfo: null,
-              });
-            }
+        set({ isLoading: true });
+
+        try {
+          // Attempt to restore session via refresh token (http-only cookie)
+          const refreshed = await get().refreshToken();
+          if (!refreshed) {
+            // If refresh failed, we might still have persisted user info, but it's stale without a token
+            // So we clear it to force re-login
+            set({ jwt: null, userInfo: null });
           }
         } catch (error) {
-          console.error('Failed to load persisted auth data:', error);
-          set({
-            jwt: null,
-            userInfo: null,
-          });
+          console.error('Failed to initialize auth:', error);
+          set({ jwt: null, userInfo: null });
         } finally {
           set({ isLoading: false, isInitialized: true });
         }
@@ -150,19 +116,28 @@ export const useUserAuthStore = create<UserAuthState>()(
             throw new Error(loginData?.error || 'Failed to sign in');
           }
 
-          // Verify and decode the JWT to get user data
-          const userData = await get().verify(loginData.jwt);
-          if (!userData) {
-            throw new Error('Invalid JWT received from server');
+          // Fetch full user details using the new token
+          const userResponse = await fetch('/api/auth/user', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${loginData.jwt}`,
+            },
+          });
+
+          if (!userResponse.ok) {
+            throw new Error('Failed to fetch user details');
           }
+
+          const userData = await userResponse.json();
+          const user = userData.user as User;
 
           set({
             jwt: loginData.jwt,
-            userInfo: userData,
+            userInfo: user,
             isLoading: false,
           });
 
-          return userData;
+          return user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
           set({ error: errorMessage, isLoading: false });
@@ -204,8 +179,14 @@ export const useUserAuthStore = create<UserAuthState>()(
             return null;
           }
 
+          // Verify endpoint returns minimal data, but for full session we prefer /api/auth/user
+          // However, verify is often used just to check token validity.
+          // Let's assume verify returns JwtUserData which is a subset of User,
+          // but we want to return full User if possible.
+          // For now, let's keep it simple: verify just checks validity.
+          // If we need data, we should use the stored data or fetch /user.
           const userData = await response.json();
-          return userData as JwtUserData;
+          return userData as User;
         } catch (error) {
           console.error('Token verification failed:', error);
           return null;
@@ -230,7 +211,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           const data = await response.json();
           const { jwt: newJwt } = data;
 
-          // Get user info using the new token
+          // Get full user info using the new token
           const userResponse = await fetch('/api/auth/user', {
             method: 'GET',
             headers: {
@@ -253,13 +234,18 @@ export const useUserAuthStore = create<UserAuthState>()(
         }
       },
 
+      updateUser: (user: Partial<User>) => {
+        set(state => ({
+          userInfo: state.userInfo ? { ...state.userInfo, ...user } : null,
+        }));
+      },
+
       clearError: () => set({ error: null }),
     }),
     {
       name: 'user-auth-storage',
       storage: createJSONStorage(() => encryptedStorage),
       partialize: state => ({
-        jwt: state.jwt,
         userInfo: state.userInfo,
       }),
     }

@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Breadcrumb from '@/components/Breadcrumb';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import PageContent from '@/components/PageContent';
+import SignOutButton from '@/components/SignOutButton';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { FormController } from '@/components/ui/form-controller';
@@ -224,6 +225,10 @@ const ProfilePage = () => {
             </div>
           </form>
         </FormSchemaProvider>
+
+        <div className="flex justify-center">
+          <SignOutButton size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" />
+        </div>
       </section>
     </PageContent>
   );
