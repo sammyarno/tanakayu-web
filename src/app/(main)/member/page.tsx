@@ -2,23 +2,36 @@ import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
 import TopHeader from '@/components/TopHeader';
+import { Card, CardContent } from '@/components/ui/card';
+import { CreditCard, User } from 'lucide-react';
 
 const Dashboard = () => {
   return (
     <PageContent allowedRoles={['MEMBER']}>
       <TopHeader />
-      <Link
-        href="/member/membership-cards"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <p className="text-center text-lg font-bold tracking-wider">🪪 Membership Cards 🪪</p>
-      </Link>
-      <Link
-        href="/member/profile"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <p className="text-center text-lg font-bold tracking-wider">👥 Profil 👥</p>
-      </Link>
+      <div className="grid grid-cols-4 gap-4">
+        <Link href="/member/membership-cards" className="group">
+          <Card className="border-tanakayu-accent/20 hover:border-tanakayu-accent py-4 transition-all hover:shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center space-y-2 px-2 py-0 text-center">
+              <div className="bg-tanakayu-accent/10 group-hover:bg-tanakayu-accent/20 rounded-full transition-colors">
+                <CreditCard className="text-tanakayu-accent size-8" />
+              </div>
+              <h3 className="text-sm font-semibold tracking-wide">Cards</h3>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/member/profile" className="group">
+          <Card className="border-tanakayu-accent/20 hover:border-tanakayu-accent py-4 transition-all hover:shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center space-y-2 px-2 py-0 text-center">
+              <div className="bg-tanakayu-accent/10 group-hover:bg-tanakayu-accent/20 rounded-full transition-colors">
+                <User className="text-tanakayu-accent size-8" />
+              </div>
+              <h3 className="text-sm font-semibold tracking-wide">Profile</h3>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
     </PageContent>
   );
 };
