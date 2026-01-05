@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { MembershipCard } from '@/components/MembershipCard';
 import PageContent from '@/components/PageContent';
 import TopHeader from '@/components/TopHeader';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,7 +9,10 @@ import { CreditCard, User } from 'lucide-react';
 const Dashboard = () => {
   return (
     <PageContent allowedRoles={['MEMBER']}>
-      <TopHeader />
+      {/* <TopHeader /> */}
+      <div className="col-span-1 md:col-span-2">
+        <MembershipCard />
+      </div>
       <div className="grid grid-cols-4 gap-4">
         <Link href="/member/membership-cards" className="group">
           <Card className="border-tanakayu-accent/20 hover:border-tanakayu-accent py-4 transition-all hover:shadow-lg">
