@@ -6,14 +6,12 @@ import { useForm } from 'react-hook-form';
 import Breadcrumb from '@/components/Breadcrumb';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import PageContent from '@/components/PageContent';
-import SignOutButton from '@/components/SignOutButton';
+import { IdentityCard } from '@/components/profile/IdentityCard';
+import { PersonalInfoCard } from '@/components/profile/PersonalInfoCard';
+import { ResidenceCard } from '@/components/profile/ResidenceCard';
+import { SecurityCard } from '@/components/profile/SecurityCard';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { FormController } from '@/components/ui/form-controller';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLUSTER_LIST } from '@/data/clusters';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useFetchProfile } from '@/hooks/useFetchProfile';
 import { useUpdateProfile } from '@/hooks/useUpdateProfile';
@@ -39,6 +37,7 @@ const defaultFormValues: ProfileFormData = {
 const ProfilePage = () => {
   const { userId, username } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [isEditing, setIsEditing] = useState(false);
   const { data: profileRes, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
   const { mutate: updateProfile, isPending, isSuccess, isError, error } = useUpdateProfile(userId || '');
   const isLoading = isFetching || isPending;
@@ -66,10 +65,13 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (profileRes) {
+      const [cluster, ...addressParts] = profileRes.address.split(',');
+      const address = addressParts.join(',').trim();
+
       reset({
         ...profileRes,
-        cluster: profileRes.address.split(',')[0] as any,
-        address: profileRes.address.split(',')[1],
+        cluster: cluster as any,
+        address: address,
         password: '',
         confirmPassword: '',
       });
@@ -79,6 +81,7 @@ const ProfilePage = () => {
   useEffect(() => {
     if (isSuccess && !error) {
       setErrorMessage(undefined);
+      setIsEditing(false);
       toast.success('Profile updated successfully!', {
         duration: 3000,
         position: 'top-center',
@@ -92,144 +95,89 @@ const ProfilePage = () => {
     }
   }, [isError, error]);
 
+  const handleCancel = () => {
+    setIsEditing(false);
+    if (profileRes) {
+      const [cluster, ...addressParts] = profileRes.address.split(',');
+      const address = addressParts.join(',').trim();
+
+      reset({
+        ...profileRes,
+        cluster: cluster as any,
+        address: address,
+        password: '',
+        confirmPassword: '',
+      });
+    } else {
+      reset(defaultFormValues);
+    }
+  };
+
   return (
     <PageContent allowedRoles={['MEMBER']} fallbackPath="/member">
-      <Breadcrumb
-        items={[
-          { label: 'Home', link: '/member' },
-          { label: 'Profile', link: '/member/profile' },
-        ]}
-      />
-      <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">👥 Profil</h2>
-      </section>
-      <section className="flex flex-col gap-4">
-        {errorMessage && (
-          <Alert variant="destructive" className="border-red-600 bg-red-300/40">
-            <AlertCircleIcon />
-            <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
-          </Alert>
-        )}
-        <FormSchemaProvider methods={methods} schema={editProfileSchema}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-4">
-              <div className="grid gap-1">
-                <Label htmlFor="username">Username</Label>
-                <FormController
-                  name="username"
-                  renderInput={field => <Input {...field} placeholder="Username" disabled className="bg-gray-300" />}
-                />
-                <p className="text-xs text-red-500">Can't be changed</p>
-              </div>
+      <div className="space-y-2">
+        <Breadcrumb
+          items={[
+            { label: 'Home', link: '/member' },
+            { label: 'Profile', link: '/member/profile' },
+          ]}
+        />
+        <h2 className="font-sans text-3xl font-bold tracking-tight">Account Settings</h2>
+        <p className="text-muted-foreground">Manage your account settings and preferences.</p>
+      </div>
 
-              <div className="grid gap-1">
-                <Label htmlFor="fullName">Full Name</Label>
-                <FormController
-                  name="fullName"
-                  renderInput={field => <Input {...field} placeholder="Enter your full name" disabled={isLoading} />}
-                />
-              </div>
+      {errorMessage && (
+        <Alert variant="destructive" className="mb-6 border-red-600 bg-red-50 text-red-900">
+          <AlertCircleIcon className="h-4 w-4" />
+          <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
+        </Alert>
+      )}
 
-              <div className="grid gap-1">
-                <Label htmlFor="email">Email</Label>
-                <FormController
-                  name="email"
-                  renderInput={field => (
-                    <Input {...field} type="email" placeholder="Enter your email" disabled={isLoading} />
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-1">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <FormController
-                  name="phoneNumber"
-                  renderInput={field => <Input {...field} placeholder="08xxxxxxxxxx" disabled={isLoading} />}
-                />
-              </div>
-
-              <div className="grid grid-cols-5 gap-4">
-                <div className="col-span-2 grid gap-1">
-                  <Label htmlFor="cluster">Cluster</Label>
-                  <FormController
-                    name="cluster"
-                    renderInput={field => (
-                      <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
-                        <SelectTrigger className="capitalize">
-                          <SelectValue placeholder="Select cluster" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CLUSTER_LIST.map(cluster => (
-                            <SelectItem key={cluster} value={cluster} className="capitalize">
-                              {cluster}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-
-                <div className="col-span-3 grid gap-1">
-                  <Label htmlFor="address">Address</Label>
-                  <FormController
-                    name="address"
-                    renderInput={field => <Input {...field} placeholder="Enter your address" disabled={isLoading} />}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h3 className="mb-4 text-lg font-semibold">Change Password</h3>
-              <p className="mb-4 text-sm text-gray-600">
-                Leave password fields empty if you don't want to change your password.
-              </p>
-
-              <div className="grid gap-4">
-                <div className="grid gap-1">
-                  <Label htmlFor="password">New Password</Label>
-                  <FormController
-                    name="password"
-                    renderInput={field => (
-                      <Input {...field} type="password" placeholder="Enter new password" disabled={isLoading} />
-                    )}
-                  />
-                </div>
-
-                <div className="grid gap-1">
-                  <Label htmlFor="confirm_password">Confirm New Password</Label>
-                  <FormController
-                    name="confirm_password"
-                    renderInput={field => (
-                      <Input {...field} type="password" placeholder="Confirm new password" disabled={isLoading} />
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-4 pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => window.history.back()}
-                className="flex-1"
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isLoading} className="flex-1">
-                Update
-              </Button>
-            </div>
-          </form>
-        </FormSchemaProvider>
-
-        <div className="flex justify-center">
-          <SignOutButton size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {/* Left Column: Identity Summary */}
+        <div className="lg:col-span-4">
+          <IdentityCard fullName={profileRes?.fullName} username={username} />
         </div>
-      </section>
+
+        {/* Right Column: Settings Form */}
+        <div className="lg:col-span-8">
+          <FormSchemaProvider methods={methods} schema={editProfileSchema}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
+              <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
+              <SecurityCard isLoading={isLoading} isEditing={isEditing} />
+
+              <div className="flex justify-end gap-4 pt-4">
+                {!isEditing ? (
+                  <Button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    disabled={isLoading}
+                    className="w-full sm:w-auto"
+                  >
+                    Update Profile
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto"
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                      Save Changes
+                    </Button>
+                  </>
+                )}
+              </div>
+            </form>
+          </FormSchemaProvider>
+        </div>
+      </div>
     </PageContent>
   );
 };
