@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 
 import Banner from '@/components/Banner';
+import { Footer } from '@/components/Footer';
+import { GlobalFooter } from '@/components/GlobalFooter';
 import Providers from '@/components/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
@@ -61,9 +63,7 @@ export default function RootLayout({
           </Providers>
 
           {/* footer */}
-          <footer className="bg-tanakayu-dark rounded p-2 text-center text-white shadow-sm">
-            <p className="text-xs">Copyright © {new Date().getFullYear()} Tanakayu. All Rights Reserved.</p>
-          </footer>
+          <Footer />
         </main>
         <Toaster richColors />
       </body>
