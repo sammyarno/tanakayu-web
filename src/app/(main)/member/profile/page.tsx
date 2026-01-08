@@ -35,7 +35,7 @@ const defaultFormValues: ProfileFormData = {
 };
 
 const ProfilePage = () => {
-  const { userId, username } = useAuth();
+  const { userId, username, role } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isEditing, setIsEditing] = useState(false);
   const { data: profileRes, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
@@ -51,10 +51,10 @@ const ProfilePage = () => {
   const onSubmit = (data: ProfileFormData) => {
     updateProfile({
       id: userId || '',
-      username: username || '',
+      username: data.fullName,
       address: `${data.cluster.trim()}, ${data.address.trim()}`,
-      fullName: data.fullName,
-      email: data.email,
+      fullName: data.email,
+      email: data.phoneNumber,
       password: data.password || undefined,
       phoneNumber: data.phoneNumber,
     });
@@ -70,6 +70,9 @@ const ProfilePage = () => {
 
       reset({
         ...profileRes,
+        fullName: profileRes.username || '',
+        email: profileRes.fullName || '',
+        phoneNumber: profileRes.email || '',
         cluster: cluster as any,
         address: address,
         password: '',
@@ -134,49 +137,43 @@ const ProfilePage = () => {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* Left Column: Identity Summary */}
-        <div className="lg:col-span-4">
-          <IdentityCard fullName={profileRes?.fullName} username={username} />
-        </div>
+        <IdentityCard fullName={profileRes?.fullName} username={username} role={profileRes?.role || role} />
 
-        {/* Right Column: Settings Form */}
-        <div className="lg:col-span-8">
-          <FormSchemaProvider methods={methods} schema={editProfileSchema}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
-              <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
-              <SecurityCard isLoading={isLoading} isEditing={isEditing} />
+        <FormSchemaProvider methods={methods} schema={editProfileSchema}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
+            <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
+            <SecurityCard isLoading={isLoading} isEditing={isEditing} />
 
-              <div className="flex justify-end gap-4 pt-4">
-                {!isEditing ? (
+            <div className="flex justify-end gap-4 pt-4">
+              {!isEditing ? (
+                <Button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  disabled={isLoading}
+                  className="w-full sm:w-auto"
+                >
+                  Update Profile
+                </Button>
+              ) : (
+                <>
                   <Button
                     type="button"
-                    onClick={() => setIsEditing(true)}
+                    variant="outline"
+                    onClick={handleCancel}
                     disabled={isLoading}
                     className="w-full sm:w-auto"
                   >
-                    Update Profile
+                    Cancel
                   </Button>
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={isLoading}
-                      className="w-full sm:w-auto"
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                      Save Changes
-                    </Button>
-                  </>
-                )}
-              </div>
-            </form>
-          </FormSchemaProvider>
-        </div>
+                  <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                    Save Changes
+                  </Button>
+                </>
+              )}
+            </div>
+          </form>
+        </FormSchemaProvider>
       </div>
     </PageContent>
   );

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { Mail, Phone, User } from 'lucide-react';
 
 interface PersonalInfoCardProps {
@@ -10,16 +11,37 @@ interface PersonalInfoCardProps {
 }
 
 export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps) => {
+  const { username } = useAuth();
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <User className="h-5 w-5 text-primary" />
+          <User className="text-primary h-5 w-5" />
           Personal Information
         </CardTitle>
         <CardDescription>Update your personal details.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-2 md:col-span-2">
+          <Label htmlFor="username">Username</Label>
+          <FormController
+            name="username"
+            renderInput={field => (
+              <div className="relative">
+                <Input
+                  {...field}
+                  value={username || ''}
+                  placeholder="Username"
+                  disabled={true}
+                  className="bg-muted pl-9"
+                />
+                <User className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
+              </div>
+            )}
+          />
+        </div>
+
         <div className="grid gap-2 md:col-span-2">
           <Label htmlFor="fullName">Full Name</Label>
           <FormController
@@ -32,7 +54,7 @@ export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps
                   disabled={!isEditing || isLoading}
                   className="pl-9"
                 />
-                <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <User className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
               </div>
             )}
           />
@@ -51,7 +73,7 @@ export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps
                   disabled={!isEditing || isLoading}
                   className="pl-9"
                 />
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Mail className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
               </div>
             )}
           />
@@ -63,13 +85,8 @@ export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps
             name="phoneNumber"
             renderInput={field => (
               <div className="relative">
-                <Input
-                  {...field}
-                  placeholder="08xxxxxxxxxx"
-                  disabled={!isEditing || isLoading}
-                  className="pl-9"
-                />
-                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input {...field} placeholder="08xxxxxxxxxx" disabled={!isEditing || isLoading} className="pl-9" />
+                <Phone className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
               </div>
             )}
           />

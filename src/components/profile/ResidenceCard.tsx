@@ -16,7 +16,7 @@ export const ResidenceCard = ({ isLoading, isEditing }: ResidenceCardProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <MapPin className="h-5 w-5 text-primary" />
+          <MapPin className="text-primary h-5 w-5" />
           Residence Details
         </CardTitle>
         <CardDescription>Where do you live?</CardDescription>
@@ -28,7 +28,7 @@ export const ResidenceCard = ({ isLoading, isEditing }: ResidenceCardProps) => {
             name="cluster"
             renderInput={field => (
               <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing || isLoading}>
-                <SelectTrigger className="capitalize">
+                <SelectTrigger className="w-full capitalize">
                   <SelectValue placeholder="Select cluster" />
                 </SelectTrigger>
                 <SelectContent>
@@ -47,9 +47,7 @@ export const ResidenceCard = ({ isLoading, isEditing }: ResidenceCardProps) => {
           <Label htmlFor="address">Address</Label>
           <FormController
             name="address"
-            renderInput={field => (
-              <Input {...field} placeholder="Block/Number" disabled={!isEditing || isLoading} />
-            )}
+            renderInput={field => <Input {...field} placeholder="Block/Number" disabled={!isEditing || isLoading} />}
           />
         </div>
       </CardContent>
