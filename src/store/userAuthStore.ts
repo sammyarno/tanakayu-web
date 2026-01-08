@@ -16,7 +16,7 @@ interface UserAuthState extends PersistedState {
   signIn: (username: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   verify: (token: string) => Promise<User | null>;
-  refreshToken: () => Promise<boolean>;
+  refreshToken: (silent?: boolean) => Promise<boolean>;
   updateUser: (user: Partial<User>) => void;
   clearError: () => void;
 }
@@ -75,7 +75,8 @@ export const useUserAuthStore = create<UserAuthState>()(
 
         try {
           // Attempt to restore session via refresh token (http-only cookie)
-          const refreshed = await get().refreshToken();
+          // Pass silent=true to avoid setting global error on initial load if no session exists
+          const refreshed = await get().refreshToken(true);
           if (!refreshed) {
             // If refresh failed, we might still have persisted user info, but it's stale without a token
             // So we clear it to force re-login
@@ -182,7 +183,7 @@ export const useUserAuthStore = create<UserAuthState>()(
         }
       },
 
-      refreshToken: async () => {
+      refreshToken: async (silent = false) => {
         try {
           const response = await fetch('/api/auth/refresh', {
             method: 'POST',
@@ -193,7 +194,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           });
 
           if (!response.ok) {
-            set({ jwt: null, userInfo: null, error: 'Session expired' });
+            set({ jwt: null, userInfo: null, error: silent ? null : 'Session expired' });
             return false;
           }
 
@@ -213,12 +214,12 @@ export const useUserAuthStore = create<UserAuthState>()(
             set({ jwt: newJwt, userInfo: response.user, error: null });
             return true;
           } else {
-            set({ jwt: null, userInfo: null, error: 'Failed to get user info' });
+            set({ jwt: null, userInfo: null, error: silent ? null : 'Failed to get user info' });
             return false;
           }
         } catch (error) {
           console.error('Token refresh failed:', error);
-          set({ jwt: null, userInfo: null, error: 'Token refresh failed' });
+          set({ jwt: null, userInfo: null, error: silent ? null : 'Token refresh failed' });
           return false;
         }
       },

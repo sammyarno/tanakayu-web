@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/ui/password-input';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { AlertCircleIcon } from 'lucide-react';
@@ -46,7 +47,8 @@ const Login = () => {
 
   useEffect(() => {
     if (error) {
-      setErrorMessage('Invalid credentials');
+      console.log('useEffect error', error);
+      setErrorMessage(error);
     }
   }, [error]);
 
@@ -89,14 +91,7 @@ const Login = () => {
                 </div>
                 <div className="grid gap-3">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    disabled={isLoading}
-                    placeholder="******"
-                  />
+                  <PasswordInput id="password" name="password" required disabled={isLoading} placeholder="******" />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   Login
