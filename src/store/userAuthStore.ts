@@ -119,7 +119,15 @@ export const useUserAuthStore = create<UserAuthState>()(
           }
 
           const userData = await userResponse.json();
-          const user = userData.user as User;
+          const user: User = {
+            address: userData.user.address || '',
+            email: userData.user.email || '',
+            role: userData.user.role || '',
+            id: userData.user.id || '',
+            username: userData.user.username || '',
+            displayName: userData.user.display_name || '',
+            phone: userData.user.phone || '',
+          };
 
           set({
             jwt: loginData.jwt,
@@ -169,14 +177,18 @@ export const useUserAuthStore = create<UserAuthState>()(
             return null;
           }
 
-          // Verify endpoint returns minimal data, but for full session we prefer /api/auth/user
-          // However, verify is often used just to check token validity.
-          // Let's assume verify returns JwtUserData which is a subset of User,
-          // but we want to return full User if possible.
-          // For now, let's keep it simple: verify just checks validity.
-          // If we need data, we should use the stored data or fetch /user.
           const userData = await response.json();
-          return userData as User;
+          const user: User = {
+            address: userData.user.address || '',
+            email: userData.user.email || '',
+            role: userData.user.role || '',
+            id: userData.user.id || '',
+            username: userData.user.username || '',
+            displayName: userData.user.display_name || '',
+            phone: userData.user.phone || '',
+          };
+
+          return user;
         } catch (error) {
           console.error('Token verification failed:', error);
           return null;
@@ -211,7 +223,17 @@ export const useUserAuthStore = create<UserAuthState>()(
 
           if (userResponse.ok) {
             const response = await userResponse.json();
-            set({ jwt: newJwt, userInfo: response.user, error: null });
+            const user: User = {
+              address: response.user.address || '',
+              email: response.user.email || '',
+              role: response.user.role || '',
+              id: response.user.id || '',
+              username: response.user.username || '',
+              displayName: response.user.display_name || '',
+              phone: response.user.phone || '',
+            };
+
+            set({ jwt: newJwt, userInfo: user, error: null });
             return true;
           } else {
             set({ jwt: null, userInfo: null, error: silent ? null : 'Failed to get user info' });

@@ -43,14 +43,14 @@ export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps
         </div>
 
         <div className="grid gap-2 md:col-span-2">
-          <Label htmlFor="fullName">Full Name</Label>
+          <Label htmlFor="display_name">Display Name</Label>
           <FormController
-            name="fullName"
+            name="display_name"
             renderInput={field => (
               <div className="relative">
                 <Input
                   {...field}
-                  placeholder="Enter your full name"
+                  placeholder="Enter your display name"
                   disabled={!isEditing || isLoading}
                   className="pl-9"
                 />
@@ -80,9 +80,9 @@ export const PersonalInfoCard = ({ isLoading, isEditing }: PersonalInfoCardProps
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
+          <Label htmlFor="phone">Phone Number</Label>
           <FormController
-            name="phoneNumber"
+            name="phone"
             renderInput={field => (
               <div className="relative">
                 <Input {...field} placeholder="08xxxxxxxxxx" disabled={!isEditing || isLoading} className="pl-9" />

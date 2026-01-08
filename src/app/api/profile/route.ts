@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    let query = supabase.from('users').select('id, username, email, full_name, address, phone_number');
+    let query = supabase.from('users').select('id, username, email, full_name, address, phone_number, role');
 
     if (id) {
       query = query.eq('id', id);
@@ -37,7 +37,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response, { status: 404 });
     }
 
-    response.data = data;
+    response.data = {
+      id: data.id,
+      username: data.username,
+      email: data.email,
+      displayName: data.full_name,
+      phone: data.phone_number,
+      address: data.address,
+      role: data.role,
+    } as User;
 
     return NextResponse.json(response);
   } catch (error) {

@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useUserAuthStore } from '@/store/userAuthStore';
-import { Cpu, Nfc } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 
 interface CardVisualProps extends React.HTMLAttributes<HTMLDivElement> {
   large?: boolean;
@@ -15,8 +15,11 @@ interface CardVisualProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const MembershipCard = () => {
   const { userInfo } = useUserAuthStore();
-  const username = userInfo?.fullName || userInfo?.username || 'Member';
+  const username = userInfo?.displayName || 'Member';
   const userId = userInfo?.id || '00000000';
+  const displayAddress = (userInfo?.address || '').toUpperCase();
+
+  console.log('userInfo', userInfo);
 
   // Card UI Component to be reused in trigger and content
   const CardVisual = ({ className = '', large = false, ...props }: CardVisualProps) => {
@@ -39,10 +42,9 @@ export const MembershipCard = () => {
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <h2 className="text-tanakayu-accent font-serif text-xl font-bold tracking-wider">TANAKAYU</h2>
-                <p className="text-[0.6rem] tracking-[0.2em] text-neutral-400 uppercase">Membership</p>
+                <h2 className="text-tanakayu-accent font-serif text-3xl font-bold tracking-wider">TANAKAYU</h2>
+                <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">Membership</p>
               </div>
-              <Nfc className="h-8 w-8 text-white/20" />
             </div>
 
             {/* Chip */}
@@ -57,8 +59,16 @@ export const MembershipCard = () => {
             {/* Footer */}
             <div className="flex items-end justify-between">
               <div className="space-y-1">
-                <p className="text-[0.6rem] text-neutral-400 uppercase">Member Name</p>
-                <p className="font-mono text-lg font-medium tracking-wider text-amber-100/90">{username}</p>
+                <div>
+                  <p className="text-[0.6rem] text-neutral-400 uppercase">Member Name</p>
+                  <p className="font-mono text-lg font-medium tracking-wider text-amber-100/90">{username}</p>
+                </div>
+                {displayAddress && (
+                  <div className="pt-1">
+                    <p className="text-[0.6rem] text-neutral-400 uppercase">Residence</p>
+                    <p className="font-mono text-xs text-white/80">{displayAddress}</p>
+                  </div>
+                )}
               </div>
               {large && (
                 <div className="text-right">
@@ -92,10 +102,15 @@ export const MembershipCard = () => {
         />
 
         {/* Content Overlay */}
-        <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-14">
-          <p className="ms-1 font-sans text-xl font-bold tracking-wider text-amber-100/90 uppercase drop-shadow-md">
+        <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8">
+          <p className="font-sans text-lg font-bold tracking-wider text-amber-100/90 uppercase drop-shadow-md">
             {username}
           </p>
+          {displayAddress && (
+            <div className="mt-1 text-xs font-medium text-white/90 drop-shadow-md">
+              <p>{displayAddress}</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -111,6 +126,11 @@ export const MembershipCard = () => {
           <QRCode value={userId} size={200} />
           <div className="space-y-1 text-center">
             <p className="font-mono text-xl font-bold tracking-wider">{username}</p>
+            {displayAddress && (
+              <div className="text-sm">
+                <p className="font-medium">{displayAddress}</p>
+              </div>
+            )}
             <p className="text-muted-foreground text-xs tracking-widest uppercase">Scan to Verify</p>
           </div>
         </div>

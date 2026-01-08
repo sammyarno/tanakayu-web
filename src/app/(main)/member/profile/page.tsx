@@ -28,9 +28,9 @@ const defaultFormValues: ProfileFormData = {
   cluster: 'others',
   confirmPassword: '',
   email: '',
-  fullName: '',
+  display_name: '',
   password: '',
-  phoneNumber: '',
+  phone: '',
   username: '',
 };
 
@@ -51,12 +51,12 @@ const ProfilePage = () => {
   const onSubmit = (data: ProfileFormData) => {
     updateProfile({
       id: userId || '',
-      username: data.fullName,
+      username: username || '',
       address: `${data.cluster.trim()}, ${data.address.trim()}`,
-      fullName: data.email,
-      email: data.phoneNumber,
+      display_name: data.display_name,
+      email: data.email,
       password: data.password || undefined,
-      phoneNumber: data.phoneNumber,
+      phone: data.phone,
     });
 
     setValue('password', '');
@@ -70,9 +70,7 @@ const ProfilePage = () => {
 
       reset({
         ...profileRes,
-        fullName: profileRes.username || '',
-        email: profileRes.fullName || '',
-        phoneNumber: profileRes.email || '',
+        display_name: profileRes.displayName,
         cluster: cluster as any,
         address: address,
         password: '',
@@ -137,7 +135,7 @@ const ProfilePage = () => {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <IdentityCard fullName={profileRes?.fullName} username={username} role={profileRes?.role || role} />
+        <IdentityCard display_name={profileRes?.displayName} username={username} role={profileRes?.role || role} />
 
         <FormSchemaProvider methods={methods} schema={editProfileSchema}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -152,6 +150,7 @@ const ProfilePage = () => {
                   onClick={() => setIsEditing(true)}
                   disabled={isLoading}
                   className="w-full sm:w-auto"
+                  size="lg"
                 >
                   Update Profile
                 </Button>

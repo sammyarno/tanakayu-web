@@ -8,10 +8,10 @@ const updateProfile = async (payload: UpdateProfileRequest) => {
     method: 'PATCH',
     body: JSON.stringify({
       username: payload.username,
-      full_name: payload.fullName,
+      display_name: payload.display_name,
       address: payload.address,
       email: payload.email,
-      phone_number: payload.phoneNumber,
+      phone: payload.phone,
       password: payload.password,
     }),
   });

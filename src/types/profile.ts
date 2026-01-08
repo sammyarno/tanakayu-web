@@ -1,9 +1,9 @@
 export interface UpdateProfileRequest {
   id: string;
   username?: string;
-  fullName?: string;
+  display_name?: string;
   address?: string;
   email?: string;
-  phoneNumber?: string;
+  phone?: string;
   password?: string;
 }

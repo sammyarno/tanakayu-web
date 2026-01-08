@@ -22,17 +22,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     const updateData: any = {};
-    const allowedFields = ['full_name', 'address', 'email', 'phone_number', 'password'];
 
-    for (const field of allowedFields) {
-      if (body[field]) {
-        if (field === 'password') {
-          updateData[field] = await hashWithSalt(body[field]);
-        } else {
-          updateData[field] = body[field];
-        }
-      }
-    }
+    if (body.display_name) updateData.full_name = body.display_name;
+    if (body.phone) updateData.phone_number = body.phone;
+    if (body.address) updateData.address = body.address;
+    if (body.email) updateData.email = body.email;
+    if (body.password) updateData.password = await hashWithSalt(body.password);
 
     if (Object.keys(updateData).length === 0) {
       response.error = 'No valid fields provided for update';
@@ -47,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         modified_by: body.username,
       })
       .eq('id', id)
-      .select('id, username, email, full_name, address, phone_number')
+      .select('id, username, email, full_name, address, phone_number, role')
       .single();
 
     if (error) {
@@ -56,7 +51,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json(response, { status: 500 });
     }
 
-    response.data = data;
+    response.data = {
+      id: data.id,
+      username: data.username,
+      email: data.email,
+      displayName: data.full_name,
+      phone: data.phone_number,
+      address: data.address,
+      role: data.role,
+    } as User;
 
     return NextResponse.json(response);
   } catch (error) {

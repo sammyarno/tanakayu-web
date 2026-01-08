@@ -29,9 +29,9 @@ const defaultFormValues: ProfileFormData = {
   cluster: 'others',
   confirmPassword: '',
   email: '',
-  fullName: '',
+  display_name: '',
   password: '',
-  phoneNumber: '',
+  phone: '',
   username: '',
 };
 
@@ -54,10 +54,10 @@ const ProfilePage = () => {
       id: userId || '',
       username: username || '',
       address: `${data.cluster.trim()}, ${data.address.trim()}`,
-      fullName: data.fullName,
+      display_name: data.display_name,
       email: data.email,
       password: data.password || undefined,
-      phoneNumber: data.phoneNumber,
+      phone: data.phone,
     });
 
     setValue('password', '');
@@ -68,6 +68,7 @@ const ProfilePage = () => {
     if (profileRes) {
       reset({
         ...profileRes,
+        display_name: profileRes.displayName,
         cluster: profileRes.address.split(',')[0] as any,
         address: profileRes.address.split(',')[1],
         password: '',
@@ -123,10 +124,10 @@ const ProfilePage = () => {
               </div>
 
               <div className="grid gap-1">
-                <Label htmlFor="full_name">Full Name</Label>
+                <Label htmlFor="display_name">Display Name</Label>
                 <FormController
-                  name="full_name"
-                  renderInput={field => <Input {...field} placeholder="Enter your full name" disabled={isLoading} />}
+                  name="display_name"
+                  renderInput={field => <Input {...field} placeholder="Enter your display name" disabled={isLoading} />}
                 />
               </div>
 
@@ -141,9 +142,9 @@ const ProfilePage = () => {
               </div>
 
               <div className="grid gap-1">
-                <Label htmlFor="phone_number">Phone Number</Label>
+                <Label htmlFor="phone">Phone Number</Label>
                 <FormController
-                  name="phone_number"
+                  name="phone"
                   renderInput={field => <Input {...field} placeholder="08xxxxxxxxxx" disabled={isLoading} />}
                 />
               </div>
