@@ -29,8 +29,8 @@ const encryptedStorage = {
     if (!str) return null;
 
     try {
-      const data = await decryptData<PersistedState>(str);
-      return data ? JSON.stringify(data) : null;
+      const data = await decryptData<string>(str);
+      return data;
     } catch (e) {
       console.error('Failed to decrypt storage', e);
       return null;
@@ -41,10 +41,7 @@ const encryptedStorage = {
     if (typeof window === 'undefined') return;
 
     try {
-      const data = JSON.parse(value) as PersistedState;
-      // Ensure we only persist userInfo
-      const toPersist = { userInfo: data.userInfo };
-      const encrypted = await encryptData(toPersist);
+      const encrypted = await encryptData(value);
       localStorage.setItem(name, encrypted);
     } catch {
       console.error('Encryption failed. Not storing data.');
@@ -73,14 +70,6 @@ export const useUserAuthStore = create<UserAuthState>()(
         if (isLoading || isInitialized) {
           return;
         }
-
-        set({ isLoading: true });
-
-        try {
-          const persistedData = await encryptedStorage.getItem('user-auth-storage');
-          if (persistedData) {
-            const parsed = JSON.parse(persistedData);
-            const { jwt, userInfo } = parsed.state || {};
 
         set({ isLoading: true });
 
