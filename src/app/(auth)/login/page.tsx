@@ -5,10 +5,9 @@ import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import Banner from '@/components/Banner';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
@@ -57,28 +56,32 @@ const Login = () => {
       if (isAdmin()) {
         router.push('/admin');
       } else if (isMember()) {
-        router.push('/member');
+        router.push('/');
+      } else {
+        // Fallback for unknown roles or just authenticated
+        router.push('/');
       }
     }
   }, [user, error, router, isAdmin, isMember, isInitialized, isLoading]);
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">
-      <Card>
-        <CardHeader className="text-center">
-          <Banner />
+    <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-md border-none shadow sm:border">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+          <CardDescription className="text-sm">Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
             {errorMessage && (
-              <Alert variant="destructive" className="border-red-600 bg-red-300/40">
-                <AlertCircleIcon />
-                <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
+              <Alert variant="destructive" className="border-red-600 bg-red-50 text-red-900">
+                <AlertCircleIcon className="h-4 w-4" />
+                <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
               </Alert>
             )}
             <form onSubmit={handleSignIn} onError={handleFormError}>
-              <div className="grid gap-6">
-                <div className="grid gap-3">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
                   <Label htmlFor="username">Username</Label>
                   <Input
                     id="username"
@@ -87,20 +90,36 @@ const Login = () => {
                     placeholder="Enter your username"
                     required
                     disabled={isLoading}
+                    className="h-11"
                   />
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
-                  <PasswordInput id="password" name="password" required disabled={isLoading} placeholder="******" />
+                  <PasswordInput
+                    id="password"
+                    name="password"
+                    required
+                    disabled={isLoading}
+                    placeholder="******"
+                    className="h-11"
+                  />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  Login
+                <Button type="submit" className="mt-2 h-11 w-full text-base font-semibold" disabled={isLoading}>
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </div>
             </form>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background text-muted-foreground px-2">Or continue with</span>
+              </div>
+            </div>
             <div className="text-center text-sm">
-              <p>Don&apos;t have an account?</p>
-              <Link href="/register" className="underline">
+              <span className="text-muted-foreground">Don&apos;t have an account? </span>
+              <Link href="/register" className="hover:text-primary font-medium underline underline-offset-4">
                 Register here
               </Link>
             </div>

@@ -115,7 +115,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <PageContent allowedRoles={['MEMBER']} fallbackPath="/member">
+    <PageContent allowedRoles={['MEMBER', 'ADMIN']} fallbackPath="/member">
       <div className="space-y-2">
         <Breadcrumb
           items={[

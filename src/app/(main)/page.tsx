@@ -2,7 +2,7 @@ import HomeMenu from '@/components/HomeMenu';
 import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
-import TopHeader from '@/components/TopHeader';
+import UserMembershipDisplay from '@/components/UserMembershipDisplay';
 import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
 
 const Home = async () => {
@@ -20,7 +20,7 @@ const Home = async () => {
 
   return (
     <PageContent>
-      <TopHeader />
+      <UserMembershipDisplay />
       <HomeMenu />
 
       {/* events */}

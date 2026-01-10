@@ -3,19 +3,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Home, User } from 'lucide-react';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { Home, LayoutDashboard, User } from 'lucide-react';
 
 import { Footer } from './Footer';
 
 const BottomNav = () => {
   const pathname = usePathname();
+  const { role } = useAuth();
 
   const navItems = [
     {
       label: 'Home',
-      href: '/member',
+      href: '/',
       icon: Home,
-      isActive: (path: string) => path === '/member',
+      isActive: (path: string) => path === '/',
     },
     {
       label: 'Profile',
@@ -24,6 +26,15 @@ const BottomNav = () => {
       isActive: (path: string) => path.startsWith('/member/profile'),
     },
   ];
+
+  if (role === 'ADMIN') {
+    navItems.push({
+      label: 'Dashboard',
+      href: '/admin',
+      icon: LayoutDashboard,
+      isActive: (path: string) => path.startsWith('/admin'),
+    });
+  }
 
   return (
     <div className="fixed right-0 bottom-0 left-0 z-50 flex flex-col justify-center">
