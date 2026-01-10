@@ -1,6 +1,6 @@
 import { useAuth } from './useAuth';
 
-type UserRole = 'ADMIN' | 'MEMBER';
+type UserRole = 'ADMIN' | 'PENGHUNI' | 'PENGURUS';
 
 export const useRoleCheck = () => {
   const { role, user } = useAuth();
@@ -18,7 +18,7 @@ export const useRoleCheck = () => {
   };
 
   const isMember = (): boolean => {
-    return role === 'MEMBER';
+    return role === 'PENGHUNI';
   };
 
   const isAuthenticated = (): boolean => {

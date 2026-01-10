@@ -5,8 +5,7 @@ import { type ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/auth/useAuth';
-
-type UserRole = 'ADMIN' | 'MEMBER';
+import type { UserRole } from '@/hooks/auth/useRoleCheck';
 
 interface RoleBasedPageProps {
   children: ReactNode;
@@ -14,11 +13,7 @@ interface RoleBasedPageProps {
   fallbackPath?: string;
 }
 
-const RoleBasedPage = ({ 
-  children, 
-  allowedRoles, 
-  fallbackPath = '/login' 
-}: RoleBasedPageProps) => {
+const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: RoleBasedPageProps) => {
   const { user, role, isLoading, isInitialized } = useAuth();
   const router = useRouter();
 
@@ -34,7 +29,7 @@ const RoleBasedPage = ({
       if (role && !allowedRoles.includes(role as UserRole)) {
         if (role === 'ADMIN') {
           router.push('/admin');
-        } else if (role === 'MEMBER') {
+        } else if (role === 'PENGHUNI') {
           router.push('/member');
         } else {
           router.push(fallbackPath);

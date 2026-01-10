@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
-import { Badge } from '@/components/ui/badge';
 
 const Dashboard = () => {
   return (
@@ -29,18 +28,6 @@ const Dashboard = () => {
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
         <p className="text-center text-lg font-bold tracking-wider">💸 Laporan Keuangan 💸</p>
-      </Link>
-      <Link
-        // href="/admin/contact"
-        href="#"
-        className="border-tanakayu-accent relative cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        {/* overlay */}
-        <div className="border-tanakayu-accent bg-tanakayu-text/60 absolute top-0 left-0 h-full w-full rounded" />
-        <div className="border-tanakayu-accent absolute top-0 left-0 flex h-full w-full items-center justify-center rounded border">
-          <Badge variant="secondary">Coming Soon</Badge>
-        </div>
-        <p className="text-center text-lg font-bold tracking-wider">👥 Tim & Kontak 👥</p>
       </Link>
     </PageContent>
   );

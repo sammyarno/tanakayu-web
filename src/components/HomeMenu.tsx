@@ -1,9 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 
-import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { Phone } from 'lucide-react';
 
 const HomeMenu = () => {
+  const { role } = useAuth();
+
   return (
     <section className="flex flex-col gap-4">
       <Link
@@ -27,13 +31,15 @@ const HomeMenu = () => {
         <h2 className="mb-1 text-lg font-semibold">💰 Laporan Transaksi</h2>
         <p className="text-sm">Lihat detail transaksi keuangan komunitas dengan transparansi penuh.</p>
       </Link>
-      <Link
-        href="/expenditure-report"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <h2 className="mb-1 text-lg font-semibold">💸 Laporan Keuangan</h2>
-        <p className="text-sm">Lihat detail transaksi keuangan komunitas.</p>
-      </Link>
+      {(role === 'ADMIN' || role === 'PENGURUS') && (
+        <Link
+          href="/expenditure-report"
+          className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
+        >
+          <h2 className="mb-1 text-lg font-semibold">💸 Laporan Keuangan</h2>
+          <p className="text-sm">Lihat detail transaksi keuangan komunitas.</p>
+        </Link>
+      )}
       <Link
         href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
         className="flex cursor-pointer items-center justify-between rounded border border-red-200 bg-red-50 p-4 shadow-sm transition-all hover:bg-red-100 hover:shadow-md"
