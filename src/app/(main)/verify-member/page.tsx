@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import dayjs from 'dayjs';
-import { AlertCircle, CheckCircle2, Cpu, Loader2, QrCode, RefreshCw, Scan } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Scan } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MemberData {
@@ -79,7 +79,7 @@ export default function VerifyMemberPage() {
         </div>
 
         <Card className="overflow-hidden border-2">
-          {isScanning ? (
+          {!isScanning ? (
             <div className="relative aspect-square w-full bg-black">
               <Scanner
                 onScan={handleScan}
@@ -107,7 +107,7 @@ export default function VerifyMemberPage() {
               </div>
             </div>
           ) : (
-            <div className="p-6">
+            <div className="p-4">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Loader2 className="text-primary mb-4 size-12 animate-spin" />
@@ -143,7 +143,7 @@ export default function VerifyMemberPage() {
                       address: memberData.address,
                       role: memberData.role,
                     }}
-                    className="mx-auto"
+                    className="mx-auto !h-65"
                   />
 
                   <div className="grid gap-2 text-sm">
