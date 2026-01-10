@@ -10,11 +10,7 @@ const UserMembershipDisplay = () => {
     return null;
   }
 
-  return (
-    <div className="mb-4">
-      <MembershipCard />
-    </div>
-  );
+  return <MembershipCard />;
 };
 
 export default UserMembershipDisplay;
