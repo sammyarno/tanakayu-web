@@ -42,14 +42,6 @@ const Dashboard = () => {
         </div>
         <p className="text-center text-lg font-bold tracking-wider">👥 Tim & Kontak 👥</p>
       </Link>
-
-      <hr className="my-4" />
-      <Link
-        href="/admin/profile"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <p className="text-center text-lg font-bold tracking-wider">👥 Profil 👥</p>
-      </Link>
     </PageContent>
   );
 };
