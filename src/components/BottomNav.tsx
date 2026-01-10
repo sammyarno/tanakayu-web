@@ -12,22 +12,30 @@ const BottomNav = () => {
   const pathname = usePathname();
   const { role } = useAuth();
 
-  const navItems = [
+  const navItems: {
+    label: string;
+    href: string;
+    icon: React.ElementType;
+    isActive: (path: string) => boolean;
+  }[] = [
     {
       label: 'Home',
       href: '/',
       icon: Home,
       isActive: (path: string) => path === '/',
     },
-    {
+  ];
+
+  if (pathname !== '/verify-member') {
+    navItems.push({
       label: 'Profile',
       href: '/member/profile',
       icon: User,
       isActive: (path: string) => path.startsWith('/member/profile'),
-    },
-  ];
+    });
+  }
 
-  if (role === 'ADMIN') {
+  if (role === 'ADMIN' && pathname !== '/verify-member') {
     navItems.push({
       label: 'Dashboard',
       href: '/admin',
