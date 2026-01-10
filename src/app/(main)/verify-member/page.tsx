@@ -79,7 +79,7 @@ export default function VerifyMemberPage() {
         </div>
 
         <Card className="overflow-hidden border-2">
-          {!isScanning ? (
+          {isScanning ? (
             <div className="relative aspect-square w-full bg-black">
               <Scanner
                 onScan={handleScan}
