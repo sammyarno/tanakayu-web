@@ -8,18 +8,36 @@ import Image from 'next/image';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { Cpu } from 'lucide-react';
 
-export const MembershipCard = () => {
+interface MembershipCardProps {
+  user?: {
+    id: string;
+    full_name: string;
+    address?: string;
+    role?: string;
+  };
+  className?: string;
+}
+
+export const MembershipCard = ({ user, className }: MembershipCardProps) => {
   const { userInfo } = useUserAuthStore();
   const [isFlipped, setIsFlipped] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const username = userInfo?.displayName || 'Member';
-  const userId = userInfo?.id || '00000000';
-  const displayAddress = (userInfo?.address || '').toUpperCase();
+  // Use props if provided (e.g., from verify page), otherwise fall back to store
+  const targetUser = user || {
+    id: userInfo?.id || '00000000',
+    full_name: userInfo?.displayName || 'Member',
+    address: userInfo?.address,
+    role: userInfo?.role,
+  };
+
+  const username = targetUser.full_name;
+  const userId = targetUser.id;
+  const displayAddress = (targetUser.address || '').toUpperCase();
 
   return (
     <div
-      className="group relative h-75 w-full max-w-lg cursor-pointer [perspective:1000px]"
+      className={`group relative h-75 w-full max-w-lg cursor-pointer [perspective:1000px] ${className}`}
       onClick={() => setIsFlipped(!isFlipped)}
     >
       <div
@@ -42,15 +60,6 @@ export const MembershipCard = () => {
                   <div className="space-y-1">
                     <h2 className="text-tanakayu-accent font-serif text-3xl font-bold tracking-wider">TANAKAYU</h2>
                     <p className="text-xs tracking-[0.2em] text-neutral-400 uppercase">Membership</p>
-                  </div>
-                </div>
-
-                {/* Chip */}
-                <div className="my-2">
-                  <div className="flex items-center gap-2">
-                    <div className="relative h-9 w-12 rounded bg-yellow-100/10 backdrop-blur-sm">
-                      <Cpu className="absolute inset-0 h-full w-full p-1.5 text-yellow-200/50" />
-                    </div>
                   </div>
                 </div>
 

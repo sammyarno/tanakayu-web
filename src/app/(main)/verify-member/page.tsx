@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 
+import { MembershipCard } from '@/components/MembershipCard';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import dayjs from 'dayjs';
 import { AlertCircle, CheckCircle2, Cpu, Loader2, QrCode, RefreshCw, Scan } from 'lucide-react';
@@ -131,49 +132,19 @@ export default function VerifyMemberPage() {
                       <CheckCircle2 className="size-12" />
                     </div>
                     <h3 className="text-xl font-bold text-green-700">Verified Member</h3>
-                    <p className="text-sm text-green-600">Valid membership detected</p>
+                    <p className="text-sm text-green-600">Valid Membership Detected</p>
                   </div>
 
                   {/* Digital Card Preview */}
-                  <div className="relative mx-auto h-48 w-full max-w-sm overflow-hidden rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800 text-white shadow-xl">
-                    <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-white/5 blur-3xl" />
-                    <div className="bg-tanakayu-accent/10 absolute -bottom-12 -left-12 h-32 w-32 rounded-full blur-3xl" />
-
-                    <div className="relative flex h-full flex-col justify-between p-5">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-0.5">
-                          <h2 className="text-tanakayu-accent font-serif text-2xl font-bold tracking-wider">
-                            TANAKAYU
-                          </h2>
-                          <p className="text-[0.6rem] tracking-[0.2em] text-neutral-400 uppercase">Membership</p>
-                        </div>
-                        <div className="rounded-full bg-white/10 px-2 py-0.5 text-[0.6rem] font-medium text-white/80 uppercase backdrop-blur-sm">
-                          {memberData.role}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="relative h-7 w-10 rounded bg-yellow-100/10 backdrop-blur-sm">
-                          <Cpu className="absolute inset-0 h-full w-full p-1 text-yellow-200/50" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <div>
-                          <p className="text-[0.5rem] text-neutral-400 uppercase">Member Name</p>
-                          <p className="font-mono text-base font-medium tracking-wider text-amber-100/90">
-                            {memberData.full_name}
-                          </p>
-                        </div>
-                        {memberData.address && (
-                          <div>
-                            <p className="text-[0.5rem] text-neutral-400 uppercase">Residence</p>
-                            <p className="font-mono text-[0.65rem] text-white/80">{memberData.address.toUpperCase()}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <MembershipCard
+                    user={{
+                      id: 'VERIFIED',
+                      full_name: memberData.full_name,
+                      address: memberData.address,
+                      role: memberData.role,
+                    }}
+                    className="mx-auto"
+                  />
 
                   <div className="grid gap-2 text-sm">
                     <div className="flex justify-between border-b py-2">
