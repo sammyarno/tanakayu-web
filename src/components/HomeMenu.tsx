@@ -1,5 +1,7 @@
 import Link from 'next/link';
+
 import { Badge } from '@/components/ui/badge';
+import { Phone } from 'lucide-react';
 
 const HomeMenu = () => {
   return (
@@ -33,17 +35,16 @@ const HomeMenu = () => {
         <p className="text-sm">Lihat detail transaksi keuangan komunitas.</p>
       </Link>
       <Link
-        // href="/contact"
-        href="#"
-        className="border-tanakayu-accent relative cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
+        href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
+        className="flex cursor-pointer items-center justify-between rounded border border-red-200 bg-red-50 p-4 shadow-sm transition-all hover:bg-red-100 hover:shadow-md"
       >
-        {/* overlay */}
-        <div className="border-tanakayu-accent bg-tanakayu-text/60 absolute top-0 left-0 h-full w-full rounded" />
-        <div className="border-tanakayu-accent absolute top-0 left-0 flex h-full w-full items-center justify-center rounded border">
-          <Badge variant="secondary">Coming Soon</Badge>
+        <div>
+          <h2 className="mb-1 flex items-center text-lg font-bold text-red-700">📞 Call Helpdesk</h2>
+          <p className="text-sm font-medium text-red-600">Butuh bantuan darurat? Hubungi kami segera.</p>
         </div>
-        <h2 className="mb-1 text-lg font-semibold">👥 Tim & Kontak</h2>
-        <p className="text-sm">Kenali pengurus lingkungan dan cara menghubungi mereka.</p>
+        <div className="rounded-full bg-red-200 p-2 text-red-700">
+          <Phone className="size-8" />
+        </div>
       </Link>
     </section>
   );
