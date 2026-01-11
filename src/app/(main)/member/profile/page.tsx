@@ -128,7 +128,7 @@ const ProfilePage = () => {
       </div>
 
       {errorMessage && (
-        <Alert variant="destructive" className="mb-6 border-red-600 bg-red-50 text-red-900">
+        <Alert variant="destructive" className="mb-0 border-red-600 bg-red-50 text-red-900">
           <AlertCircleIcon className="h-4 w-4" />
           <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
         </Alert>

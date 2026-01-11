@@ -39,13 +39,14 @@ export const SecurityCard = ({ isLoading, isEditing }: SecurityCardProps) => {
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="confirm_password">Confirm Password</Label>
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
           <FormController
-            name="confirm_password"
+            name="confirmPassword"
             renderInput={field => (
               <div className="relative">
                 <PasswordInput
                   {...field}
+                  id="confirmPassword"
                   placeholder="Retype password"
                   disabled={!isEditing || isLoading}
                   className="pl-9"

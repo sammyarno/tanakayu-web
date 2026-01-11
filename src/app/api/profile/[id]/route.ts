@@ -27,7 +27,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.phone) updateData.phone_number = body.phone;
     if (body.address) updateData.address = body.address;
     if (body.email) updateData.email = body.email;
-    if (body.password) updateData.password = await hashWithSalt(body.password);
+    if (body.password) {
+      updateData.hashed_password = await hashWithSalt(body.password);
+      delete updateData.password;
+    }
 
     if (Object.keys(updateData).length === 0) {
       response.error = 'No valid fields provided for update';
