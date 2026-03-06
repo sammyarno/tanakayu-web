@@ -23,11 +23,12 @@ export const signJwt = async (payload: JwtUserData, expiresIn = JWT_EXPIRE_DURAT
   return jwt;
 };
 
-export const signRefreshJwt = async (payload: JwtUserData, expiresIn = JWT_REFRESH_EXPIRE_DURATION) => {
+export const signRefreshJwt = async (payload: JwtUserData, jti: string, expiresIn = JWT_REFRESH_EXPIRE_DURATION) => {
   const jwtPayload: JWTPayload = {
-    jti: payload.id,
+    jti,              // token UUID — used for DB lookup
     sub: payload.username,
     role: payload.role,
+    uid: payload.id,  // user ID as custom claim
   };
 
   const jwt = await new SignJWT(jwtPayload)
@@ -52,13 +53,14 @@ export const verifyJwt = async (token: string): Promise<JwtUserData | null> => {
   }
 };
 
-export const verifyRefreshJwt = async (token: string): Promise<JwtUserData | null> => {
+export const verifyRefreshJwt = async (token: string): Promise<(JwtUserData & { jti: string }) | null> => {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET);
     return {
-      id: payload.jti as string,
+      id: payload['uid'] as string,
       username: payload.sub as string,
-      role: payload.role as string,
+      role: payload['role'] as string,
+      jti: payload.jti as string,
     };
   } catch {
     return null;

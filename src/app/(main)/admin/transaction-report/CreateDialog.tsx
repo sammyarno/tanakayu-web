@@ -12,7 +12,6 @@ import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/hooks/auth/useAuth';
 import { useCreateTransaction } from '@/hooks/useCreateTransaction';
 import { createTransactionSchema } from '@/lib/validations/transaction';
 import { CATEGORY_OPTIONS, CategoryKey } from '@/types/transaction';
@@ -35,8 +34,7 @@ const defaultFormValues: CreateTransactionFormData = {
 const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { username } = useAuth();
-  const { mutate, isPending, isSuccess, isError } = useCreateTransaction();
+  const { mutate, isPending } = useCreateTransaction();
 
   const methods = useForm<CreateTransactionFormData>({
     resolver: zodResolver(createTransactionSchema),
@@ -60,36 +58,34 @@ const CreateDialog = () => {
   const handleCreateSubmission = (data: CreateTransactionFormData) => {
     setErrorMessage(undefined);
 
-    mutate({
-      title: data.title,
-      date: data.date,
-      description: data.description,
-      amount: parseFloat(data.amount),
-      category: data.category,
-      type: data.type,
-    });
+    mutate(
+      {
+        title: data.title,
+        date: data.date,
+        description: data.description,
+        amount: parseFloat(data.amount),
+        category: data.category,
+        type: data.type,
+      },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setErrorMessage(undefined);
+          reset(defaultFormValues);
+          toast.success('Transaction created successfully!', { duration: 3000, position: 'top-center' });
+        },
+        onError: () => {
+          setErrorMessage('Failed to create transaction');
+        },
+      }
+    );
   };
 
   useEffect(() => {
     if (!isOpen) {
       reset(defaultFormValues);
-      setErrorMessage(undefined);
     }
   }, [isOpen, reset]);
-
-  useEffect(() => {
-    if (isSuccess && !isError) {
-      setIsOpen(false);
-      setErrorMessage(undefined);
-      reset(defaultFormValues);
-      toast.success('Transaction created successfully!', {
-        duration: 3000,
-        position: 'top-center',
-      });
-    } else if (isError) {
-      setErrorMessage('Failed to create transaction');
-    }
-  }, [isSuccess, isError, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

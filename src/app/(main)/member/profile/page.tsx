@@ -39,7 +39,7 @@ const ProfilePage = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isEditing, setIsEditing] = useState(false);
   const { data: profileRes, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
-  const { mutate: updateProfile, isPending, isSuccess, isError, error } = useUpdateProfile(userId || '');
+  const { mutate: updateProfile, isPending } = useUpdateProfile(userId || '');
   const isLoading = isFetching || isPending;
 
   const methods = useForm<ProfileFormData>({
@@ -49,15 +49,27 @@ const ProfilePage = () => {
   const { handleSubmit, reset, setValue } = methods;
 
   const onSubmit = (data: ProfileFormData) => {
-    updateProfile({
-      id: userId || '',
-      username: username || '',
-      address: `${data.cluster.trim()}, ${data.address.trim()}`,
-      display_name: data.display_name,
-      email: data.email,
-      password: data.password || undefined,
-      phone: data.phone,
-    });
+    updateProfile(
+      {
+        id: userId || '',
+        username: username || '',
+        address: `${data.cluster.trim()}, ${data.address.trim()}`,
+        display_name: data.display_name,
+        email: data.email,
+        password: data.password || undefined,
+        phone: data.phone,
+      },
+      {
+        onSuccess: () => {
+          setErrorMessage(undefined);
+          setIsEditing(false);
+          toast.success('Profile updated successfully!', { duration: 3000, position: 'top-center' });
+        },
+        onError: (err) => {
+          setErrorMessage(err.message);
+        },
+      }
+    );
 
     setValue('password', '');
     setValue('confirmPassword', '');
@@ -78,23 +90,6 @@ const ProfilePage = () => {
       });
     }
   }, [reset, profileRes]);
-
-  useEffect(() => {
-    if (isSuccess && !error) {
-      setErrorMessage(undefined);
-      setIsEditing(false);
-      toast.success('Profile updated successfully!', {
-        duration: 3000,
-        position: 'top-center',
-      });
-    }
-  }, [isSuccess, error]);
-
-  useEffect(() => {
-    if (isError) {
-      setErrorMessage(error.message);
-    }
-  }, [isError, error]);
 
   const handleCancel = () => {
     setIsEditing(false);

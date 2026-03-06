@@ -44,12 +44,6 @@ const Login = () => {
     setErrorMessage('Invalid credentials');
   };
 
-  useEffect(() => {
-    if (error) {
-      console.log('useEffect error', error);
-      setErrorMessage(error);
-    }
-  }, [error]);
 
   useEffect(() => {
     if (isInitialized && !isLoading && user && !error) {
@@ -73,10 +67,10 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
-            {errorMessage && (
+            {(errorMessage || error) && (
               <Alert variant="destructive" className="border-red-600 bg-red-50 text-red-900">
                 <AlertCircleIcon className="h-4 w-4" />
-                <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
+                <AlertTitle className="tracking-wide capitalize">{errorMessage || error}</AlertTitle>
               </Alert>
             )}
             <form onSubmit={handleSignIn} onError={handleFormError}>

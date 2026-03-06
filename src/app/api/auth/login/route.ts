@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     const jwt = await signJwt({ id: data.id, username: data.username, role: data.role });
 
     // generate refresh token
-    const refreshToken = await signRefreshJwt({ id: data.id, username: data.username, role: data.role });
+    const tokenJti = crypto.randomUUID();
+    const refreshToken = await signRefreshJwt({ id: data.id, username: data.username, role: data.role }, tokenJti);
     const hashedRefreshToken = await hashWithSalt(refreshToken);
 
     // store refresh token in database
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     await supabaseWithAuth.from('refresh_tokens').insert({
       user_id: data.id,
       hashed_token: hashedRefreshToken,
+      token_jti: tokenJti,
       expired_at: getDateAhead(7),
       user_agent: request.headers.get('user-agent') || '',
     });

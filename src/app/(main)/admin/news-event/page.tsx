@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -13,17 +13,19 @@ import NewsEventCard from '@/components/news-event/Card';
 import { useNewsEvents } from '@/hooks/useFetchNewsEvents';
 import type { Category } from '@/types';
 
-import CreateDialog from './CreateDialog';
+import dynamic from 'next/dynamic';
+
+const CreateDialog = dynamic(() => import('./CreateDialog'));
 
 const ITEMS_PER_PAGE = 5;
 
 const NewsEventContent = () => {
-  const [selectedType, setSelectedType] = useState<string>('');
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const { data, isFetching: isFetchLoading } = useNewsEvents();
-
   const searchParams = useSearchParams();
   const filterParams = searchParams.get('filter');
+
+  const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const { data, isFetching: isFetchLoading } = useNewsEvents();
 
   const isLoading = isFetchLoading;
 
@@ -62,12 +64,6 @@ const NewsEventContent = () => {
   const handlePageChange = useCallback(async (page: number) => {
     setCurrentPage(page);
   }, []);
-
-  useEffect(() => {
-    if (filterParams) {
-      handleFilterChange(filterParams);
-    }
-  }, [filterParams, handleFilterChange]);
 
   return (
     <PageContent allowedRoles={['ADMIN']}>

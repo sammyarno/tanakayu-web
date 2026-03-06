@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -17,12 +17,13 @@ import type { Category } from '@/types';
 const ITEMS_PER_PAGE = 5;
 
 const NewsEventContent = () => {
-  const [selectedType, setSelectedType] = useState<string>('');
+  const searchParams = useSearchParams();
+  const filterParams = searchParams.get('filter');
+
+  const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { data, isFetching: isFetchLoading } = useNewsEvents();
   const { isPending: isPostLoading } = usePostComment();
-  const searchParams = useSearchParams();
-  const filterParams = searchParams.get('filter');
 
   const isLoading = isFetchLoading || isPostLoading;
 
@@ -62,12 +63,6 @@ const NewsEventContent = () => {
   const handlePageChange = useCallback(async (page: number) => {
     setCurrentPage(page);
   }, []);
-
-  useEffect(() => {
-    if (filterParams) {
-      handleFilterChange(filterParams);
-    }
-  }, [filterParams, handleFilterChange]);
 
   return (
     <PageContent>

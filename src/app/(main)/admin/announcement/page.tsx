@@ -10,7 +10,9 @@ import AnnouncementCard from '@/components/announcement/Card';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { useAnnouncements } from '@/hooks/useFetchAnnouncements';
 
-import CreateDialog from './CreateDialog';
+import dynamic from 'next/dynamic';
+
+const CreateDialog = dynamic(() => import('./CreateDialog'));
 
 const Announcement = () => {
   const [selectedCategory, setSelectedCategory] = useState('');

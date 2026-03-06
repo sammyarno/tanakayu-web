@@ -13,8 +13,10 @@ import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
 import { RefreshCw } from 'lucide-react';
 
-import CreateTransactionDialog from './CreateDialog';
-import UploadDialog from './UploadDialog';
+import dynamic from 'next/dynamic';
+
+const CreateTransactionDialog = dynamic(() => import('./CreateDialog'));
+const UploadDialog = dynamic(() => import('./UploadDialog'));
 
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();

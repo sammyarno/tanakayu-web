@@ -35,28 +35,22 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Invalid refresh token' }, { status: 401 });
     }
 
-    // Find matching refresh token in database
-    const { data: refreshTokens, error: fetchError } = await supabase
+    // Find matching refresh token in database by (user_id, token_jti) — O(1) lookup
+    const { data: storedToken, error: fetchError } = await supabase
       .from('refresh_tokens')
       .select('id, hashed_token, expired_at, user_id')
       .eq('user_id', refreshPayload.id)
-      .gte('expired_at', getNowDate());
+      .eq('token_jti', refreshPayload.jti)
+      .gte('expired_at', getNowDate())
+      .single();
 
-    if (fetchError || !refreshTokens || refreshTokens.length === 0) {
+    if (fetchError || !storedToken) {
       return Response.json({ error: 'No valid refresh tokens found' }, { status: 401 });
     }
 
-    // Check if any stored refresh token matches the provided one
-    let validRefreshToken = null;
-    for (const storedToken of refreshTokens) {
-      const isMatch = await compareWithSalt(refreshTokenCookie, storedToken.hashed_token);
-      if (isMatch) {
-        validRefreshToken = storedToken;
-        break;
-      }
-    }
-
-    if (!validRefreshToken) {
+    // One bcrypt compare
+    const isMatch = await compareWithSalt(refreshTokenCookie, storedToken.hashed_token);
+    if (!isMatch) {
       return Response.json({ error: 'Invalid refresh token' }, { status: 401 });
     }
 
@@ -73,7 +67,8 @@ export async function POST(request: NextRequest) {
 
     // Generate new tokens
     const newAccessToken = await signJwt({ id: userData.id, username: userData.username, role: userData.role });
-    const newRefreshToken = await signRefreshJwt({ id: userData.id, username: userData.username, role: userData.role });
+    const newTokenJti = crypto.randomUUID();
+    const newRefreshToken = await signRefreshJwt({ id: userData.id, username: userData.username, role: userData.role }, newTokenJti);
     const hashedNewRefreshToken = await hashWithSalt(newRefreshToken);
 
     // Update refresh token in database (replace the old one)
@@ -81,10 +76,11 @@ export async function POST(request: NextRequest) {
       .from('refresh_tokens')
       .update({
         hashed_token: hashedNewRefreshToken,
+        token_jti: newTokenJti,
         expired_at: getDateAhead(7),
         user_agent: request.headers.get('user-agent') || '',
       })
-      .eq('id', validRefreshToken.id);
+      .eq('id', storedToken.id);
 
     if (updateError) {
       return Response.json({ error: 'Failed to update refresh token' }, { status: 500 });

@@ -1,7 +1,9 @@
 import { memo, useState } from 'react';
 
-import DeleteConfirmationAlert from '@/components/news-event/DeleteConfirmationAlert';
-import EditDialog from '@/components/news-event/EditDialog';
+import dynamic from 'next/dynamic';
+
+const DeleteConfirmationAlert = dynamic(() => import('@/components/news-event/DeleteConfirmationAlert'));
+const EditDialog = dynamic(() => import('@/components/news-event/EditDialog'));
 import type { NewsEventWithComment } from '@/types/news-event';
 import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';

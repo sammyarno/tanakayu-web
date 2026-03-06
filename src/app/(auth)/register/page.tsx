@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Link from 'next/link';
@@ -37,7 +37,6 @@ const defaultFormValues: RegisterFormData = {
 
 const Register = () => {
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState<string>();
   const { mutate, isPending, isSuccess, error, isError } = useRegister();
 
   const methods = useForm<RegisterFormData>({
@@ -64,7 +63,6 @@ const Register = () => {
 
   useEffect(() => {
     if (isSuccess && !error) {
-      setErrorMessage(undefined);
       toast.success('Member registered successfully', {
         duration: 3000,
         position: 'top-center',
@@ -72,12 +70,6 @@ const Register = () => {
       router.push('/login');
     }
   }, [isSuccess, router, error]);
-
-  useEffect(() => {
-    if (isError) {
-      setErrorMessage((error as Error).message);
-    }
-  }, [isError, error]);
 
   return (
     <div className="mx-auto flex h-full w-full max-w-md flex-col items-stretch justify-center gap-6">
@@ -88,10 +80,10 @@ const Register = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
-            {errorMessage && (
+            {isError && (
               <Alert variant="destructive" className="border-red-600 bg-red-300/40">
                 <AlertCircleIcon />
-                <AlertTitle className="tracking-wider capitalize">{errorMessage}</AlertTitle>
+                <AlertTitle className="tracking-wider capitalize">{(error as Error)?.message}</AlertTitle>
               </Alert>
             )}
             <FormSchemaProvider methods={methods} schema={registerSchema}>

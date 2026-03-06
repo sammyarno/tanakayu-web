@@ -15,110 +15,92 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const monthFilter = searchParams.get('month');
 
-    let query = supabase
-      .from('transactions')
-      .select('id, title, amount, type, category, description, date, created_at, created_by')
-      .order('date', { ascending: false });
+    let transformedTransactions: {
+      id: string;
+      title: string;
+      amount: number;
+      type: string;
+      category: string;
+      description: string | null;
+      date: string;
+      createdAt: string;
+      createdBy: string;
+    }[];
+    let balance = 0;
 
-    // Apply month filter if provided
     if (monthFilter && monthFilter.length === 6) {
       const month = parseInt(monthFilter.substring(0, 2), 10);
       const year = parseInt(monthFilter.substring(2), 10);
 
-      // Calculate start and end dates for the month
-      const startDate = new Date(year, month - 1, 1); // month is 0-indexed
-      const endDate = new Date(year, month, 0, 23, 59, 59, 999); // Last day of month at 23:59:59
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0);
 
-      const startDateStr = startDate.toISOString().split('T')[0]; // YYYY-MM-DD
-      const endDateStr = endDate.toISOString().split('T')[0]; // YYYY-MM-DD
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
 
-      query = query.gte('date', startDateStr).lte('date', endDateStr);
-    }
+      // Single query: all transactions up to end of current month
+      const { data: allTransactions, error } = await supabase
+        .from('transactions')
+        .select('id, title, amount, type, category, description, date, created_at, created_by')
+        .lte('date', endDateStr)
+        .order('date', { ascending: false });
 
-    const { data: transactions, error } = await query;
-
-    if (error) {
-      response.error = error.message;
-      return Response.json(response, { status: 500 });
-    }
-
-    if (!transactions) {
-      response.data = {
-        balance: 0,
-        transactions: [],
-      };
-      return Response.json(response, { status: 200 });
-    }
-
-    // Transform data to camelCase
-    const transformedTransactions = transactions.map(t => ({
-      id: t.id,
-      title: t.title,
-      amount: t.amount,
-      type: t.type,
-      category: t.category,
-      description: t.description,
-      date: t.date,
-      createdAt: t.created_at,
-      createdBy: t.created_by,
-    }));
-
-    // Calculate balance based on constraint:
-    // If monthFilter exists: balance = last month balance + current month income - current month expenses
-    // Otherwise: standard calculation (income - expense)
-    let balance = 0;
-    
-    if (monthFilter && monthFilter.length === 6) {
-      // Get previous month data for balance calculation
-      const currentMonth = parseInt(monthFilter.substring(0, 2), 10);
-      const currentYear = parseInt(monthFilter.substring(2), 10);
-      
-      let prevMonth = currentMonth - 1;
-      let prevYear = currentYear;
-      if (prevMonth === 0) {
-        prevMonth = 12;
-        prevYear = currentYear - 1;
+      if (error) {
+        response.error = error.message;
+        return Response.json(response, { status: 500 });
       }
-      
-      try {
-        // Fetch ALL transactions from the beginning up until the day before current month
-        const currentStartDate = new Date(currentYear, currentMonth - 1, 1);
-        const beforeCurrentMonthStr = new Date(currentStartDate.getTime() - 1).toISOString().split('T')[0]; // Day before current month
-        
-        const { data: allPrevTransactions } = await supabase
-          .from('transactions')
-          .select('amount, type')
-          .lte('date', beforeCurrentMonthStr)
-          .order('date', { ascending: true });
-        
-        const lastMonthBalance = allPrevTransactions
-          ? allPrevTransactions.reduce((acc, t) => {
-              return t.type === 'income' ? acc + t.amount : acc - t.amount;
-            }, 0)
-          : 0;
-        
-        // Calculate current month's income and expenses
-        const currentIncome = transformedTransactions
-          .filter(t => t.type === 'income')
-          .reduce((sum, t) => sum + t.amount, 0);
-        const currentExpenses = transformedTransactions
-          .filter(t => t.type === 'expense')
-          .reduce((sum, t) => sum + t.amount, 0);
-        
-        // Apply constraint formula
-        balance = lastMonthBalance + currentIncome - currentExpenses;
-      } catch (error) {
-        console.warn('Could not fetch previous month data, using current calculation:', error);
-        // Fallback to standard calculation
-        balance = transformedTransactions.reduce((acc, transaction) => {
-          return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
-        }, 0);
-      }
+
+      const all = allTransactions ?? [];
+      const currentMonthTxs = all.filter(t => t.date >= startDateStr);
+      const prevTxs = all.filter(t => t.date < startDateStr);
+
+      const lastMonthBalance = prevTxs.reduce((acc, t) =>
+        t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
+      const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+      const currentExpenses = currentMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+      balance = lastMonthBalance + currentIncome - currentExpenses;
+
+      transformedTransactions = currentMonthTxs.map(t => ({
+        id: t.id,
+        title: t.title,
+        amount: t.amount,
+        type: t.type,
+        category: t.category,
+        description: t.description,
+        date: t.date,
+        createdAt: t.created_at,
+        createdBy: t.created_by,
+      }));
     } else {
-      // Standard balance calculation for non-filtered requests
-      balance = transformedTransactions.reduce((acc, transaction) => {
-        return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
-      }, 0);
+      const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('id, title, amount, type, category, description, date, created_at, created_by')
+        .order('date', { ascending: false });
+
+      if (error) {
+        response.error = error.message;
+        return Response.json(response, { status: 500 });
+      }
+
+      transformedTransactions = (transactions ?? []).map(t => ({
+        id: t.id,
+        title: t.title,
+        amount: t.amount,
+        type: t.type,
+        category: t.category,
+        description: t.description,
+        date: t.date,
+        createdAt: t.created_at,
+        createdBy: t.created_by,
+      }));
+
+      balance = transformedTransactions.reduce((acc, t) =>
+        t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
+    }
+
+    if (transformedTransactions.length === 0) {
+      response.data = { balance: 0, transactions: [] };
+      return Response.json(response, { status: 200 });
     }
 
     // Group transactions by date

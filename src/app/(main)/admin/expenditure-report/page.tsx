@@ -13,8 +13,10 @@ import { formatDate } from '@/utils/date';
 import dayjs from 'dayjs';
 import { CalendarIcon, EditIcon } from 'lucide-react';
 
-import CreateDialog from './CreateDialog';
-import UpdateDialog from './UpdateDialog';
+import dynamic from 'next/dynamic';
+
+const CreateDialog = dynamic(() => import('./CreateDialog'));
+const UpdateDialog = dynamic(() => import('./UpdateDialog'));
 
 const ExpenditureReportAdmin = () => {
   const [selectedExpenditure, setSelectedExpenditure] = useState<any>(null);

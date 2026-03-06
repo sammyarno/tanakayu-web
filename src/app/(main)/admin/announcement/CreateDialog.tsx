@@ -10,7 +10,6 @@ import { FormController } from '@/components/ui/form-controller';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import RichTextEditor from '@/components/ui/rich-text-editor';
-import { useAuth } from '@/hooks/auth/useAuth';
 import { useCreateAnnouncement } from '@/hooks/useCreateAnnouncement';
 import { useAnnouncementCategories } from '@/hooks/useFetchAnnouncementCategories';
 import { createAnnouncementSchema } from '@/lib/validations/announcement';
@@ -30,9 +29,8 @@ const defaultFormValues: CreateAnnouncementForm = {
 const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { mutate, isPending, isSuccess, isError } = useCreateAnnouncement();
+  const { mutate, isPending } = useCreateAnnouncement();
   const { data: categories } = useAnnouncementCategories();
-  const { username } = useAuth();
 
   const methods = useForm<CreateAnnouncementForm>({
     resolver: zodResolver(createAnnouncementSchema),
@@ -52,33 +50,27 @@ const CreateDialog = () => {
 
     const categoryIds = data.categories.map(code => categories?.find(c => c.code === code)?.id || '');
 
-    mutate({
-      title: data.title,
-      content: data.content,
-      categoryIds: categoryIds,
-    });
+    mutate(
+      { title: data.title, content: data.content, categoryIds },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setErrorMessage(undefined);
+          reset(defaultFormValues);
+          toast.success('Announcement created successfully!', { duration: 3000, position: 'top-center' });
+        },
+        onError: () => {
+          setErrorMessage('Failed to create announcement');
+        },
+      }
+    );
   };
 
   useEffect(() => {
     if (!isOpen) {
       reset(defaultFormValues);
-      setErrorMessage(undefined);
     }
   }, [isOpen, reset]);
-
-  useEffect(() => {
-    if (isSuccess && !isError) {
-      setIsOpen(false);
-      setErrorMessage(undefined);
-      reset(defaultFormValues);
-      toast.success('Announcement created successfully!', {
-        duration: 3000,
-        position: 'top-center',
-      });
-    } else if (isError) {
-      setErrorMessage('Failed to create announcement');
-    }
-  }, [isSuccess, isError, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
