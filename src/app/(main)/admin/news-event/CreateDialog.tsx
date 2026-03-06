@@ -58,7 +58,6 @@ const CreateDialog = () => {
       type: data.type,
       startDate: data.startDate || undefined,
       endDate: data.endDate || undefined,
-      actor: username || '',
     });
   };
 

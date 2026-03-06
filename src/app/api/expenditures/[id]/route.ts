@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { Expenditure, UpdateExpenditureRequest } from '@/types/expenditure';
 import type { FetchResponse } from '@/types/fetch';
 
@@ -10,17 +11,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const response: FetchResponse<Expenditure> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
     const { id } = await params;
     const body: UpdateExpenditureRequest = await request.json();
-    const { date, description, image_path, actor } = body;
-
-    if (!actor) {
-      response.error = 'Actor is required';
-      return Response.json(response, { status: 400 });
-    }
+    const { date, description, image_path } = body;
+    const actor = user!.username;
 
     // Build update object
     const updateData: any = {
@@ -69,6 +69,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   const response: FetchResponse<{ success: boolean }> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 

@@ -52,7 +52,6 @@ export interface BulkCreateTransactionsParamsTransaction {
 
 export interface BulkCreateTransactionsParams {
   transactions: BulkCreateTransactionsParamsTransaction[];
-  actor: string;
 }
 
 export interface BulkCreateTransactionsResponse {

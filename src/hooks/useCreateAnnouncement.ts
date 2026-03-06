@@ -5,7 +5,6 @@ export interface CreateAnnouncementRequest {
   title: string;
   content: string;
   categoryIds: string[];
-  actor: string;
 }
 
 const createAnnouncement = async (payload: CreateAnnouncementRequest) => {
@@ -18,7 +17,6 @@ const createAnnouncement = async (payload: CreateAnnouncementRequest) => {
       title: payload.title,
       content: payload.content,
       categoryIds: payload.categoryIds,
-      actor: payload.actor,
     }),
   });
 

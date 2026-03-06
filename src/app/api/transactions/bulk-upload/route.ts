@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse } from '@/types/fetch';
 
 interface BulkTransactionRequest {
@@ -13,7 +14,6 @@ interface BulkTransactionRequest {
     title: string;
     type: 'income' | 'expense';
   }>;
-  actor: string;
 }
 
 function validateTransaction(transaction: any): string[] {
@@ -67,6 +67,9 @@ export async function POST(request: NextRequest) {
   const response: FetchResponse<{ success: boolean; count: number; transactions: any[] }> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const body: BulkTransactionRequest = await request.json();
 
     if (!body.transactions || !Array.isArray(body.transactions)) {
@@ -74,10 +77,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    if (!body.actor?.trim()) {
-      response.error = 'Actor is required';
-      return NextResponse.json(response, { status: 400 });
-    }
+    const actor = user!.username;
 
     if (body.transactions.length === 0) {
       response.error = 'At least one transaction is required';
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     // Prepare transactions for insert
     const transactionsToInsert = body.transactions.map(transaction => ({
       ...transaction,
-      created_by: body.actor,
+      created_by: actor,
       amount: Number(transaction.amount),
     }));
 

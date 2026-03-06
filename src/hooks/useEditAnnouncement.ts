@@ -6,7 +6,6 @@ export interface EditAnnouncementRequest {
   title?: string;
   content?: string;
   categories?: string[];
-  actor: string;
 }
 
 const editAnnouncement = async (payload: EditAnnouncementRequest) => {
@@ -16,7 +15,6 @@ const editAnnouncement = async (payload: EditAnnouncementRequest) => {
       title: payload.title,
       content: payload.content,
       categoryIds: payload.categories,
-      actor: payload.actor,
     }),
   });
 

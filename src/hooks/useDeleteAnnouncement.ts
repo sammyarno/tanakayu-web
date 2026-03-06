@@ -3,15 +3,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface DeleteAnnouncementRequest {
   id: string;
-  actor: string;
 }
 
 const deleteAnnouncement = async (payload: DeleteAnnouncementRequest) => {
   const response = await authenticatedFetchJson(`/api/announcements/${payload.id}`, {
     method: 'DELETE',
-    body: JSON.stringify({
-      deletedBy: payload.actor,
-    }),
+    body: JSON.stringify({}),
   });
 
   if (response.error) {

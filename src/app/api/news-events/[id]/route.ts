@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
@@ -9,12 +10,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const response: FetchResponse<SimpleResponse> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const { id } = await params;
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
-    const { title, content, type, startDate, endDate, actor } = body;
+    const { title, content, type, startDate, endDate } = body;
+    const actor = user!.username;
 
     const updateData: any = {
       modified_by: actor,
@@ -58,12 +63,14 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   const response: FetchResponse<SimpleResponse> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
-    const body = await request.json();
     const { id } = await params;
 
-    const { actor } = body;
+    const actor = user!.username;
 
     // Perform soft delete by updating deleted_at and deleted_by columns
     const updateData = {

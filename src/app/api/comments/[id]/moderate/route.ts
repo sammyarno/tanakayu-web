@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
@@ -9,12 +10,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const response: FetchResponse<SimpleResponse> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
     const { id } = await params;
 
-    const { action, actor } = body;
+    const { action } = body;
+    const actor = user!.username;
 
     const updateData: any = {};
     const currentTimestamp = getNowDate();

@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 export interface ModerateCommentRequest {
   commentId: string;
   action: 'approve' | 'reject' | 'delete';
-  actor: string;
 }
 
 const moderateComment = async (payload: ModerateCommentRequest) => {
@@ -15,7 +14,6 @@ const moderateComment = async (payload: ModerateCommentRequest) => {
     method: 'PATCH',
     body: JSON.stringify({
       action: payload.action,
-      actor: payload.actor,
     }),
   });
 
@@ -37,13 +35,11 @@ export const useModerateComment = () => {
 
       if (variables.action === 'approve') {
         updateData.approvedAt = currentTimestamp;
-        updateData.approvedBy = variables.actor;
+        // actor is now set by server, optimistic update just won't show the exact user
       } else if (variables.action === 'reject') {
         updateData.rejectedAt = currentTimestamp;
-        updateData.rejectedBy = variables.actor;
       } else if (variables.action === 'delete') {
         updateData.deletedAt = currentTimestamp;
-        updateData.deletedBy = variables.actor;
       }
 
       const updateCachedData = (oldData: NewsEventWithComment[]) => {

@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse } from '@/types/fetch';
 
 export async function POST(request: NextRequest) {
@@ -13,6 +14,9 @@ export async function POST(request: NextRequest) {
   }> = {};
 
   try {
+    const { error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 

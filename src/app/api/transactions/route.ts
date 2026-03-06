@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import type { TransactionsResult } from '@/types/transaction';
 
@@ -152,11 +153,15 @@ export async function POST(request: NextRequest) {
   const response: FetchResponse<SimpleResponse> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
-    const { title, description, amount, category, type, actor, date } = body;
+    const { title, description, amount, category, type, date } = body;
+    const actor = user!.username;
 
     const { data, error } = await supabase
       .from('transactions')

@@ -58,7 +58,6 @@ const EditDialog = ({ announcement }: EditDialogProps) => {
         title: data.title,
         content: data.content,
         categories: categoryIds,
-        actor: username || '',
       });
 
       setIsOpen(false);

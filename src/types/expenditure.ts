@@ -13,7 +13,6 @@ export interface CreateExpenditureRequest {
   date: string;
   description: string;
   image_path: string;
-  actor: string;
 }
 
 export interface UpdateExpenditureRequest {
@@ -21,7 +20,6 @@ export interface UpdateExpenditureRequest {
   date?: string;
   description?: string;
   image_path?: string;
-  actor: string;
 }
 
 export interface ExpenditureUploadResponse {

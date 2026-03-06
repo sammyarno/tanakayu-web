@@ -70,7 +70,6 @@ const CreateDialog = () => {
         date: data.date,
         description: data.description,
         image_path: imageUrl,
-        actor: username || '',
       });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to upload image');

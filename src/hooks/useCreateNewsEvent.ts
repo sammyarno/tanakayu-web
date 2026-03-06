@@ -7,7 +7,6 @@ interface CreateNewsEventParams {
   content: string;
   startDate?: string;
   endDate?: string;
-  actor: string;
 }
 
 const createNewsEvent = async (params: CreateNewsEventParams) => {
@@ -19,7 +18,6 @@ const createNewsEvent = async (params: CreateNewsEventParams) => {
       content: params.content,
       startDate: params.startDate,
       endDate: params.endDate,
-      actor: params.actor,
     }),
   });
 

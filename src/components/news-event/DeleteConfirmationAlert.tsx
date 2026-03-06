@@ -26,7 +26,6 @@ const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
     try {
       await deleteNewsEvent({
         id: item.id,
-        actor: username,
       });
       setIsOpen(false);
       toast.success('News event deleted successfully', {

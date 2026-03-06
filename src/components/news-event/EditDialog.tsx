@@ -68,7 +68,6 @@ const EditDialog = (props: EditDialogProps) => {
         type: data.type,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        actor: username || '',
       });
 
       setIsOpen(false);

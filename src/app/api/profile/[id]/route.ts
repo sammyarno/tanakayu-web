@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { hashWithSalt } from '@/lib/bcrypt';
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import { User } from '@/types/auth';
 import { FetchResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
@@ -11,6 +12,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const response: FetchResponse<User> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
@@ -42,7 +46,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .update({
         ...updateData,
         modified_at: getNowDate(),
-        modified_by: body.username,
+        modified_by: user!.username,
       })
       .eq('id', id)
       .select('id, username, email, full_name, address, phone_number, role')

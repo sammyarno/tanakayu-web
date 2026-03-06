@@ -8,7 +8,6 @@ export interface EditNewsEventRequest {
   type: string;
   startDate?: string | null;
   endDate?: string | null;
-  actor: string;
 }
 
 const editNewsEvent = async (payload: EditNewsEventRequest) => {
@@ -23,7 +22,6 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
       type: payload.type,
       startDate: payload.startDate,
       endDate: payload.endDate,
-      actor: payload.actor,
     }),
   });
 

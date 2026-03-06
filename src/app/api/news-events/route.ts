@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { FetchResponse } from '@/types/fetch';
 
 export async function GET(request: NextRequest) {
@@ -64,11 +65,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
-    const { title, content, type, startDate, endDate, actor } = body;
+    const { title, content, type, startDate, endDate } = body;
+    const actor = user!.username;
 
     const { data, error } = await supabase
       .from('news_events')

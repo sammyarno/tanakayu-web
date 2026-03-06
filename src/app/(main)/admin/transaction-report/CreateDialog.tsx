@@ -67,7 +67,6 @@ const CreateDialog = () => {
       amount: parseFloat(data.amount),
       category: data.category,
       type: data.type,
-      actor: username || '',
     });
   };
 

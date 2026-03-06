@@ -56,7 +56,6 @@ const CreateDialog = () => {
       title: data.title,
       content: data.content,
       categoryIds: categoryIds,
-      actor: username || '',
     });
   };
 

@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
+import { verifyAuth } from '@/lib/auth';
 import type { CreateExpenditureRequest, Expenditure } from '@/types/expenditure';
 import type { FetchResponse } from '@/types/fetch';
 
@@ -45,13 +46,17 @@ export async function POST(request: NextRequest) {
   const response: FetchResponse<Expenditure> = {};
 
   try {
+    const { user, error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
     const body: CreateExpenditureRequest = await request.json();
-    const { date, description, image_path, actor } = body;
+    const { date, description, image_path } = body;
+    const actor = user!.username;
 
-    if (!date || !description || !image_path || !actor) {
+    if (!date || !description || !image_path) {
       response.error = 'Missing required fields';
       return Response.json(response, { status: 400 });
     }

@@ -4,13 +4,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const bulkCreateTransactions = async ({
   transactions,
-  actor,
 }: BulkCreateTransactionsParams): Promise<BulkCreateTransactionsResponse> => {
   const response = await authenticatedFetchJson('/api/transactions/bulk-upload', {
     method: 'POST',
     body: JSON.stringify({
       transactions,
-      actor,
     }),
   });
 

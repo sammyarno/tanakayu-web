@@ -9,7 +9,6 @@ export interface CreateTransactionRequest {
   category: string;
   description?: string;
   date: string;
-  actor: string;
 }
 
 const createTransaction = async (payload: CreateTransactionRequest): Promise<SimpleResponse> => {
@@ -22,7 +21,6 @@ const createTransaction = async (payload: CreateTransactionRequest): Promise<Sim
       category: payload.category,
       description: payload.description,
       date: payload.date,
-      actor: payload.actor,
     }),
   });
 

@@ -23,7 +23,6 @@ const DeleteConfirmatonAlert = ({ announcement }: { announcement: Announcement }
   const handleDelete = async () => {
     await mutateAsync({
       id: announcement.id,
-      actor: username || '',
     });
 
     setIsOpen(false);

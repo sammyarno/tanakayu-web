@@ -77,7 +77,6 @@ const UploadDialog = () => {
 
       const result = await bulkCreateTransactions({
         transactions: allTransactions,
-        actor: username,
       });
 
       toast.success(`${result.count} transactions successfully uploaded`, {

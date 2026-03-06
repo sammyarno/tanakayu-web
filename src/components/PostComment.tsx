@@ -31,7 +31,6 @@ const PostComment = (props: PostCommentProps) => {
       await moderateComment({
         commentId,
         action: 'approve',
-        actor: username,
       });
       toast.success('Comment approved successfully', {
         duration: 3000,
@@ -51,7 +50,6 @@ const PostComment = (props: PostCommentProps) => {
       await moderateComment({
         commentId,
         action: 'reject',
-        actor: username,
       });
       toast.success('Comment rejected successfully', {
         duration: 3000,
@@ -71,7 +69,6 @@ const PostComment = (props: PostCommentProps) => {
       await moderateComment({
         commentId,
         action: 'delete',
-        actor: username,
       });
       toast.success('Comment deleted successfully', {
         duration: 3000,
@@ -96,7 +93,6 @@ const PostComment = (props: PostCommentProps) => {
 
     if (name && comment) {
       await postComment({
-        actor: name,
         comment,
         targetId: postId,
         targetType: type,
