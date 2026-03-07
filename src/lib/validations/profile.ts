@@ -3,7 +3,6 @@ import z from 'zod';
 
 export const editProfileSchema = z
   .object({
-    username: z.string().min(1, 'Username is required').min(6, 'Username must be at least 6 characters'),
     display_name: z.string().min(1, 'Display Name is required').min(6, 'Display Name must be at least 6 characters'),
     cluster: z.enum(CLUSTER_LIST, { message: 'Cluster must be selected' }),
     address: z.string().min(1, 'Address is required'),
@@ -11,7 +10,7 @@ export const editProfileSchema = z
       .string()
       .optional()
       .refine(val => !val || val.length >= 8, { message: 'Password must be at least 8 characters' }),
-    email: z.string().email('Please enter a valid email'),
+    email: z.email('Please enter a valid email'),
     phone: z
       .string()
       .min(1, 'Phone Number is required')
