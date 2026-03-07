@@ -31,7 +31,6 @@ const defaultFormValues: ProfileFormData = {
   display_name: '',
   password: '',
   phone: '',
-  username: '',
 };
 
 const ProfilePage = () => {
