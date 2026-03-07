@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
-import { RefreshCw } from 'lucide-react';
+import { exportTransactionsToExcel } from '@/utils/exportTransactions';
+import { Download, RefreshCw } from 'lucide-react';
 
 import dynamic from 'next/dynamic';
 
@@ -41,6 +42,13 @@ const FinancialReport = () => {
 
   const handleResetFilter = () => {
     setSelectedPeriod('');
+  };
+
+  const selectedPeriodLabel = monthOptions.find(o => o.value === selectedPeriod)?.label ?? 'Semua';
+
+  const handleDownloadExcel = () => {
+    if (!transactionsData) return;
+    exportTransactionsToExcel(transactionsData, selectedPeriodLabel, selectedPeriod || undefined);
   };
 
   return (
@@ -92,6 +100,14 @@ const FinancialReport = () => {
         <div className="flex w-full items-center gap-2">
           <CreateTransactionDialog />
           <UploadDialog />
+          <Button
+            variant="outline"
+            onClick={handleDownloadExcel}
+            disabled={!transactionsData?.transactions?.length}
+          >
+            <Download className="size-4" />
+            Download
+          </Button>
         </div>
         <hr />
       </section>

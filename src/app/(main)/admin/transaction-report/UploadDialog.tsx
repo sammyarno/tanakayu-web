@@ -127,7 +127,7 @@ const UploadDialog = () => {
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)} size="lg" className="flex-1 tracking-wide" variant="outline">
           <FileSpreadsheetIcon className="size-4" />
-          Upload Excel/CSV
+          Upload
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] sm:max-w-md">
