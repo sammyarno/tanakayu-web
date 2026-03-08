@@ -3,54 +3,76 @@
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Phone } from 'lucide-react';
+import { Banknote, CalendarDays, Megaphone, PhoneCall, ReceiptText } from 'lucide-react';
+
+const MENU_ITEMS = [
+  {
+    href: '/news-event',
+    icon: CalendarDays,
+    iconBaseColor: 'bg-blue-50',
+    iconColor: 'text-blue-500',
+    alt: 'Berita & Acara',
+    title: 'Berita & Acara',
+  },
+  {
+    href: '/announcement',
+    icon: Megaphone,
+    iconBaseColor: 'bg-orange-50',
+    iconColor: 'text-orange-500',
+    alt: 'Pengumuman',
+    title: 'Pengumuman',
+  },
+  {
+    href: '/transaction-report',
+    icon: ReceiptText,
+    iconBaseColor: 'bg-green-50',
+    iconColor: 'text-green-500',
+    alt: 'Laporan Transaksi',
+    title: 'Laporan Transaksi',
+  },
+];
+
+const ADMIN_MENU_ITEMS = [
+  {
+    href: '/expenditure-report',
+    icon: Banknote,
+    iconBaseColor: 'bg-purple-50',
+    iconColor: 'text-purple-500',
+    alt: 'Laporan Keuangan',
+    title: 'Laporan Keuangan',
+  },
+];
 
 const HomeMenu = () => {
   const { role } = useAuth();
 
+  const displayItems = role === 'ADMIN' || role === 'PENGURUS' ? [...MENU_ITEMS, ...ADMIN_MENU_ITEMS] : MENU_ITEMS;
+
   return (
-    <section className="flex flex-col gap-4">
-      <Link
-        href="/news-event"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <h2 className="mb-1 text-lg font-semibold">📰 Berita & Acara</h2>
-        <p className="text-sm">Lihat acara yang akan datang dan kabar terbaru dari komunitas.</p>
-      </Link>
-      <Link
-        href="/announcement"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <h2 className="mb-1 text-lg font-semibold">📢 Pengumuman</h2>
-        <p className="text-sm">Informasi penting seperti pemadaman listrik, perbaikan, dll.</p>
-      </Link>
-      <Link
-        href="/transaction-report"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <h2 className="mb-1 text-lg font-semibold">💰 Laporan Transaksi</h2>
-        <p className="text-sm">Lihat detail transaksi keuangan komunitas dengan transparansi penuh.</p>
-      </Link>
-      {(role === 'ADMIN' || role === 'PENGURUS') && (
-        <Link
-          href="/expenditure-report"
-          className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-        >
-          <h2 className="mb-1 text-lg font-semibold">💸 Laporan Keuangan</h2>
-          <p className="text-sm">Lihat detail transaksi keuangan komunitas.</p>
-        </Link>
-      )}
+    <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">
+      {displayItems.map(item => {
+        const IconComponent = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex flex-col items-center justify-start rounded-xl border bg-white p-2 text-center shadow-sm transition-shadow hover:shadow-md md:p-3"
+          >
+            <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-full ${item.iconBaseColor}`}>
+              <IconComponent className={`h-6 w-6 ${item.iconColor}`} />
+            </div>
+            <h2 className="text-xs leading-tight font-semibold text-slate-800 md:text-sm">{item.title}</h2>
+          </Link>
+        );
+      })}
       <Link
         href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
-        className="flex cursor-pointer items-center justify-between rounded border border-red-200 bg-red-50 p-4 shadow-sm transition-all hover:bg-red-100 hover:shadow-md"
+        className="flex flex-col items-center justify-start rounded-xl border bg-white p-2 text-center shadow-sm transition-shadow hover:shadow-md md:p-3"
       >
-        <div>
-          <h2 className="mb-1 flex items-center text-lg font-bold text-red-700">📞 Call Helpdesk</h2>
-          <p className="text-sm font-medium text-red-600">Butuh bantuan darurat? Hubungi kami segera.</p>
+        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+          <PhoneCall className="h-6 w-6 text-red-500" />
         </div>
-        <div className="rounded-full bg-red-200 p-2 text-red-700">
-          <Phone className="size-8" />
-        </div>
+        <h2 className="text-xs leading-tight font-semibold text-slate-800 md:text-sm">Call Helpdesk</h2>
       </Link>
     </section>
   );
