@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import CategorySelector from '@/components/CategorySelector';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -10,43 +11,37 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useEditNewsEvent } from '@/hooks/useEditNewsEvent';
-import { editNewsEventSchema } from '@/lib/validations/news-event';
-import {
-  EVENT_TYPE,
-  NEWS_EVENT_TYPES,
-  NEWS_TYPE,
-  type NewsEventType,
-  type NewsEventWithComment,
-} from '@/types/news-event';
+import { useEditPost } from '@/hooks/useEditPost';
+import { usePostCategories } from '@/hooks/useFetchPostCategories';
+import { editPostSchema } from '@/lib/validations/post';
+import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES, type PostType, type PostWithComments } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import z from 'zod';
 
 interface EditDialogProps {
-  item: NewsEventWithComment;
+  post: PostWithComments;
 }
 
-type EditNewsEventFormData = z.infer<typeof editNewsEventSchema>;
+type EditPostFormData = z.infer<typeof editPostSchema>;
 
-const defaultFormValues: EditNewsEventFormData = {
+const defaultFormValues: EditPostFormData = {
   title: '',
   content: '',
-  type: NEWS_TYPE,
+  type: PENGUMUMAN_TYPE,
+  categories: [],
   startDate: '',
   endDate: '',
 };
 
-const EditDialog = (props: EditDialogProps) => {
-  const { item } = props;
+const EditDialog = ({ post }: EditDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutateAsync: editNewsEvent, isPending } = useEditNewsEvent();
-  const { username } = useAuth();
+  const { mutateAsync: editPost, isPending } = useEditPost();
+  const { data: categories } = usePostCategories();
 
-  const methods = useForm<EditNewsEventFormData>({
-    resolver: zodResolver(editNewsEventSchema),
+  const methods = useForm<EditPostFormData>({
+    resolver: zodResolver(editPostSchema),
     defaultValues: defaultFormValues,
   });
 
@@ -59,24 +54,27 @@ const EditDialog = (props: EditDialogProps) => {
   } = methods;
   const selectedType = watch('type');
 
-  const onSubmit = async (data: EditNewsEventFormData) => {
+  const onSubmit = async (data: EditPostFormData) => {
     try {
-      await editNewsEvent({
-        id: item.id,
+      const categoryIds = data.categories?.map(code => categories?.find(c => c.code === code)?.id || '') ?? [];
+
+      await editPost({
+        id: post.id,
         title: data.title,
         content: data.content,
         type: data.type,
+        categoryIds,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
       });
 
       setIsOpen(false);
-      toast.success('News event updated successfully', {
+      toast.success('Post updated successfully', {
         duration: 3000,
         position: 'top-center',
       });
     } catch {
-      toast.error('Failed to update news event', {
+      toast.error('Failed to update post', {
         duration: 3000,
         position: 'top-center',
       });
@@ -84,18 +82,19 @@ const EditDialog = (props: EditDialogProps) => {
   };
 
   useEffect(() => {
-    if (isOpen && item) {
+    if (isOpen && post) {
       reset({
-        title: item.title,
-        content: item.content,
-        startDate: item.startDate || '',
-        endDate: item.endDate || '',
-        type: item.type as NewsEventType,
+        title: post.title,
+        content: post.content,
+        type: post.type as PostType,
+        categories: post.categories.map(x => x.code),
+        startDate: post.startDate || '',
+        endDate: post.endDate || '',
       });
     } else if (!isOpen) {
       reset(defaultFormValues);
     }
-  }, [item, reset, isOpen]);
+  }, [isOpen, post, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -104,12 +103,12 @@ const EditDialog = (props: EditDialogProps) => {
           <Edit2Icon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[90vw] sm:max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit {NEWS_EVENT_TYPES.find(type => type.value === item.type)?.label}</DialogTitle>
+          <DialogTitle>Edit {POST_TYPES.find(t => t.value === post.type)?.label ?? 'Post'}</DialogTitle>
         </DialogHeader>
 
-        <FormSchemaProvider schema={editNewsEventSchema} methods={methods}>
+        <FormSchemaProvider schema={editPostSchema} methods={methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid gap-4">
               {(errors.title || errors.content || errors.type) && (
@@ -125,13 +124,7 @@ const EditDialog = (props: EditDialogProps) => {
                 renderInput={field => (
                   <div className="grid gap-1">
                     <Label htmlFor="title">Title</Label>
-                    <Input
-                      {...field}
-                      id="title"
-                      autoFocus={true}
-                      placeholder="Enter news/event title"
-                      disabled={isPending}
-                    />
+                    <Input {...field} id="title" autoFocus={false} placeholder="Enter title" disabled={isPending} />
                   </div>
                 )}
               />
@@ -144,7 +137,7 @@ const EditDialog = (props: EditDialogProps) => {
                       value={field.value}
                       onValueChange={value => {
                         field.onChange(value);
-                        if (value === NEWS_TYPE) {
+                        if (value === PENGUMUMAN_TYPE) {
                           setValue('startDate', '');
                           setValue('endDate', '');
                         }
@@ -155,7 +148,7 @@ const EditDialog = (props: EditDialogProps) => {
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        {NEWS_EVENT_TYPES.map(type => (
+                        {POST_TYPES.map(type => (
                           <SelectItem key={type.value} value={type.value}>
                             {type.label}
                           </SelectItem>
@@ -165,7 +158,20 @@ const EditDialog = (props: EditDialogProps) => {
                   </div>
                 )}
               />
-              {selectedType === EVENT_TYPE && (
+              {selectedType === PENGUMUMAN_TYPE && (
+                <FormController
+                  name="categories"
+                  renderInput={field => (
+                    <CategorySelector
+                      name="categories"
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  )}
+                />
+              )}
+              {selectedType === ACARA_TYPE && (
                 <div className="grid grid-cols-2 gap-3">
                   <FormController
                     name="startDate"
@@ -195,11 +201,11 @@ const EditDialog = (props: EditDialogProps) => {
                     <RichTextEditor
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Write your news/event content here. You can format text, add images, and create lists."
+                      placeholder="Write your content here."
                       disabled={isPending}
                       className="min-h-[200px]"
-                      storageFolder="news-events"
-                      fileNamePrefix="news-event"
+                      storageFolder="posts"
+                      fileNamePrefix="post"
                     />
                   </div>
                 )}

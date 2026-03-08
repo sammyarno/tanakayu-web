@@ -11,7 +11,7 @@ export async function GET() {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
 
-    const { data, error } = await supabase.from('announcement_categories').select(
+    const { data, error } = await supabase.from('post_categories').select(
       `
         id,
         label,
@@ -24,7 +24,6 @@ export async function GET() {
       return Response.json(response, { status: 500 });
     }
 
-    // Transform data
     const result = data.map(item => ({
       id: item.id,
       label: item.label,

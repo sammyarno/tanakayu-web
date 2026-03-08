@@ -1,6 +1,6 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
 import type { SimpleResponse } from '@/types/fetch';
-import type { NewsEventWithComment } from '@/types/news-event';
+import type { PostWithComments } from '@/types/post';
 import { getNowDate } from '@/utils/date';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -42,19 +42,19 @@ export const useModerateComment = () => {
         updateData.deletedAt = currentTimestamp;
       }
 
-      const updateCachedData = (oldData: NewsEventWithComment[]) => {
+      const updateCachedData = (oldData: PostWithComments[]) => {
         if (!oldData) return oldData;
 
-        return oldData.map(event => {
-          const hasComment = event.comments?.some(comment => comment.id === variables.commentId);
+        return oldData.map(post => {
+          const hasComment = post.comments?.some(comment => comment.id === variables.commentId);
 
           if (hasComment) {
             return {
-              ...event,
+              ...post,
               comments:
                 variables.action === 'delete'
-                  ? event.comments.filter(comment => comment.id !== variables.commentId)
-                  : event.comments.map(comment => {
+                  ? post.comments.filter(comment => comment.id !== variables.commentId)
+                  : post.comments.map(comment => {
                       if (comment.id === variables.commentId) {
                         return {
                           ...comment,
@@ -65,11 +65,11 @@ export const useModerateComment = () => {
                     }),
             };
           }
-          return event;
+          return post;
         });
       };
 
-      queryClient.setQueryData(['news-events', { isAdmin: true }], updateCachedData);
+      queryClient.setQueryData(['posts', { isAdmin: true }], updateCachedData);
     },
   });
 };

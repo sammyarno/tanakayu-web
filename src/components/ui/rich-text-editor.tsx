@@ -30,7 +30,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
-  storageFolder?: string; // e.g., 'announcements' or 'news-events'
+  storageFolder?: string; // e.g., 'posts' or 'uploads'
   fileNamePrefix?: string; // optional prefix for uploaded files
 }
 

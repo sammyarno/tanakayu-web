@@ -10,30 +10,25 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useDeleteNewsEvent } from '@/hooks/useDeleteNewsEvent';
-import type { NewsEventWithComment } from '@/types/news-event';
+import { useDeletePost } from '@/hooks/useDeletePost';
+import type { PostWithComments } from '@/types/post';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
+const DeleteConfirmationAlert = ({ post }: { post: PostWithComments }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutateAsync: deleteNewsEvent, isPending: isLoading } = useDeleteNewsEvent();
-  const { username } = useAuth();
+  const { mutateAsync: deletePost, isPending: isLoading } = useDeletePost();
 
   const handleDelete = async () => {
-    if (!username) return;
     try {
-      await deleteNewsEvent({
-        id: item.id,
-      });
+      await deletePost({ id: post.id });
       setIsOpen(false);
-      toast.success('News event deleted successfully', {
+      toast.success('Post deleted successfully', {
         duration: 3000,
         position: 'top-center',
       });
     } catch {
-      toast.error('Failed to delete news event', {
+      toast.error('Failed to delete post', {
         duration: 3000,
         position: 'top-center',
       });
@@ -54,7 +49,7 @@ const DeleteConfirmationAlert = ({ item }: { item: NewsEventWithComment }) => {
             Konfirmasi Hapus
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus {item.type === 'news' ? 'berita' : 'acara'} &quot;{item.title}&quot;?
+            Apakah Anda yakin ingin menghapus {post.type === 'acara' ? 'acara' : 'pengumuman'} &quot;{post.title}&quot;?
             Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>

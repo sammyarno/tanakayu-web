@@ -3,23 +3,19 @@ import type { Category } from '@/types';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-interface AnnouncementCategoriesState {
-  // State
+interface PostCategoriesState {
   categories: Category[];
   isLoading: boolean;
   error: Error | null;
   lastFetched: number | null;
-
-  // Actions
   fetchCategories: () => Promise<void>;
   getCategoryOptions: () => { value: string; label: string }[];
 }
 
-// Fetch function extracted to be reusable
-const fetchAnnouncementCategories = async (): Promise<Category[]> => {
+const fetchPostCategories = async (): Promise<Category[]> => {
   const client = getSupabaseClient();
 
-  const { data, error } = await client.from('announcement_categories').select(
+  const { data, error } = await client.from('post_categories').select(
     `
       id,
       label,
@@ -29,45 +25,37 @@ const fetchAnnouncementCategories = async (): Promise<Category[]> => {
 
   if (error) throw new Error(error.message);
 
-  // transform data
-  const result: Category[] = data.map(
+  return data.map(
     (item): Category => ({
       id: item.id,
       label: item.label,
       code: item.code,
     })
   );
-
-  return result;
 };
 
-// 30 minutes in milliseconds for cache invalidation
 const CACHE_TIME = 1000 * 60 * 30;
 
-export const useAnnouncementCategoriesStore = create<AnnouncementCategoriesState>()(
+export const usePostCategoriesStore = create<PostCategoriesState>()(
   persist(
     (set, get) => ({
-      // Initial state
       categories: [],
       isLoading: false,
       error: null,
       lastFetched: null,
 
-      // Actions
       fetchCategories: async () => {
         const { lastFetched } = get();
         const now = Date.now();
 
-        // Return cached data if it's still fresh
         if (lastFetched && now - lastFetched < CACHE_TIME && get().categories.length > 0) {
           return;
         }
 
-        // Otherwise fetch fresh data
         set({ isLoading: true, error: null });
 
         try {
-          const categories = await fetchAnnouncementCategories();
+          const categories = await fetchPostCategories();
           set({
             categories,
             isLoading: false,
@@ -81,7 +69,6 @@ export const useAnnouncementCategoriesStore = create<AnnouncementCategoriesState
         }
       },
 
-      // Helper to get categories in the format needed for MultiSelect
       getCategoryOptions: () => {
         return get().categories.map(category => ({
           value: category.code,
@@ -90,9 +77,8 @@ export const useAnnouncementCategoriesStore = create<AnnouncementCategoriesState
       },
     }),
     {
-      name: 'announcement-categories-storage',
+      name: 'post-categories-storage',
       storage: createJSONStorage(() => localStorage),
-      // Only persist the categories and lastFetched
       partialize: state => ({
         categories: state.categories,
         lastFetched: state.lastFetched,
@@ -101,9 +87,8 @@ export const useAnnouncementCategoriesStore = create<AnnouncementCategoriesState
   )
 );
 
-// Hook for easier use in components
-export const useAnnouncementCategories = () => {
-  const store = useAnnouncementCategoriesStore();
+export const usePostCategories = () => {
+  const store = usePostCategoriesStore();
 
   return {
     categories: store.categories,

@@ -1,18 +1,21 @@
-import { useState } from 'react';
-
-import { Badge } from '@/components/ui/badge';
-import { categoryDisplayMap } from '@/data/announcements';
-import type { Announcement } from '@/types/announcement';
-import { formatDate } from '@/utils/date';
-import DOMPurify from 'dompurify';
+import { memo, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
-const DeleteConfirmatonAlert = dynamic(() => import('./DeleteConfirmationAlert'));
+import { Badge } from '@/components/ui/badge';
+import { categoryDisplayMap } from '@/data/posts';
+import type { PostWithComments } from '@/types/post';
+import { formatDate } from '@/utils/date';
+import DOMPurify from 'dompurify';
+import { Calendar } from 'lucide-react';
+
+import PostComment from '../PostComment';
+
+const DeleteConfirmationAlert = dynamic(() => import('./DeleteConfirmationAlert'));
 const EditDialog = dynamic(() => import('./EditDialog'));
 
 interface Props {
-  announcement: Announcement;
+  post: PostWithComments;
   editable?: boolean;
 }
 
@@ -20,8 +23,8 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const sanitizedContent = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'h1', 'h2', 'h3', 'img', 'a'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel'],
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
   });
 
   const createTruncatedContent = (htmlContent: string, maxLength: number = 150) => {
@@ -39,10 +42,6 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   const truncatedContent = createTruncatedContent(sanitizedContent);
   const needsTruncation = sanitizedContent.length > 150;
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
     <div className="w-full space-y-1">
       <div
@@ -58,7 +57,7 @@ const ContentWithToggle = ({ content }: { content: string }) => {
       />
       {needsTruncation && (
         <div className="text-right">
-          <button onClick={toggleExpanded} className="text-tanakayu-dark text-xs font-medium">
+          <button onClick={() => setIsExpanded(!isExpanded)} className="text-tanakayu-dark text-xs font-medium">
             {isExpanded ? 'Show less' : 'Show more'}
           </button>
         </div>
@@ -67,44 +66,54 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   );
 };
 
-const AnnouncementCard = ({ announcement, editable = false }: Props) => {
+const PostCard = memo(function PostCard({ post, editable = false }: Props) {
+  const isAcara = post.type === 'acara';
+
   return (
     <div className="border-tanakayu-accent flex flex-col items-start gap-3 rounded border bg-white p-3">
       <div className="flex w-full items-center justify-between">
         <div className="flex flex-wrap gap-2">
-          {announcement.categories.map(cat => {
-            const catDisplay = categoryDisplayMap[cat.code];
-
-            return (
-              <Badge
-                key={`${announcement.id}-${cat.id}`}
-                variant="default"
-                className={`${catDisplay?.bgColor} ${catDisplay?.textColor}`}
-              >
-                {catDisplay?.icon}
-                {cat.label}
-              </Badge>
-            );
-          })}
+          {isAcara ? (
+            <Badge variant="default" className="bg-amber-100 text-amber-800">
+              <Calendar className="mr-1 h-4 w-4" />
+              Acara
+            </Badge>
+          ) : (
+            post.categories.map(cat => {
+              const catDisplay = categoryDisplayMap[cat.code];
+              return (
+                <Badge
+                  key={`${post.id}-${cat.id}`}
+                  variant="default"
+                  className={`${catDisplay?.bgColor} ${catDisplay?.textColor}`}
+                >
+                  {catDisplay?.icon}
+                  {cat.label}
+                </Badge>
+              );
+            })
+          )}
         </div>
         {editable && (
           <div className="ml-2 flex items-center gap-1">
-            <EditDialog announcement={announcement} />
-            <DeleteConfirmatonAlert announcement={announcement} />
+            <EditDialog post={post} />
+            <DeleteConfirmationAlert post={post} />
           </div>
         )}
       </div>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h2 className="text-lg font-semibold">{announcement.title}</h2>
+          <h2 className="text-lg font-semibold">{post.title}</h2>
           <p className="text-xs text-gray-700">
-            {announcement.createdBy} | {formatDate(announcement.createdAt)}
+            {post.createdBy} | {formatDate(post.createdAt)}
           </p>
         </div>
       </div>
-      <ContentWithToggle content={announcement.content} />
+      <ContentWithToggle content={post.content} />
+      <hr className="w-full" />
+      <PostComment comments={post.comments} editable={editable} postId={post.id} />
     </div>
   );
-};
+});
 
-export default AnnouncementCard;
+export default PostCard;

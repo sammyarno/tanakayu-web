@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 
 export interface PostCommentRequest {
   comment: string;
-  targetType: 'news_event' | 'announcement';
+  targetType: 'post';
   targetId: string;
 }
 

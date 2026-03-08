@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import CategorySelector from '@/components/CategorySelector';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -10,40 +11,41 @@ import { FormController } from '@/components/ui/form-controller';
 import { Input } from '@/components/ui/input';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useCreateNewsEvent } from '@/hooks/useCreateNewsEvent';
-import { createNewsEventSchema } from '@/lib/validations/news-event';
-import { EVENT_TYPE, NEWS_EVENT_TYPES, NEWS_TYPE } from '@/types/news-event';
+import { useCreatePost } from '@/hooks/useCreatePost';
+import { usePostCategories } from '@/hooks/useFetchPostCategories';
+import { createPostSchema } from '@/lib/validations/post';
+import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-type CreateNewsEventForm = z.infer<typeof createNewsEventSchema>;
+type CreatePostForm = z.infer<typeof createPostSchema>;
 
-const defaultFormValues: CreateNewsEventForm = {
+const defaultFormValues: CreatePostForm = {
   title: '',
-  type: NEWS_TYPE,
+  type: PENGUMUMAN_TYPE,
+  content: '',
+  categories: [],
   startDate: '',
   endDate: '',
-  content: '',
 };
 
 const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { mutate, isPending, isSuccess, isError } = useCreateNewsEvent();
-  const { username } = useAuth();
+  const { mutate, isPending, isSuccess, isError } = useCreatePost();
+  const { data: categories } = usePostCategories();
 
-  const methods = useForm<CreateNewsEventForm>({
-    resolver: zodResolver(createNewsEventSchema),
+  const methods = useForm<CreatePostForm>({
+    resolver: zodResolver(createPostSchema),
     defaultValues: defaultFormValues,
   });
 
   const { reset, handleSubmit, watch, setValue } = methods;
   const selectedType = watch('type');
 
-  const handleCreateSubmission = (data: CreateNewsEventForm) => {
+  const handleCreateSubmission = (data: CreatePostForm) => {
     setErrorMessage(undefined);
 
     const textContent = data.content.replace(/<[^>]*>/g, '').trim();
@@ -52,10 +54,13 @@ const CreateDialog = () => {
       return;
     }
 
+    const categoryIds = data.categories?.map(code => categories?.find(c => c.code === code)?.id || '') ?? [];
+
     mutate({
       title: data.title,
       content: data.content,
       type: data.type,
+      categoryIds,
       startDate: data.startDate || undefined,
       endDate: data.endDate || undefined,
     });
@@ -73,12 +78,12 @@ const CreateDialog = () => {
       setIsOpen(false);
       setErrorMessage(undefined);
       reset(defaultFormValues);
-      toast.success('News/Event created successfully!', {
+      toast.success('Post created successfully!', {
         duration: 3000,
         position: 'top-center',
       });
     } else if (isError) {
-      setErrorMessage('Failed to create news/event');
+      setErrorMessage('Failed to create post');
     }
   }, [isSuccess, isError, reset]);
 
@@ -86,15 +91,15 @@ const CreateDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
-          Tambah Berita/Acara
+          Tambah Post
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create News/Event</DialogTitle>
+          <DialogTitle>Create Post</DialogTitle>
         </DialogHeader>
 
-        <FormSchemaProvider schema={createNewsEventSchema} methods={methods}>
+        <FormSchemaProvider schema={createPostSchema} methods={methods}>
           <form onSubmit={handleSubmit(handleCreateSubmission)}>
             <div className="grid gap-4">
               {errorMessage && (
@@ -109,7 +114,7 @@ const CreateDialog = () => {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input {...field} autoFocus={true} placeholder="Enter news/event title" disabled={isPending} />
+                      <Input {...field} autoFocus={true} placeholder="Enter title" disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,8 +128,7 @@ const CreateDialog = () => {
                     <Select
                       onValueChange={value => {
                         field.onChange(value);
-                        // Reset date fields when switching to news
-                        if (value === NEWS_TYPE) {
+                        if (value === PENGUMUMAN_TYPE) {
                           setValue('startDate', '');
                           setValue('endDate', '');
                         }
@@ -138,7 +142,7 @@ const CreateDialog = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {NEWS_EVENT_TYPES.map(type => (
+                        {POST_TYPES.map(type => (
                           <SelectItem key={type.value} value={type.value}>
                             {type.label}
                           </SelectItem>
@@ -149,7 +153,20 @@ const CreateDialog = () => {
                   </FormItem>
                 )}
               />
-              {selectedType === EVENT_TYPE && (
+              {selectedType === PENGUMUMAN_TYPE && (
+                <FormController
+                  name="categories"
+                  renderInput={field => (
+                    <CategorySelector
+                      name="categories"
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  )}
+                />
+              )}
+              {selectedType === ACARA_TYPE && (
                 <div className="grid grid-cols-2 gap-3">
                   <FormController
                     name="startDate"
@@ -186,11 +203,11 @@ const CreateDialog = () => {
                       <RichTextEditor
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Write your news/event content here. You can format text, add images, and create lists."
+                        placeholder="Write your content here."
                         disabled={isPending}
                         className="min-h-[200px]"
-                        storageFolder="news-events"
-                        fileNamePrefix="news-event"
+                        storageFolder="posts"
+                        fileNamePrefix="post"
                       />
                     </FormControl>
                     <FormMessage />

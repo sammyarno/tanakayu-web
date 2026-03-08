@@ -13,12 +13,11 @@ import { toast } from 'sonner';
 interface PostCommentProps {
   comments: Comment[];
   postId: string;
-  type: 'news_event' | 'announcement';
   editable: boolean;
 }
 
 const PostComment = (props: PostCommentProps) => {
-  const { comments, postId, type, editable } = props;
+  const { comments, postId, editable } = props;
   const { username } = useAuth();
   const { mutateAsync: postComment, isPending: isPostLoading } = usePostComment();
   const { mutateAsync: moderateComment, isPending: isModerateLoading } = useModerateComment();
@@ -95,7 +94,7 @@ const PostComment = (props: PostCommentProps) => {
       await postComment({
         comment,
         targetId: postId,
-        targetType: type,
+        targetType: 'post',
       });
       form.reset();
       toast.success('Comment posted successfully', {

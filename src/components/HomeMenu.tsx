@@ -3,24 +3,16 @@
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Banknote, CalendarDays, Megaphone, PhoneCall, ReceiptText } from 'lucide-react';
+import { Banknote, Megaphone, PhoneCall, ReceiptText } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
-    href: '/news-event',
-    icon: CalendarDays,
-    iconBaseColor: 'bg-blue-50',
-    iconColor: 'text-blue-500',
-    alt: 'Berita & Acara',
-    title: 'Berita & Acara',
-  },
-  {
-    href: '/announcement',
+    href: '/post',
     icon: Megaphone,
     iconBaseColor: 'bg-orange-50',
     iconColor: 'text-orange-500',
-    alt: 'Pengumuman',
-    title: 'Pengumuman',
+    alt: 'Pengumuman & Acara',
+    title: 'Pengumuman & Acara',
   },
   {
     href: '/transaction-report',

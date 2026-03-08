@@ -14,108 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      announcement_categories: {
-        Row: {
-          code: string
-          created_at: string
-          created_by: string
-          id: string
-          label: string
-          modified_at: string | null
-          modified_by: string | null
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          created_by: string
-          id?: string
-          label: string
-          modified_at?: string | null
-          modified_by?: string | null
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          created_by?: string
-          id?: string
-          label?: string
-          modified_at?: string | null
-          modified_by?: string | null
-        }
-        Relationships: []
-      }
-      announcement_category_map: {
-        Row: {
-          announcement_id: string
-          category_id: string
-          created_at: string
-          created_by: string
-        }
-        Insert: {
-          announcement_id: string
-          category_id: string
-          created_at?: string
-          created_by: string
-        }
-        Update: {
-          announcement_id?: string
-          category_id?: string
-          created_at?: string
-          created_by?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "announcement_category_map_announcement_id_fkey"
-            columns: ["announcement_id"]
-            isOneToOne: false
-            referencedRelation: "announcements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "announcement_category_map_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "announcement_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      announcements: {
-        Row: {
-          content: string
-          created_at: string
-          created_by: string
-          deleted_at: string | null
-          deleted_by: string | null
-          id: string
-          modified_at: string | null
-          modified_by: string | null
-          title: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          created_by: string
-          deleted_at?: string | null
-          deleted_by?: string | null
-          id?: string
-          modified_at?: string | null
-          modified_by?: string | null
-          title: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          created_by?: string
-          deleted_at?: string | null
-          deleted_by?: string | null
-          id?: string
-          modified_at?: string | null
-          modified_by?: string | null
-          title?: string
-        }
-        Relationships: []
-      }
       comments: {
         Row: {
           approved_at: string | null
@@ -194,7 +92,73 @@ export type Database = {
         }
         Relationships: []
       }
-      news_events: {
+      post_categories: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          id: string
+          label: string
+          modified_at: string | null
+          modified_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          id?: string
+          label: string
+          modified_at?: string | null
+          modified_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          label?: string
+          modified_at?: string | null
+          modified_by?: string | null
+        }
+        Relationships: []
+      }
+      post_category_map: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          created_by: string | null
+          post_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          created_by?: string | null
+          post_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_category_map_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "post_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_category_map_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
         Row: {
           content: string
           created_at: string
@@ -221,7 +185,7 @@ export type Database = {
           modified_by?: string | null
           start_date?: string | null
           title: string
-          type: string
+          type?: string
         }
         Update: {
           content?: string
@@ -245,6 +209,7 @@ export type Database = {
           expired_at: string
           hashed_token: string
           id: number
+          token_jti: string | null
           user_agent: string
           user_id: string
         }
@@ -253,6 +218,7 @@ export type Database = {
           expired_at: string
           hashed_token: string
           id?: number
+          token_jti?: string | null
           user_agent: string
           user_id: string
         }
@@ -261,6 +227,7 @@ export type Database = {
           expired_at?: string
           hashed_token?: string
           id?: number
+          token_jti?: string | null
           user_agent?: string
           user_id?: string
         }

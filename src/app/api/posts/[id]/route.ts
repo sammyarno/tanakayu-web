@@ -18,21 +18,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
     const { id } = await params;
 
-    const { title, content, categoryIds } = body;
+    const { title, content, type, categoryIds, startDate, endDate } = body;
     const actor = user!.username;
 
-    // Validate input
-    if (!title || !content || !categoryIds) {
+    if (!title || !content || !type) {
       response.error = 'Missing required fields';
       return Response.json(response, { status: 400 });
     }
 
-    // Update announcement
+    // Update post
     const { data, error } = await supabase
-      .from('announcements')
+      .from('posts')
       .update({
         title,
         content,
+        type,
+        start_date: startDate || null,
+        end_date: endDate || null,
         modified_at: getNowDate(),
         modified_by: actor,
       })
@@ -44,36 +46,29 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return Response.json(response, { status: 500 });
     }
 
-    // Delete existing category mappings
-    const { error: categoryError } = await supabase
-      .from('announcement_category_map')
-      .delete()
-      .eq('announcement_id', id);
+    // Update category mappings: delete existing then insert new
+    await supabase.from('post_category_map').delete().eq('post_id', id);
 
-    if (categoryError) {
-      response.error = categoryError.message;
-      return Response.json(response, { status: 500 });
-    }
+    if (categoryIds && categoryIds.length > 0) {
+      const { error: categoryInsertError } = await supabase.from('post_category_map').insert(
+        categoryIds.map((category_id: string) => ({
+          post_id: id,
+          category_id,
+          created_by: actor,
+          created_at: getNowDate(),
+        }))
+      );
 
-    // Insert new category mappings
-    const { error: categoryInsertError } = await supabase.from('announcement_category_map').insert(
-      categoryIds.map((category_id: string) => ({
-        announcement_id: id,
-        category_id,
-        created_by: actor,
-        created_at: getNowDate(),
-      }))
-    );
-
-    if (categoryInsertError) {
-      response.error = categoryInsertError.message;
-      return Response.json(response, { status: 500 });
+      if (categoryInsertError) {
+        response.error = categoryInsertError.message;
+        return Response.json(response, { status: 500 });
+      }
     }
 
     response.data = data[0];
     return Response.json(response);
   } catch (error) {
-    console.error('Error updating announcement:', error);
+    console.error('Error updating post:', error);
     response.error = 'Internal server error';
     return Response.json(response, { status: 500 });
   }
@@ -88,16 +83,17 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
-    const body = await request.json();
     const { id } = await params;
 
     const actor = user!.username;
 
     const { data, error } = await supabase
-      .from('announcements')
+      .from('posts')
       .update({
         deleted_at: getNowDate(),
         deleted_by: actor,
+        modified_at: getNowDate(),
+        modified_by: actor,
       })
       .eq('id', id)
       .select('id');
@@ -107,10 +103,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return Response.json(response, { status: 500 });
     }
 
-    response.data = data[0];
+    response.data = data?.[0] ?? { id };
     return Response.json(response);
   } catch (error) {
-    console.error('Error deleting announcement:', error);
+    console.error('Error deleting post:', error);
     response.error = 'Internal server error';
     return Response.json(response, { status: 500 });
   }

@@ -6,16 +6,10 @@ const Dashboard = () => {
   return (
     <PageContent allowedRoles={['ADMIN']}>
       <Link
-        href="/admin/news-event"
+        href="/admin/post"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
       >
-        <p className="text-center text-lg font-bold tracking-wide">📰 Berita dan Acara 📰</p>
-      </Link>
-      <Link
-        href="/admin/announcement"
-        className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"
-      >
-        <p className="text-center text-lg font-bold tracking-wider">📢 Pengumuman 📢</p>
+        <p className="text-center text-lg font-bold tracking-wide">📢 Pengumuman & Acara 📢</p>
       </Link>
       <Link
         href="/admin/transaction-report"

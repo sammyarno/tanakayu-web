@@ -1,8 +1,8 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const deleteNewsEvent = async ({ id }: { id: string }) => {
-  const response = await authenticatedFetchJson(`/api/news-events/${id}`, {
+const deletePost = async ({ id }: { id: string }) => {
+  const response = await authenticatedFetchJson(`/api/posts/${id}`, {
     method: 'DELETE',
     body: JSON.stringify({}),
   });
@@ -14,14 +14,13 @@ const deleteNewsEvent = async ({ id }: { id: string }) => {
   return response.data;
 };
 
-export const useDeleteNewsEvent = () => {
+export const useDeletePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { id: string }) => deleteNewsEvent(payload),
+    mutationFn: (payload: { id: string }) => deletePost(payload),
     onSuccess: () => {
-      // Invalidate and refetch news events
-      queryClient.invalidateQueries({ queryKey: ['news-events'] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };

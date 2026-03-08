@@ -20,7 +20,7 @@ const NearestEvents = () => {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold">📅 Acara Terdekat</h2>
         <Button variant="link" asChild className="text-tanakayu-dark h-auto p-0 font-semibold">
-          <Link href="/news-event?filter=event">Lihat Semua</Link>
+          <Link href="/post?filter=acara">Lihat Semua</Link>
         </Button>
       </div>
 

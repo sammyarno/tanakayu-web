@@ -1,18 +1,19 @@
 import { authenticatedFetchJson } from '@/lib/fetch';
+import type { PostType } from '@/types/post';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export interface EditNewsEventRequest {
-  id: string;
+export interface CreatePostRequest {
   title: string;
   content: string;
-  type: string;
-  startDate?: string | null;
-  endDate?: string | null;
+  type: PostType;
+  categoryIds?: string[];
+  startDate?: string;
+  endDate?: string;
 }
 
-const editNewsEvent = async (payload: EditNewsEventRequest) => {
-  const { data, error } = await authenticatedFetchJson(`/api/news-events/${payload.id}`, {
-    method: 'PATCH',
+const createPost = async (payload: CreatePostRequest) => {
+  const { data, error } = await authenticatedFetchJson('/api/posts', {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -20,6 +21,7 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
       title: payload.title,
       content: payload.content,
       type: payload.type,
+      categoryIds: payload.categoryIds,
       startDate: payload.startDate,
       endDate: payload.endDate,
     }),
@@ -29,16 +31,16 @@ const editNewsEvent = async (payload: EditNewsEventRequest) => {
     throw new Error(error);
   }
 
-  return data.newsEvent;
+  return data;
 };
 
-export const useEditNewsEvent = () => {
+export const useCreatePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: EditNewsEventRequest) => editNewsEvent(payload),
+    mutationFn: (payload: CreatePostRequest) => createPost(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['news-events'] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 };

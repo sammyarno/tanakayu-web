@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useAnnouncementCategories } from '@/store/announcementCategoriesStore';
+import { usePostCategories } from '@/store/postCategoriesStore';
 
 import { Label } from './ui/label';
 import { MultiSelect } from './ui/multi-select';
@@ -24,7 +24,7 @@ const CategorySelector = ({
   name = 'category',
   disabled = false,
 }: CategorySelectorProps) => {
-  const { getCategoryOptions, fetchCategories, isLoading } = useAnnouncementCategories();
+  const { getCategoryOptions, fetchCategories, isLoading } = usePostCategories();
   const [value, setValue] = useState<string[]>(defaultValue);
 
   // Fetch categories when component mounts if needed

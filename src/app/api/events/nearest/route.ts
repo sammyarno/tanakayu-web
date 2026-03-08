@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 
 import { createServerClient } from '@/plugins/supabase/server';
 import type { FetchResponse } from '@/types/fetch';
-import type { NearestEvent } from '@/types/news-event';
+import type { NearestEvent } from '@/types/post';
 
 export async function GET() {
   const response: FetchResponse<NearestEvent[]> = {};
@@ -13,9 +13,10 @@ export async function GET() {
     const today = new Date().toISOString().split('T')[0];
 
     const { data, error } = await supabase
-      .from('news_events')
+      .from('posts')
       .select('id,title,type,content,start_date,end_date')
-      .eq('type', 'event')
+      .eq('type', 'acara')
+      .is('deleted_at', null)
       .gte('start_date', today)
       .limit(2)
       .order('start_date', {
