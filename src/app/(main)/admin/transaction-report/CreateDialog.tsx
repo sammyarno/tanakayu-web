@@ -90,9 +90,9 @@ const CreateDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-tanakayu-dark" size="lg">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Create Transaction
+        <Button className="bg-tanakayu-dark flex-1" size="lg">
+          <PlusIcon className="size-4" />
+          <p className="leading-none">Create</p>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] sm:max-w-md">

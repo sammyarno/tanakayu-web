@@ -125,9 +125,9 @@ const UploadDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)} size="lg" className="flex-1 tracking-wide" variant="outline">
+        <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide" variant="outline">
           <FileSpreadsheetIcon className="size-4" />
-          Upload
+          <p className="leading-none">Upload</p>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] sm:max-w-md">

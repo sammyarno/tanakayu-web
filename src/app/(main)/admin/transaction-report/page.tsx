@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import dynamic from 'next/dynamic';
+
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
@@ -13,8 +15,6 @@ import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
 import { exportTransactionsToExcel } from '@/utils/exportTransactions';
 import { Download, RefreshCw } from 'lucide-react';
-
-import dynamic from 'next/dynamic';
 
 const CreateTransactionDialog = dynamic(() => import('./CreateDialog'));
 const UploadDialog = dynamic(() => import('./UploadDialog'));
@@ -98,15 +98,11 @@ const FinancialReport = () => {
         </div>
         <hr />
         <div className="flex w-full items-center gap-2">
-          <CreateTransactionDialog />
           <UploadDialog />
-          <Button
-            variant="outline"
-            onClick={handleDownloadExcel}
-            disabled={!transactionsData?.transactions?.length}
-          >
+          <CreateTransactionDialog />
+          <Button variant="outline" onClick={handleDownloadExcel} disabled={!transactionsData?.transactions?.length}>
             <Download className="size-4" />
-            Download
+            <p className="leading-none">Download</p>
           </Button>
         </div>
         <hr />
