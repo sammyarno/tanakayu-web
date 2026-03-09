@@ -6,6 +6,8 @@ import Providers from '@/components/Providers';
 import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   title: 'Tanakayu Community',
@@ -65,6 +67,8 @@ export default function RootLayout({
           <BottomNav />
         </main>
         <Toaster richColors />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
