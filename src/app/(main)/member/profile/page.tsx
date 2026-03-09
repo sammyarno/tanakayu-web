@@ -1,114 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-
 import Breadcrumb from '@/components/Breadcrumb';
-import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
-import SignOutButton from '@/components/SignOutButton';
-import { IdentityCard } from '@/components/profile/IdentityCard';
-import { PersonalInfoCard } from '@/components/profile/PersonalInfoCard';
-import { ResidenceCard } from '@/components/profile/ResidenceCard';
-import { SecurityCard } from '@/components/profile/SecurityCard';
-import { Alert, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { ChangePasswordSection } from '@/components/profile/ChangePasswordSection';
+import { PersonalInfoSection } from '@/components/profile/PersonalInfoSection';
+import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { SignOutSection } from '@/components/profile/SignOutSection';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useFetchProfile } from '@/hooks/useFetchProfile';
-import { useUpdateProfile } from '@/hooks/useUpdateProfile';
-import { editProfileSchema } from '@/lib/validations/profile';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircleIcon } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
-
-type ProfileFormData = z.infer<typeof editProfileSchema>;
-
-const defaultFormValues: ProfileFormData = {
-  address: '',
-  cluster: 'others',
-  confirmPassword: '',
-  email: '',
-  display_name: '',
-  password: '',
-  phone: '',
-};
 
 const ProfilePage = () => {
-  const { userId, username, role } = useAuth();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [isEditing, setIsEditing] = useState(false);
-  const { data: profileRes, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
-  const { mutate: updateProfile, isPending } = useUpdateProfile(userId || '');
-  const isLoading = isFetching || isPending;
-
-  const methods = useForm<ProfileFormData>({
-    resolver: zodResolver(editProfileSchema),
-    defaultValues: defaultFormValues,
-  });
-  const { handleSubmit, reset, setValue } = methods;
-
-  const onSubmit = (data: ProfileFormData) => {
-    updateProfile(
-      {
-        id: userId || '',
-        username: username || '',
-        address: `${data.cluster.trim()}, ${data.address.trim()}`,
-        display_name: data.display_name,
-        email: data.email,
-        password: data.password || undefined,
-        phone: data.phone,
-      },
-      {
-        onSuccess: () => {
-          setErrorMessage(undefined);
-          setIsEditing(false);
-          toast.success('Profile updated successfully!', { duration: 3000, position: 'top-center' });
-        },
-        onError: (err) => {
-          setErrorMessage(err.message);
-        },
-      }
-    );
-
-    setValue('password', '');
-    setValue('confirmPassword', '');
-  };
-
-  useEffect(() => {
-    if (profileRes) {
-      const [cluster, ...addressParts] = profileRes.address.split(',');
-      const address = addressParts.join(',').trim();
-
-      reset({
-        ...profileRes,
-        display_name: profileRes.displayName,
-        cluster: cluster as any,
-        address: address,
-        password: '',
-        confirmPassword: '',
-      });
-    }
-  }, [reset, profileRes]);
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    if (profileRes) {
-      const [cluster, ...addressParts] = profileRes.address.split(',');
-      const address = addressParts.join(',').trim();
-
-      reset({
-        ...profileRes,
-        cluster: cluster as any,
-        address: address,
-        password: '',
-        confirmPassword: '',
-      });
-    } else {
-      reset(defaultFormValues);
-    }
-  };
+  const { userId, username } = useAuth();
+  const { data: profile, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
 
   return (
     <PageContent allowedRoles={['MEMBER', 'ADMINISTRATOR', 'SUPERADMIN']} fallbackPath="/member">
@@ -123,62 +27,17 @@ const ProfilePage = () => {
         <p className="text-muted-foreground">Manage your account settings and preferences.</p>
       </div>
 
-      {isFetching ? (
+      {isFetching || !profile ? (
         <div className="flex justify-center py-12">
           <LoadingIndicator isLoading />
         </div>
       ) : (
-        <>
-          {errorMessage && (
-            <Alert variant="destructive" className="mb-0 border-red-600 bg-red-50 text-red-900">
-              <AlertCircleIcon className="h-4 w-4" />
-              <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
-            </Alert>
-          )}
-
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <IdentityCard display_name={profileRes?.displayName} username={username} role={profileRes?.role || role} />
-
-            <FormSchemaProvider methods={methods} schema={editProfileSchema}>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
-                <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
-                <SecurityCard isLoading={isLoading} isEditing={isEditing} />
-
-                <div className="flex justify-end gap-4 pt-4">
-                  {!isEditing ? (
-                    <Button
-                      type="button"
-                      onClick={() => setIsEditing(true)}
-                      disabled={isLoading}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      Update Profile
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={isLoading}
-                        className="w-full sm:w-auto"
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                        Save Changes
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </form>
-            </FormSchemaProvider>
-          </div>
-
-          <SignOutButton className="w-full" variant="outline" />
-        </>
+        <div className="space-y-6">
+          <ProfileHeader profile={profile} />
+          <PersonalInfoSection profile={profile} />
+          <ChangePasswordSection userId={profile.id} />
+          <SignOutSection />
+        </div>
       )}
     </PageContent>
   );
