@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import type { FetchResponse } from '@/types/fetch';
 
 interface BulkTransactionRequest {
@@ -114,6 +115,13 @@ export async function POST(request: NextRequest) {
       response.error = `Failed to insert transactions: ${error.message}`;
       return NextResponse.json(response, { status: 500 });
     }
+
+    await logAudit(supabase, {
+      action: 'bulk_create',
+      entityType: 'transaction',
+      actor,
+      metadata: { count: data?.length || 0 },
+    });
 
     response.data = {
       success: true,

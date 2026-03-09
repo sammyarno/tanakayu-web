@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import type { FetchResponse, SimpleResponse } from '@/types/fetch';
 import { getNowDate } from '@/utils/date';
 
@@ -12,8 +13,10 @@ export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
-    const { searchParams } = new URL(request.url);
-    const isAdmin = searchParams.get('admin') === 'true';
+
+    // Try to get current user for vote status
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const currentUserId = authUser?.id ?? null;
 
     // Fetch posts with categories
     const { data: posts, error: postsError } = await supabase
@@ -45,42 +48,55 @@ export async function GET(request: NextRequest) {
       return Response.json(response, { status: 500 });
     }
 
-    // Fetch comments
-    let commentsQuery = supabase
-      .from('comments')
-      .select(
-        'id, comment, target_id, created_at, created_by, approved_at, approved_by, rejected_at, rejected_by, deleted_at, deleted_by'
-      )
-      .eq('target_type', 'post')
-      .is('deleted_at', null);
+    // Fetch vote counts per post
+    const postIds = posts.map(p => p.id);
 
-    if (!isAdmin) {
-      commentsQuery = commentsQuery.not('approved_at', 'is', null);
-    }
+    const { data: votes, error: votesError } = await supabase
+      .from('post_votes')
+      .select('post_id, vote_type, user_id')
+      .in('post_id', postIds);
 
-    const { data: comments, error: commentError } = await commentsQuery;
-    if (commentError) {
-      response.error = commentError.message;
+    if (votesError) {
+      response.error = votesError.message;
       return Response.json(response, { status: 500 });
     }
 
+    // Build vote counts map
+    const voteCounts = new Map<string, { upvotes: number; downvotes: number; userVote: string | null }>();
+    for (const postId of postIds) {
+      voteCounts.set(postId, { upvotes: 0, downvotes: 0, userVote: null });
+    }
+    for (const vote of votes || []) {
+      const entry = voteCounts.get(vote.post_id)!;
+      if (vote.vote_type === 'upvote') entry.upvotes++;
+      else if (vote.vote_type === 'downvote') entry.downvotes++;
+      if (currentUserId && vote.user_id === currentUserId) {
+        entry.userVote = vote.vote_type;
+      }
+    }
+
     // Transform data
-    const result = posts.map(item => ({
-      id: item.id,
-      title: item.title,
-      content: item.content,
-      type: item.type,
-      start_date: item.start_date,
-      end_date: item.end_date,
-      created_at: item.created_at,
-      created_by: item.created_by,
-      categories: item.post_category_map.map((c: any) => ({
-        id: c.post_categories.id,
-        label: c.post_categories.label,
-        code: c.post_categories.code,
-      })),
-      comments: (comments || []).filter(c => c.target_id === item.id),
-    }));
+    const result = posts.map(item => {
+      const vc = voteCounts.get(item.id) ?? { upvotes: 0, downvotes: 0, userVote: null };
+      return {
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        type: item.type,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        created_at: item.created_at,
+        created_by: item.created_by,
+        categories: item.post_category_map.map((c: any) => ({
+          id: c.post_categories.id,
+          label: c.post_categories.label,
+          code: c.post_categories.code,
+        })),
+        upvotes: vc.upvotes,
+        downvotes: vc.downvotes,
+        user_vote: vc.userVote,
+      };
+    });
 
     response.data = result;
     return Response.json(response);
@@ -152,6 +168,14 @@ export async function POST(request: NextRequest) {
         return Response.json(response, { status: 500 });
       }
     }
+
+    await logAudit(supabase, {
+      action: 'create',
+      entityType: 'post',
+      entityId: postId,
+      actor,
+      metadata: { title, type },
+    });
 
     response.data = data[0];
     return Response.json(response);

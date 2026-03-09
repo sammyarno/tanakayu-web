@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import type { CreateExpenditureRequest, Expenditure } from '@/types/expenditure';
 import type { FetchResponse } from '@/types/fetch';
 
@@ -96,6 +97,14 @@ export async function POST(request: NextRequest) {
       response.error = error.message;
       return Response.json(response, { status: 500 });
     }
+
+    await logAudit(supabase, {
+      action: 'create',
+      entityType: 'expenditure',
+      entityId: data.id,
+      actor,
+      metadata: { date, description },
+    });
 
     response.data = {
       id: data.id,

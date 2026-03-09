@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
+import { logAudit } from '@/lib/audit';
 import { registerSchema } from '@/lib/validations/auth';
 import { createServerClient } from '@/plugins/supabase/server';
 
@@ -59,6 +60,13 @@ export async function POST(request: NextRequest) {
       await supabase.auth.admin.deleteUser(authData.user.id);
       return Response.json({ error: 'Failed to create profile' }, { status: 500 });
     }
+
+    await logAudit(supabase, {
+      action: 'register',
+      entityType: 'user',
+      entityId: authData.user.id,
+      actor: username,
+    });
 
     return Response.json({ id: authData.user.id }, { status: 200 });
   } catch (error) {

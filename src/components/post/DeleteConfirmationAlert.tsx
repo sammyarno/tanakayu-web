@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useDeletePost } from '@/hooks/useDeletePost';
-import type { PostWithComments } from '@/types/post';
+import type { PostWithVotes } from '@/types/post';
 import { AlertCircleIcon, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DeleteConfirmationAlert = ({ post }: { post: PostWithComments }) => {
+const DeleteConfirmationAlert = ({ post }: { post: PostWithVotes }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: deletePost, isPending: isLoading } = useDeletePost();
 

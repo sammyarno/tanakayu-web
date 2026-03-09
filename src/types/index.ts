@@ -12,19 +12,6 @@ export interface CategoryDisplay {
   textColor: string;
 }
 
-export interface Comment {
-  id: string;
-  comment: string;
-  createdAt: string;
-  createdBy: string;
-  approvedAt?: string;
-  approvedBy?: string;
-  rejectedAt?: string;
-  rejectedBy?: string;
-  deletedAt?: string;
-  deletedBy?: string;
-}
-
 export interface Contact {
   id: number;
   name: string;

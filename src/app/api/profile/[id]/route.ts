@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import { createServerClient } from '@/plugins/supabase/server';
 import { User } from '@/types/auth';
 import { FetchResponse } from '@/types/fetch';
@@ -87,6 +88,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Get email from auth user
     const { data: { user: authUser } } = await supabase.auth.admin.getUserById(id);
+
+    await logAudit(supabase, {
+      action: 'update',
+      entityType: 'profile',
+      entityId: id,
+      actor: user!.username,
+      metadata: { fields: Object.keys(profileUpdate) },
+    });
 
     response.data = {
       id: data.id,

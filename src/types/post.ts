@@ -1,4 +1,4 @@
-import type { Category, Comment } from '@/types';
+import type { Category } from '@/types';
 
 export const PENGUMUMAN_TYPE = 'pengumuman' as const;
 export const ACARA_TYPE = 'acara' as const;
@@ -21,8 +21,10 @@ export interface Post {
   categories: Category[];
 }
 
-export interface PostWithComments extends Post {
-  comments: Comment[];
+export interface PostWithVotes extends Post {
+  upvotes: number;
+  downvotes: number;
+  userVote: 'upvote' | 'downvote' | null;
 }
 
 export interface NearestEvent {

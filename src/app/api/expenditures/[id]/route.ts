@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 import { createServerClient } from '@/plugins/supabase/server';
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import type { Expenditure, UpdateExpenditureRequest } from '@/types/expenditure';
 import type { FetchResponse } from '@/types/fetch';
 
@@ -45,6 +46,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return Response.json(response, { status: 404 });
     }
 
+    await logAudit(supabase, {
+      action: 'update',
+      entityType: 'expenditure',
+      entityId: id,
+      actor,
+    });
+
     response.data = {
       id: data.id,
       date: data.date,
@@ -77,6 +85,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     const { id } = await params;
 
+    const actor = user!.username;
     const { error } = await supabase.from('expenditures').delete().eq('id', id);
 
     if (error) {
@@ -84,6 +93,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       response.error = error.message;
       return Response.json(response, { status: 500 });
     }
+
+    await logAudit(supabase, {
+      action: 'delete',
+      entityType: 'expenditure',
+      entityId: id,
+      actor,
+    });
 
     response.data = { success: true };
     return Response.json(response);

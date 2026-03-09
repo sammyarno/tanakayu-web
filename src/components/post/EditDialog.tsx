@@ -14,14 +14,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useEditPost } from '@/hooks/useEditPost';
 import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { editPostSchema } from '@/lib/validations/post';
-import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES, type PostType, type PostWithComments } from '@/types/post';
+import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES, type PostType, type PostWithVotes } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 import { toast } from 'sonner';
 import z from 'zod';
 
 interface EditDialogProps {
-  post: PostWithComments;
+  post: PostWithVotes;
 }
 
 type EditPostFormData = z.infer<typeof editPostSchema>;

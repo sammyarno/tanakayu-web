@@ -11,7 +11,6 @@ import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
 import { usePosts } from '@/hooks/useFetchPosts';
-import { usePostComment } from '@/hooks/usePostComment';
 import type { Category } from '@/types';
 
 const ITEMS_PER_PAGE = 5;
@@ -22,10 +21,7 @@ const PostContent = () => {
 
   const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { data, isFetching: isFetchLoading } = usePosts();
-  const { isPending: isPostLoading } = usePostComment();
-
-  const isLoading = isFetchLoading || isPostLoading;
+  const { data, isFetching: isLoading } = usePosts();
 
   const filterCategories: Category[] = useMemo(
     () => [

@@ -4,18 +4,19 @@ import dynamic from 'next/dynamic';
 
 import { Badge } from '@/components/ui/badge';
 import { categoryDisplayMap } from '@/data/posts';
-import type { PostWithComments } from '@/types/post';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useVotePost } from '@/hooks/useVotePost';
+import type { PostWithVotes } from '@/types/post';
 import { formatDate } from '@/utils/date';
 import DOMPurify from 'dompurify';
-import { Calendar } from 'lucide-react';
-
-import PostComment from '../PostComment';
+import { Calendar, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DeleteConfirmationAlert = dynamic(() => import('./DeleteConfirmationAlert'));
 const EditDialog = dynamic(() => import('./EditDialog'));
 
 interface Props {
-  post: PostWithComments;
+  post: PostWithVotes;
   editable?: boolean;
 }
 
@@ -66,6 +67,51 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   );
 };
 
+const VoteButtons = ({ post }: { post: PostWithVotes }) => {
+  const { userId } = useAuth();
+  const { mutate: vote, isPending } = useVotePost(userId);
+
+  const handleVote = (voteType: 'upvote' | 'downvote') => {
+    if (!userId) {
+      toast.error('Silakan login terlebih dahulu untuk vote', {
+        duration: 3000,
+        position: 'top-center',
+      });
+      return;
+    }
+    vote({ postId: post.id, voteType });
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={() => handleVote('upvote')}
+        disabled={isPending}
+        className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-colors ${
+          post.userVote === 'upvote'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+        } disabled:opacity-50`}
+      >
+        <ThumbsUp className="h-4 w-4" />
+        <span>{post.upvotes}</span>
+      </button>
+      <button
+        onClick={() => handleVote('downvote')}
+        disabled={isPending}
+        className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-colors ${
+          post.userVote === 'downvote'
+            ? 'bg-red-100 text-red-700'
+            : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
+        } disabled:opacity-50`}
+      >
+        <ThumbsDown className="h-4 w-4" />
+        <span>{post.downvotes}</span>
+      </button>
+    </div>
+  );
+};
+
 const PostCard = memo(function PostCard({ post, editable = false }: Props) {
   const isAcara = post.type === 'acara';
 
@@ -111,7 +157,7 @@ const PostCard = memo(function PostCard({ post, editable = false }: Props) {
       </div>
       <ContentWithToggle content={post.content} />
       <hr className="w-full" />
-      <PostComment comments={post.comments} editable={editable} postId={post.id} />
+      <VoteButtons post={post} />
     </div>
   );
 });

@@ -1,27 +1,26 @@
 import { fetchJson } from '@/lib/fetch';
-import type { PostWithComments } from '@/types/post';
+import type { PostWithVotes } from '@/types/post';
 import { snakeToCamel } from '@/utils/transformer';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from './auth/useAuth';
 
-export const fetchPosts = async (isAdmin = false): Promise<PostWithComments[]> => {
-  const response = await fetchJson(`/api/posts?admin=${isAdmin}`);
+export const fetchPosts = async (): Promise<PostWithVotes[]> => {
+  const response = await fetchJson(`/api/posts`);
 
   if (response.error) {
     throw new Error(response.error || 'Failed to fetch posts');
   }
 
-  return snakeToCamel<PostWithComments[]>(response.data) || [];
+  return snakeToCamel<PostWithVotes[]>(response.data) || [];
 };
 
 export const usePosts = () => {
-  const { user, isInitialized } = useAuth();
-  const isAdmin = !!user;
+  const { isInitialized } = useAuth();
 
   return useQuery({
-    queryKey: ['posts', { isAdmin }],
-    queryFn: () => fetchPosts(isAdmin),
+    queryKey: ['posts'],
+    queryFn: () => fetchPosts(),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
     enabled: isInitialized,

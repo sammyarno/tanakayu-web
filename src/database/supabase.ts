@@ -14,48 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
-      comments: {
+      audit_logs: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
-          comment: string
+          action: string
+          actor: string
           created_at: string
-          created_by: string
-          deleted_at: string | null
-          deleted_by: string | null
+          entity_id: string | null
+          entity_type: string
           id: string
-          rejected_at: string | null
-          rejected_by: string | null
-          target_id: string
-          target_type: string
+          metadata: Json | null
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          comment: string
+          action: string
+          actor: string
           created_at?: string
-          created_by: string
-          deleted_at?: string | null
-          deleted_by?: string | null
+          entity_id?: string | null
+          entity_type: string
           id?: string
-          rejected_at?: string | null
-          rejected_by?: string | null
-          target_id: string
-          target_type: string
+          metadata?: Json | null
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          comment?: string
+          action?: string
+          actor?: string
           created_at?: string
-          created_by?: string
-          deleted_at?: string | null
-          deleted_by?: string | null
+          entity_id?: string | null
+          entity_type?: string
           id?: string
-          rejected_at?: string | null
-          rejected_by?: string | null
-          target_id?: string
-          target_type?: string
+          metadata?: Json | null
         }
         Relationships: []
       }
@@ -154,6 +139,45 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_votes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
