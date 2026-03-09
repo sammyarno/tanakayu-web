@@ -60,7 +60,7 @@ const PostAdminContent = () => {
   }, []);
 
   return (
-    <PageContent allowedRoles={['ADMIN']}>
+    <PageContent allowedRoles={['SUPERADMIN', 'ADMINISTRATOR']}>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin' },

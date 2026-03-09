@@ -38,7 +38,7 @@ const ADMIN_MENU_ITEMS = [
 const HomeMenu = () => {
   const { role } = useAuth();
 
-  const displayItems = role === 'ADMIN' || role === 'PENGURUS' ? [...MENU_ITEMS, ...ADMIN_MENU_ITEMS] : MENU_ITEMS;
+  const displayItems = role === 'SUPERADMIN' || role === 'ADMINISTRATOR' ? [...MENU_ITEMS, ...ADMIN_MENU_ITEMS] : MENU_ITEMS;
 
   return (
     <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">

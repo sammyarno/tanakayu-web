@@ -203,43 +203,47 @@ export type Database = {
         }
         Relationships: []
       }
-      refresh_tokens: {
+      profiles: {
         Row: {
+          address: string
           created_at: string
-          expired_at: string
-          hashed_token: string
-          id: number
-          token_jti: string | null
-          user_agent: string
-          user_id: string
+          failed_login_attempts: number
+          full_name: string
+          id: string
+          modified_at: string | null
+          modified_by: string | null
+          phone_number: string
+          role: Database["public"]["Enums"]["user_role"]
+          suspended_until: string | null
+          username: string
         }
         Insert: {
+          address?: string
           created_at?: string
-          expired_at: string
-          hashed_token: string
-          id?: number
-          token_jti?: string | null
-          user_agent: string
-          user_id: string
+          failed_login_attempts?: number
+          full_name?: string
+          id: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          suspended_until?: string | null
+          username: string
         }
         Update: {
+          address?: string
           created_at?: string
-          expired_at?: string
-          hashed_token?: string
-          id?: number
-          token_jti?: string | null
-          user_agent?: string
-          user_id?: string
+          failed_login_attempts?: number
+          full_name?: string
+          id?: string
+          modified_at?: string | null
+          modified_by?: string | null
+          phone_number?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          suspended_until?: string | null
+          username?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "refresh_tokens_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       transactions: {
         Row: {
@@ -283,51 +287,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          address: string
-          created_at: string
-          created_by: string
-          email: string
-          full_name: string
-          hashed_password: string
-          id: string
-          modified_at: string | null
-          modified_by: string | null
-          phone_number: string
-          role: string
-          username: string
-        }
-        Insert: {
-          address: string
-          created_at?: string
-          created_by: string
-          email: string
-          full_name: string
-          hashed_password: string
-          id?: string
-          modified_at?: string | null
-          modified_by?: string | null
-          phone_number: string
-          role?: string
-          username: string
-        }
-        Update: {
-          address?: string
-          created_at?: string
-          created_by?: string
-          email?: string
-          full_name?: string
-          hashed_password?: string
-          id?: string
-          modified_at?: string | null
-          modified_by?: string | null
-          phone_number?: string
-          role?: string
-          username?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -336,7 +295,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "SUPERADMIN" | "ADMINISTRATOR" | "MEMBER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -463,6 +422,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["SUPERADMIN", "ADMINISTRATOR", "MEMBER"],
+    },
   },
 } as const

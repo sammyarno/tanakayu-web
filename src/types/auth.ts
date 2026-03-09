@@ -1,8 +1,4 @@
-export interface JwtUserData {
-  id: string;
-  username: string;
-  role: string;
-}
+export type UserRole = 'SUPERADMIN' | 'ADMINISTRATOR' | 'MEMBER';
 
 export interface User {
   id: string;
@@ -11,5 +7,5 @@ export interface User {
   displayName: string;
   phone: string;
   address: string;
-  role: string;
+  role: UserRole;
 }

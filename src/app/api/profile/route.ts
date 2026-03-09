@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { verifyAuth } from '@/lib/auth';
 import { createServerClient } from '@/plugins/supabase/server';
 import { User } from '@/types/auth';
 import { FetchResponse } from '@/types/fetch';
@@ -9,8 +10,11 @@ export async function GET(request: NextRequest) {
   const response: FetchResponse<User> = {};
 
   try {
+    const { error: authError } = await verifyAuth(request);
+    if (authError) return authError;
+
     const cookieStore = await cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = createServerClient(cookieStore, true);
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -21,7 +25,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response, { status: 400 });
     }
 
-    let query = supabase.from('users').select('id, username, email, full_name, address, phone_number, role');
+    let query = supabase.from('profiles').select('id, username, full_name, address, phone_number, role');
 
     if (id) {
       query = query.eq('id', id);
@@ -37,10 +41,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(response, { status: 404 });
     }
 
+    // Get email from auth user
+    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(data.id);
+
     response.data = {
       id: data.id,
       username: data.username,
-      email: data.email,
+      email: authUser?.email || '',
       displayName: data.full_name,
       phone: data.phone_number,
       address: data.address,

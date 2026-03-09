@@ -4,7 +4,7 @@ import PageContent from '@/components/PageContent';
 
 const Dashboard = () => {
   return (
-    <PageContent allowedRoles={['ADMIN']}>
+    <PageContent allowedRoles={['SUPERADMIN', 'ADMINISTRATOR']}>
       <Link
         href="/admin/post"
         className="border-tanakayu-accent cursor-pointer rounded border bg-white p-3 hover:shadow-lg"

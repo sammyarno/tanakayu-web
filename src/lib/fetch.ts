@@ -1,48 +1,11 @@
-import { useUserAuthStore } from '@/store/userAuthStore';
 import type { FetchResponse } from '@/types/fetch';
 import { snakeToCamel } from '@/utils/transformer';
 
 export const authenticatedFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
-  const { jwt, refreshToken, signOut } = useUserAuthStore.getState();
-
-  if (!jwt) {
-    throw new Error('No authentication token available');
-  }
-
-  const makeRequest = (token: string): Promise<Response> => {
-    return fetch(url, {
-      ...options,
-      headers: {
-        ...options.headers,
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: 'include',
-    });
-  };
-
-  let response = await makeRequest(jwt);
-
-  // try refresh once
-  if (response.status === 401) {
-    const refreshed = await refreshToken();
-
-    if (refreshed) {
-      // with new token
-      const { jwt: newJwt } = useUserAuthStore.getState();
-      if (newJwt) {
-        response = await makeRequest(newJwt);
-      }
-    } else {
-      // failed - sign out and redirect
-      await signOut();
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-      throw new Error('Authentication failed - redirecting to login');
-    }
-  }
-
-  return response;
+  return fetch(url, {
+    ...options,
+    credentials: 'include',
+  });
 };
 
 export const authenticatedFetchJson = async <T = any>(

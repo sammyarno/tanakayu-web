@@ -13,10 +13,8 @@ export interface RegisterRequest {
 const registerMember = async (payload: RegisterRequest) => {
   const response = await fetch('/api/auth/register', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    headers: {
-      'Content-Type': 'application/json',
-    },
   });
 
   if (!response.ok) {

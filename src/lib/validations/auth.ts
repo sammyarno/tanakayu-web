@@ -11,7 +11,12 @@ export const registerSchema = z.object({
   full_name: z.string().min(1, 'Full Name is required').min(6, 'Full Name must be at least 6 characters'),
   cluster: z.enum(CLUSTER_LIST, { message: 'Cluster must be selected' }),
   address: z.string().min(1, 'Address is required'),
-  password: z.string().min(1, 'Password is required').min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
   email: z.email('Please enter a valid email'),
   phone_number: z
     .string()

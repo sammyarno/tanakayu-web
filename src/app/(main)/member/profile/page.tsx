@@ -5,7 +5,9 @@ import { useForm } from 'react-hook-form';
 
 import Breadcrumb from '@/components/Breadcrumb';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
+import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import SignOutButton from '@/components/SignOutButton';
 import { IdentityCard } from '@/components/profile/IdentityCard';
 import { PersonalInfoCard } from '@/components/profile/PersonalInfoCard';
 import { ResidenceCard } from '@/components/profile/ResidenceCard';
@@ -109,7 +111,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <PageContent allowedRoles={['PENGHUNI', 'PENGURUS', 'ADMIN']} fallbackPath="/member">
+    <PageContent allowedRoles={['MEMBER', 'ADMINISTRATOR', 'SUPERADMIN']} fallbackPath="/member">
       <div className="space-y-2">
         <Breadcrumb
           items={[
@@ -121,53 +123,63 @@ const ProfilePage = () => {
         <p className="text-muted-foreground">Manage your account settings and preferences.</p>
       </div>
 
-      {errorMessage && (
-        <Alert variant="destructive" className="mb-0 border-red-600 bg-red-50 text-red-900">
-          <AlertCircleIcon className="h-4 w-4" />
-          <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
-        </Alert>
+      {isFetching ? (
+        <div className="flex justify-center py-12">
+          <LoadingIndicator isLoading />
+        </div>
+      ) : (
+        <>
+          {errorMessage && (
+            <Alert variant="destructive" className="mb-0 border-red-600 bg-red-50 text-red-900">
+              <AlertCircleIcon className="h-4 w-4" />
+              <AlertTitle className="tracking-wide capitalize">{errorMessage}</AlertTitle>
+            </Alert>
+          )}
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+            <IdentityCard display_name={profileRes?.displayName} username={username} role={profileRes?.role || role} />
+
+            <FormSchemaProvider methods={methods} schema={editProfileSchema}>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
+                <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
+                <SecurityCard isLoading={isLoading} isEditing={isEditing} />
+
+                <div className="flex justify-end gap-4 pt-4">
+                  {!isEditing ? (
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      Update Profile
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                        className="w-full sm:w-auto"
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+                        Save Changes
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </form>
+            </FormSchemaProvider>
+          </div>
+
+          <SignOutButton className="w-full" variant="outline" />
+        </>
       )}
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-        <IdentityCard display_name={profileRes?.displayName} username={username} role={profileRes?.role || role} />
-
-        <FormSchemaProvider methods={methods} schema={editProfileSchema}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <PersonalInfoCard isLoading={isLoading} isEditing={isEditing} />
-            <ResidenceCard isLoading={isLoading} isEditing={isEditing} />
-            <SecurityCard isLoading={isLoading} isEditing={isEditing} />
-
-            <div className="flex justify-end gap-4 pt-4">
-              {!isEditing ? (
-                <Button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  disabled={isLoading}
-                  className="w-full sm:w-auto"
-                  size="lg"
-                >
-                  Update Profile
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isLoading}
-                    className="w-full sm:w-auto"
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                    Save Changes
-                  </Button>
-                </>
-              )}
-            </div>
-          </form>
-        </FormSchemaProvider>
-      </div>
     </PageContent>
   );
 };

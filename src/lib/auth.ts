@@ -1,39 +1,52 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { verifyJwt } from '@/lib/jwt';
-import type { JwtUserData } from '@/types/auth';
+
+import { createServerClient } from '@/plugins/supabase/server';
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  role: string;
+}
 
 /**
- * Extracts and verifies the JWT from the Authorization header.
- * @param request The incoming Request or NextRequest
- * @returns {Promise<{ user?: JwtUserData, error?: NextResponse }>} user or an error response
+ * Verifies the current user's session via Supabase Auth and fetches their profile.
+ * Use in API routes that require authentication.
  */
-export async function verifyAuth(request: Request): Promise<{ user?: JwtUserData; error?: NextResponse }> {
+export async function verifyAuth(request: Request): Promise<{ user?: AuthUser; error?: NextResponse }> {
   try {
-    const authHeader = request.headers.get('authorization');
+    const cookieStore = await cookies();
+    const supabase = createServerClient(cookieStore);
 
-    if (!authHeader) {
-      return { error: NextResponse.json({ error: 'Authorization header is required' }, { status: 401 }) };
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
     }
 
-    if (!authHeader.startsWith('Bearer ')) {
-      return { error: NextResponse.json({ error: 'Invalid authorization format. Expected: Bearer <token>' }, { status: 401 }) };
+    // Fetch profile for username and role
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('username, role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return { error: NextResponse.json({ error: 'Profile not found' }, { status: 401 }) };
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer '
-
-    if (!token) {
-      return { error: NextResponse.json({ error: 'Token is required' }, { status: 401 }) };
-    }
-
-    const userData = await verifyJwt(token);
-
-    if (!userData) {
-      return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }) };
-    }
-
-    return { user: userData };
+    return {
+      user: {
+        id: user.id,
+        username: profile.username,
+        role: profile.role,
+      },
+    };
   } catch (err) {
-    console.error('JWT verification error:', err);
+    console.error('Auth verification error:', err);
     return { error: NextResponse.json({ error: 'Internal server error during authentication' }, { status: 500 }) };
   }
 }

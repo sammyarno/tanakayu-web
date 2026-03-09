@@ -27,9 +27,9 @@ const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: Role
 
       // Authenticated but wrong role - redirect to appropriate page based on actual role
       if (role && !allowedRoles.includes(role as UserRole)) {
-        if (role === 'ADMIN') {
+        if (role === 'SUPERADMIN' || role === 'ADMINISTRATOR') {
           router.push('/admin');
-        } else if (role === 'PENGHUNI') {
+        } else if (role === 'MEMBER') {
           router.push('/member');
         } else {
           router.push(fallbackPath);

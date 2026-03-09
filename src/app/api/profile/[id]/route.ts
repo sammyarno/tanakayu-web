@@ -1,12 +1,10 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { hashWithSalt } from '@/lib/bcrypt';
-import { createServerClient } from '@/plugins/supabase/server';
 import { verifyAuth } from '@/lib/auth';
+import { createServerClient } from '@/plugins/supabase/server';
 import { User } from '@/types/auth';
 import { FetchResponse } from '@/types/fetch';
-import { getNowDate } from '@/utils/date';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const response: FetchResponse<User> = {};
@@ -25,43 +23,75 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json(response, { status: 400 });
     }
 
-    const updateData: any = {};
+    // Update profile fields
+    const profileUpdate: Record<string, string> = {};
+    if (body.display_name) profileUpdate.full_name = body.display_name;
+    if (body.phone) profileUpdate.phone_number = body.phone;
+    if (body.address) profileUpdate.address = body.address;
+    if (body.email) profileUpdate.email = body.email;
 
-    if (body.display_name) updateData.full_name = body.display_name;
-    if (body.phone) updateData.phone_number = body.phone;
-    if (body.address) updateData.address = body.address;
-    if (body.email) updateData.email = body.email;
+    // Update password via Supabase Auth if provided
     if (body.password) {
-      updateData.hashed_password = await hashWithSalt(body.password);
-      delete updateData.password;
+      const { error: passwordError } = await supabase.auth.admin.updateUserById(id, {
+        password: body.password,
+      });
+      if (passwordError) {
+        console.error('Error updating password:', passwordError);
+        response.error = 'Failed to update password';
+        return NextResponse.json(response, { status: 500 });
+      }
     }
 
-    if (Object.keys(updateData).length === 0) {
+    // Update email in Supabase Auth if provided
+    if (body.email) {
+      const { error: emailError } = await supabase.auth.admin.updateUserById(id, {
+        email: body.email,
+      });
+      if (emailError) {
+        console.error('Error updating email:', emailError);
+        response.error = 'Failed to update email';
+        return NextResponse.json(response, { status: 500 });
+      }
+    }
+
+    if (Object.keys(profileUpdate).length === 0 && !body.password) {
       response.error = 'No valid fields provided for update';
       return NextResponse.json(response, { status: 400 });
     }
 
-    const { data, error } = await supabase
-      .from('users')
-      .update({
-        ...updateData,
-        modified_at: getNowDate(),
-        modified_by: user!.username,
-      })
+    if (Object.keys(profileUpdate).length > 0) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(profileUpdate)
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        response.error = 'Failed to update profile';
+        return NextResponse.json(response, { status: 500 });
+      }
+    }
+
+    // Fetch updated profile
+    const { data, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id, username, full_name, address, phone_number, role')
       .eq('id', id)
-      .select('id, username, email, full_name, address, phone_number, role')
       .single();
 
-    if (error) {
-      console.error('Error updating user:', error);
-      response.error = 'Failed to update user';
+    if (fetchError || !data) {
+      console.error('Error fetching updated profile:', fetchError);
+      response.error = 'Failed to fetch updated profile';
       return NextResponse.json(response, { status: 500 });
     }
+
+    // Get email from auth user
+    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(id);
 
     response.data = {
       id: data.id,
       username: data.username,
-      email: data.email,
+      email: authUser?.email || '',
       displayName: data.full_name,
       phone: data.phone_number,
       address: data.address,

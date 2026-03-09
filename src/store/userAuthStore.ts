@@ -1,63 +1,51 @@
+import { getSupabaseClient } from '@/plugins/supabase/client';
 import type { User } from '@/types/auth';
-import { decryptData, encryptData } from '@/utils/encryption';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-interface PersistedState {
+interface UserAuthState {
   userInfo: User | null;
-}
-
-interface UserAuthState extends PersistedState {
-  jwt: string | null;
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
   initialize: () => Promise<void>;
   signIn: (username: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
-  verify: (token: string) => Promise<User | null>;
-  refreshToken: (silent?: boolean) => Promise<boolean>;
   updateUser: (user: Partial<User>) => void;
   clearError: () => void;
 }
 
-const encryptedStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    if (typeof window === 'undefined') return null;
+const fetchProfile = async (): Promise<User | null> => {
+  const supabase = getSupabaseClient();
 
-    const str = localStorage.getItem(name);
-    if (!str) return null;
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
 
-    try {
-      const data = await decryptData<string>(str);
-      return data;
-    } catch (e) {
-      console.error('Failed to decrypt storage', e);
-      return null;
-    }
-  },
+  if (!authUser) return null;
 
-  setItem: async (name: string, value: string): Promise<void> => {
-    if (typeof window === 'undefined') return;
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, full_name, phone_number, address, role')
+    .eq('id', authUser.id)
+    .single();
 
-    try {
-      const encrypted = await encryptData(value);
-      localStorage.setItem(name, encrypted);
-    } catch {
-      console.error('Encryption failed. Not storing data.');
-    }
-  },
+  if (!profile) return null;
 
-  removeItem: (name: string): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(name);
-  },
+  return {
+    id: authUser.id,
+    username: profile.username,
+    email: authUser.email || '',
+    displayName: profile.full_name,
+    phone: profile.phone_number,
+    address: profile.address,
+    role: profile.role,
+  };
 };
 
 export const useUserAuthStore = create<UserAuthState>()(
   persist(
     (set, get) => ({
-      jwt: null,
       userInfo: null,
       isLoading: false,
       isInitialized: false,
@@ -65,26 +53,25 @@ export const useUserAuthStore = create<UserAuthState>()(
 
       initialize: async () => {
         const { isLoading, isInitialized } = get();
-
-        // Prevent multiple simultaneous initialization calls
-        if (isLoading || isInitialized) {
-          return;
-        }
+        if (isLoading || isInitialized) return;
 
         set({ isLoading: true });
 
         try {
-          // Attempt to restore session via refresh token (http-only cookie)
-          // Pass silent=true to avoid setting global error on initial load if no session exists
-          const refreshed = await get().refreshToken(true);
-          if (!refreshed) {
-            // If refresh failed, we might still have persisted user info, but it's stale without a token
-            // So we clear it to force re-login
-            set({ jwt: null, userInfo: null });
+          const supabase = getSupabaseClient();
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (session) {
+            const user = await fetchProfile();
+            set({ userInfo: user });
+          } else {
+            set({ userInfo: null });
           }
         } catch (error) {
           console.error('Failed to initialize auth:', error);
-          set({ jwt: null, userInfo: null });
+          set({ userInfo: null });
         } finally {
           set({ isLoading: false, isInitialized: true });
         }
@@ -94,47 +81,35 @@ export const useUserAuthStore = create<UserAuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          const loginResponse = await fetch('/api/auth/login', {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+          const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+          // Call edge function for username-based login
+          const response = await fetch(`${supabaseUrl}/functions/v1/login-with-username`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${supabaseAnonKey}`,
+            },
             body: JSON.stringify({ username, password }),
           });
 
-          const loginData = await loginResponse.json();
+          const data = await response.json();
 
-          if (!loginResponse.ok) {
-            throw new Error(loginData?.error || 'Failed to sign in');
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to sign in');
           }
 
-          // Fetch full user details using the new token
-          const userResponse = await fetch('/api/auth/user', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${loginData.jwt}`,
-            },
+          // Set session in supabase client
+          const supabase = getSupabaseClient();
+          await supabase.auth.setSession({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
           });
 
-          if (!userResponse.ok) {
-            throw new Error('Failed to fetch user details');
-          }
+          const user = await fetchProfile();
 
-          const userData = await userResponse.json();
-          const user: User = {
-            address: userData.user.address || '',
-            email: userData.user.email || '',
-            role: userData.user.role || '',
-            id: userData.user.id || '',
-            username: userData.user.username || '',
-            displayName: userData.user.display_name || '',
-            phone: userData.user.phone || '',
-          };
-
-          set({
-            jwt: loginData.jwt,
-            userInfo: user,
-            isLoading: false,
-          });
-
+          set({ userInfo: user, isLoading: false });
           return user;
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
@@ -147,102 +122,12 @@ export const useUserAuthStore = create<UserAuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await fetch('/api/auth/logout', { method: 'POST' });
-
-          if (!response.ok) {
-            throw new Error('Failed to sign out');
-          }
-
-          set({
-            jwt: null,
-            userInfo: null,
-            isLoading: false,
-          });
+          const supabase = getSupabaseClient();
+          await supabase.auth.signOut();
+          set({ userInfo: null, isLoading: false });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Failed to sign out';
-          set({ jwt: null, userInfo: null, isLoading: false, error: errorMessage });
-        }
-      },
-
-      verify: async (token: string) => {
-        try {
-          const response = await fetch('/api/auth/verify', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (!response.ok) {
-            return null;
-          }
-
-          const userData = await response.json();
-          const user: User = {
-            address: userData.user.address || '',
-            email: userData.user.email || '',
-            role: userData.user.role || '',
-            id: userData.user.id || '',
-            username: userData.user.username || '',
-            displayName: userData.user.display_name || '',
-            phone: userData.user.phone || '',
-          };
-
-          return user;
-        } catch (error) {
-          console.error('Token verification failed:', error);
-          return null;
-        }
-      },
-
-      refreshToken: async (silent = false) => {
-        try {
-          const response = await fetch('/api/auth/refresh', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-          });
-
-          if (!response.ok) {
-            set({ jwt: null, userInfo: null, error: silent ? null : 'Session expired' });
-            return false;
-          }
-
-          const data = await response.json();
-          const { jwt: newJwt } = data;
-
-          // Get full user info using the new token
-          const userResponse = await fetch('/api/auth/user', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${newJwt}`,
-            },
-          });
-
-          if (userResponse.ok) {
-            const response = await userResponse.json();
-            const user: User = {
-              address: response.user.address || '',
-              email: response.user.email || '',
-              role: response.user.role || '',
-              id: response.user.id || '',
-              username: response.user.username || '',
-              displayName: response.user.display_name || '',
-              phone: response.user.phone || '',
-            };
-
-            set({ jwt: newJwt, userInfo: user, error: null });
-            return true;
-          } else {
-            set({ jwt: null, userInfo: null, error: silent ? null : 'Failed to get user info' });
-            return false;
-          }
-        } catch (error) {
-          console.error('Token refresh failed:', error);
-          set({ jwt: null, userInfo: null, error: silent ? null : 'Token refresh failed' });
-          return false;
+          set({ userInfo: null, isLoading: false, error: errorMessage });
         }
       },
 
@@ -256,7 +141,7 @@ export const useUserAuthStore = create<UserAuthState>()(
     }),
     {
       name: 'user-auth-storage',
-      storage: createJSONStorage(() => encryptedStorage),
+      storage: createJSONStorage(() => localStorage),
       partialize: state => ({
         userInfo: state.userInfo,
       }),

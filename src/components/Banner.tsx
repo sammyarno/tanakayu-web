@@ -9,7 +9,7 @@ const Banner = () => {
   const { role } = useAuth();
 
   return (
-    <Link href={role === 'ADMIN' ? '/admin' : '/'}>
+    <Link href={role === 'SUPERADMIN' || role === 'ADMINISTRATOR' ? '/admin' : '/'}>
       <section
         id="bannner"
         className="bg-tanakayu-dark text-tanakayu-accent border-tanakayu-highlight border-4 bg-[url('/leaf.png')] bg-cover bg-center p-2 text-center"

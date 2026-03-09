@@ -35,7 +35,7 @@ const BottomNav = () => {
     });
   }
 
-  if (role === 'ADMIN' && pathname !== '/verify-member') {
+  if ((role === 'SUPERADMIN' || role === 'ADMINISTRATOR') && pathname !== '/verify-member') {
     navItems.push({
       label: 'Dashboard',
       href: '/admin',

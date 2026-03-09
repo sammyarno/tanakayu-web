@@ -1,6 +1,6 @@
-import { useAuth } from './useAuth';
+import type { UserRole } from '@/types/auth';
 
-type UserRole = 'ADMIN' | 'PENGHUNI' | 'PENGURUS';
+import { useAuth } from './useAuth';
 
 export const useRoleCheck = () => {
   const { role, user } = useAuth();
@@ -13,12 +13,16 @@ export const useRoleCheck = () => {
     return requiredRoles.includes(role as UserRole);
   };
 
+  const isSuperAdmin = (): boolean => {
+    return role === 'SUPERADMIN';
+  };
+
   const isAdmin = (): boolean => {
-    return role === 'ADMIN';
+    return role === 'SUPERADMIN' || role === 'ADMINISTRATOR';
   };
 
   const isMember = (): boolean => {
-    return role === 'PENGHUNI';
+    return role === 'MEMBER';
   };
 
   const isAuthenticated = (): boolean => {
@@ -29,6 +33,7 @@ export const useRoleCheck = () => {
     role: role as UserRole | undefined,
     hasRole,
     hasAnyRole,
+    isSuperAdmin,
     isAdmin,
     isMember,
     isAuthenticated,
