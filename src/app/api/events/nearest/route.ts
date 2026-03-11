@@ -15,7 +15,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('posts')
       .select('id,title,type,content,start_date,end_date')
-      .eq('type', 'acara')
+      .eq('type', 'event')
       .is('deleted_at', null)
       .gte('start_date', today)
       .limit(2)

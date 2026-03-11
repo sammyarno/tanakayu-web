@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { logAudit } from '@/lib/audit';
 import { registerSchema } from '@/lib/validations/auth';
 import { createServerClient } from '@/plugins/supabase/server';
+import { normalizePhone } from '@/utils/phone';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,14 +20,22 @@ export async function POST(request: NextRequest) {
 
     const { username, full_name, email, password, phone_number, address, cluster } = validationResult.data;
 
-    // Check if username already exists
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', username)
-      .single();
+    const normalizedPhone = normalizePhone(phone_number);
 
-    if (existingProfile) {
+    // Check phone permission and username uniqueness in parallel
+    const [phoneResult, usernameResult] = await Promise.all([
+      supabase.from('permitted_phones').select('id').eq('phone_number', normalizedPhone).single(),
+      supabase.from('profiles').select('id').eq('username', username).single(),
+    ]);
+
+    if (!phoneResult.data) {
+      return Response.json(
+        { error: 'Phone number is not registered. Please contact the administrator to register your phone number.' },
+        { status: 403 }
+      );
+    }
+
+    if (usernameResult.data) {
       return Response.json({ error: 'Username already taken' }, { status: 409 });
     }
 
@@ -48,7 +57,7 @@ export async function POST(request: NextRequest) {
       .update({
         username,
         full_name,
-        phone_number,
+        phone_number: normalizedPhone,
         address: `${cluster}, ${address}`,
         role: 'MEMBER' as const,
       })
@@ -61,7 +70,8 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Failed to create profile' }, { status: 500 });
     }
 
-    await logAudit(supabase, {
+    // Fire-and-forget audit log — don't block the response
+    logAudit(supabase, {
       action: 'register',
       entityType: 'user',
       entityId: authData.user.id,

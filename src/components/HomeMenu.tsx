@@ -12,8 +12,8 @@ const PUBLIC_MENU_ITEMS = [
     icon: Megaphone,
     iconBaseColor: 'bg-orange-50',
     iconColor: 'text-orange-500',
-    alt: 'Pengumuman & Acara',
-    title: 'Pengumuman & Acara',
+    alt: 'Announcements & Events',
+    title: 'Announcements & Events',
   },
 ];
 
@@ -23,8 +23,8 @@ const AUTH_MENU_ITEMS = [
     icon: ReceiptText,
     iconBaseColor: 'bg-green-50',
     iconColor: 'text-green-500',
-    alt: 'Laporan Transaksi',
-    title: 'Laporan Transaksi',
+    alt: 'Transaction Report',
+    title: 'Transaction Report',
   },
 ];
 
@@ -34,8 +34,8 @@ const MERCHANT_MENU_ITEMS = [
     icon: ShieldCheck,
     iconBaseColor: 'bg-blue-50',
     iconColor: 'text-blue-500',
-    alt: 'Verifikasi Keanggotaan',
-    title: 'Verifikasi Keanggotaan',
+    alt: 'Membership Verification',
+    title: 'Membership Verification',
   },
 ];
 

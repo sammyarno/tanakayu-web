@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
 import { SUPERADMIN_ONLY } from '@/constants/roles';
-import { Megaphone, ReceiptText } from 'lucide-react';
+import { Megaphone, Phone, ReceiptText } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
@@ -12,14 +12,21 @@ const MENU_ITEMS = [
     icon: Megaphone,
     iconBaseColor: 'bg-orange-50',
     iconColor: 'text-orange-500',
-    title: 'Pengumuman & Acara',
+    title: 'Announcements & Events',
   },
   {
     href: '/admin/transaction-report',
     icon: ReceiptText,
     iconBaseColor: 'bg-green-50',
     iconColor: 'text-green-500',
-    title: 'Laporan Transaksi',
+    title: 'Transaction Report',
+  },
+  {
+    href: '/admin/permitted-phones',
+    icon: Phone,
+    iconBaseColor: 'bg-purple-50',
+    iconColor: 'text-purple-500',
+    title: 'Permitted Phones',
   },
 ];
 

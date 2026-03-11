@@ -25,9 +25,9 @@ const PostContent = () => {
 
   const filterCategories: Category[] = useMemo(
     () => [
-      { label: 'Semua', code: '', id: 'semua' },
-      { label: 'Pengumuman', code: 'pengumuman', id: 'pengumuman' },
-      { label: 'Acara', code: 'acara', id: 'acara' },
+      { label: 'All', code: '', id: 'semua' },
+      { label: 'Announcement', code: 'announcement', id: 'announcement' },
+      { label: 'Event', code: 'event', id: 'event' },
     ],
     []
   );
@@ -60,11 +60,11 @@ const PostContent = () => {
       <Breadcrumb
         items={[
           { label: 'Home', link: '/' },
-          { label: 'Pengumuman & Acara', link: '/post' },
+          { label: 'Announcements & Events', link: '/post' },
         ]}
       />
       <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">Pengumuman & Acara</h2>
+        <h2 className="font-sans text-3xl font-bold uppercase">Announcements & Events</h2>
         <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
       </section>
       <section className="flex flex-col gap-4">

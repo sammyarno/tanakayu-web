@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useEditPost } from '@/hooks/useEditPost';
 import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { editPostSchema } from '@/lib/validations/post';
-import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES, type PostType, type PostWithVotes } from '@/types/post';
+import { EVENT_TYPE, ANNOUNCEMENT_TYPE, POST_TYPES, type PostType, type PostWithVotes } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -29,7 +29,7 @@ type EditPostFormData = z.infer<typeof editPostSchema>;
 const defaultFormValues: EditPostFormData = {
   title: '',
   content: '',
-  type: PENGUMUMAN_TYPE,
+  type: ANNOUNCEMENT_TYPE,
   categories: [],
   startDate: '',
   endDate: '',
@@ -137,7 +137,7 @@ const EditDialog = ({ post }: EditDialogProps) => {
                       value={field.value}
                       onValueChange={value => {
                         field.onChange(value);
-                        if (value === PENGUMUMAN_TYPE) {
+                        if (value === ANNOUNCEMENT_TYPE) {
                           setValue('startDate', '');
                           setValue('endDate', '');
                         }
@@ -158,7 +158,7 @@ const EditDialog = ({ post }: EditDialogProps) => {
                   </div>
                 )}
               />
-              {selectedType === PENGUMUMAN_TYPE && (
+              {selectedType === ANNOUNCEMENT_TYPE && (
                 <FormController
                   name="categories"
                   renderInput={field => (
@@ -171,7 +171,7 @@ const EditDialog = ({ post }: EditDialogProps) => {
                   )}
                 />
               )}
-              {selectedType === ACARA_TYPE && (
+              {selectedType === EVENT_TYPE && (
                 <div className="grid grid-cols-2 gap-3">
                   <FormController
                     name="startDate"

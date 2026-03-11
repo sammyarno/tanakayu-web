@@ -74,7 +74,7 @@ const VoteButtons = ({ post }: { post: PostWithVotes }) => {
 
   const handleVote = (voteType: 'upvote' | 'downvote') => {
     if (!userId) {
-      toast.error('Silakan login terlebih dahulu untuk vote', {
+      toast.error('Please login first to vote', {
         duration: 3000,
         position: 'top-center',
       });
@@ -114,7 +114,7 @@ const VoteButtons = ({ post }: { post: PostWithVotes }) => {
 };
 
 const PostCard = memo(function PostCard({ post, editable = false }: Props) {
-  const isAcara = post.type === 'acara';
+  const isAcara = post.type === 'event';
 
   return (
     <div className="border-tanakayu-accent flex flex-col items-start gap-3 rounded border bg-white p-3">
@@ -123,7 +123,7 @@ const PostCard = memo(function PostCard({ post, editable = false }: Props) {
           {isAcara ? (
             <Badge variant="default" className="bg-amber-100 text-amber-800">
               <Calendar className="mr-1 h-4 w-4" />
-              Acara
+              Event
             </Badge>
           ) : (
             post.categories.map(cat => {

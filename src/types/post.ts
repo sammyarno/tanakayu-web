@@ -1,12 +1,12 @@
 import type { Category } from '@/types';
 
-export const PENGUMUMAN_TYPE = 'pengumuman' as const;
-export const ACARA_TYPE = 'acara' as const;
-export type PostType = typeof PENGUMUMAN_TYPE | typeof ACARA_TYPE;
+export const ANNOUNCEMENT_TYPE = 'announcement' as const;
+export const EVENT_TYPE = 'event' as const;
+export type PostType = typeof ANNOUNCEMENT_TYPE | typeof EVENT_TYPE;
 
 export const POST_TYPES = [
-  { value: PENGUMUMAN_TYPE, label: 'Pengumuman' },
-  { value: ACARA_TYPE, label: 'Acara' },
+  { value: ANNOUNCEMENT_TYPE, label: 'Announcement' },
+  { value: EVENT_TYPE, label: 'Event' },
 ] as const;
 
 export interface Post {

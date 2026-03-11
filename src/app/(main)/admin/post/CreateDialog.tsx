@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreatePost } from '@/hooks/useCreatePost';
 import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { createPostSchema } from '@/lib/validations/post';
-import { ACARA_TYPE, PENGUMUMAN_TYPE, POST_TYPES } from '@/types/post';
+import { EVENT_TYPE, ANNOUNCEMENT_TYPE, POST_TYPES } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,7 +24,7 @@ type CreatePostForm = z.infer<typeof createPostSchema>;
 
 const defaultFormValues: CreatePostForm = {
   title: '',
-  type: PENGUMUMAN_TYPE,
+  type: ANNOUNCEMENT_TYPE,
   content: '',
   categories: [],
   startDate: '',
@@ -91,7 +91,7 @@ const CreateDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
-          Tambah Post
+          Add Post
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] sm:max-w-md">
@@ -128,7 +128,7 @@ const CreateDialog = () => {
                     <Select
                       onValueChange={value => {
                         field.onChange(value);
-                        if (value === PENGUMUMAN_TYPE) {
+                        if (value === ANNOUNCEMENT_TYPE) {
                           setValue('startDate', '');
                           setValue('endDate', '');
                         }
@@ -153,7 +153,7 @@ const CreateDialog = () => {
                   </FormItem>
                 )}
               />
-              {selectedType === PENGUMUMAN_TYPE && (
+              {selectedType === ANNOUNCEMENT_TYPE && (
                 <FormController
                   name="categories"
                   renderInput={field => (
@@ -166,7 +166,7 @@ const CreateDialog = () => {
                   )}
                 />
               )}
-              {selectedType === ACARA_TYPE && (
+              {selectedType === EVENT_TYPE && (
                 <div className="grid grid-cols-2 gap-3">
                   <FormController
                     name="startDate"

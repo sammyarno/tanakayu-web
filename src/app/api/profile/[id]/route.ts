@@ -6,6 +6,7 @@ import { logAudit } from '@/lib/audit';
 import { createServerClient } from '@/plugins/supabase/server';
 import { User } from '@/types/auth';
 import { FetchResponse } from '@/types/fetch';
+import { normalizePhone } from '@/utils/phone';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const response: FetchResponse<User> = {};
@@ -27,7 +28,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Update profile fields
     const profileUpdate: Record<string, string> = {};
     if (body.display_name) profileUpdate.full_name = body.display_name;
-    if (body.phone) profileUpdate.phone_number = body.phone;
+    if (body.phone) profileUpdate.phone_number = normalizePhone(body.phone);
     if (body.address) profileUpdate.address = body.address;
     if (body.email) profileUpdate.email = body.email;
 

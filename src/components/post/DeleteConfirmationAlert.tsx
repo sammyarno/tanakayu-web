@@ -46,19 +46,19 @@ const DeleteConfirmationAlert = ({ post }: { post: PostWithVotes }) => {
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertCircleIcon className="h-5 w-5 text-red-500" />
-            Konfirmasi Hapus
+            Confirm Delete
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus {post.type === 'acara' ? 'acara' : 'pengumuman'} &quot;{post.title}&quot;?
-            Tindakan ini tidak dapat dibatalkan.
+            Are you sure you want to delete the {post.type === 'event' ? 'event' : 'announcement'} &quot;{post.title}&quot;?
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
-            Batal
+            Cancel
           </Button>
           <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
-            {isLoading ? 'Menghapus...' : 'Hapus'}
+            {isLoading ? 'Deleting...' : 'Delete'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

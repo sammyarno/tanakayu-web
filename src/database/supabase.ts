@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      permitted_phones: {
+        Row: {
+          id: string
+          phone_number: string
+          full_name: string
+          registered_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          phone_number: string
+          full_name?: string
+          registered_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          phone_number?: string
+          full_name?: string
+          registered_by?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       post_categories: {
         Row: {
           code: string

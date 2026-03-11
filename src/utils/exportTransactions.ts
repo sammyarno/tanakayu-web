@@ -32,6 +32,6 @@ export const exportTransactionsToExcel = async (data: TransactionsResult, period
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Transaksi');
 
-  const filename = periodValue ? `Laporan_Transaksi_${periodValue}.xlsx` : 'Laporan_Transaksi_Semua.xlsx';
+  const filename = periodValue ? `Transaction_Report_${periodValue}.xlsx` : 'Transaction_Report_All.xlsx';
   XLSX.writeFile(wb, filename);
 };

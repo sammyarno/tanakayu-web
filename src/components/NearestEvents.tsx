@@ -22,9 +22,9 @@ const NearestEvents = () => {
   return (
     <section className="relative rounded-xl border bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold">📅 Acara Terdekat</h2>
+        <h2 className="text-lg font-bold">📅 Nearest Events</h2>
         <Button variant="link" asChild className="text-tanakayu-dark h-auto p-0 font-semibold">
-          <Link href="/post?filter=acara">Lihat Semua</Link>
+          <Link href="/post?filter=event">View All</Link>
         </Button>
       </div>
 
@@ -55,7 +55,7 @@ const NearestEvents = () => {
         </Carousel>
       ) : (
         <div className="flex w-full items-center justify-center p-2 text-center text-sm text-slate-500">
-          Saat ini tidak ada acara terdekat.
+          There are currently no nearest events.
         </div>
       )}
     </section>
