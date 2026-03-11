@@ -23,7 +23,7 @@ export const useFetchProfile = (payload: FetchProfileRequest) => {
   return useQuery({
     queryKey: ['profile', payload.id],
     queryFn: () => fetchProfile(payload),
-    gcTime: 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes — profile rarely changes
     refetchOnWindowFocus: false,
     enabled: payload.id !== '' && payload.username !== '',
   });

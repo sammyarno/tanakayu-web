@@ -39,24 +39,24 @@ export async function GET(request: NextRequest) {
       const startDateStr = startDate.toISOString().split('T')[0];
       const endDateStr = endDate.toISOString().split('T')[0];
 
-      // Single query: all transactions up to end of current month
-      const { data: allTransactions, error } = await supabase
-        .from('transactions')
-        .select('id, title, amount, type, category, description, date, created_at, created_by')
-        .lte('date', endDateStr)
-        .order('date', { ascending: false });
+      // Fetch current month transactions and prior balance in parallel
+      const [txResult, balanceResult] = await Promise.all([
+        supabase
+          .from('transactions')
+          .select('id, title, amount, type, category, description, date, created_at, created_by')
+          .gte('date', startDateStr)
+          .lte('date', endDateStr)
+          .order('date', { ascending: false }),
+        supabase.rpc('get_balance_before_date', { target_date: startDateStr }),
+      ]);
 
-      if (error) {
-        response.error = error.message;
+      if (txResult.error) {
+        response.error = txResult.error.message;
         return Response.json(response, { status: 500 });
       }
 
-      const all = allTransactions ?? [];
-      const currentMonthTxs = all.filter(t => t.date >= startDateStr);
-      const prevTxs = all.filter(t => t.date < startDateStr);
-
-      const lastMonthBalance = prevTxs.reduce((acc, t) =>
-        t.type === 'income' ? acc + t.amount : acc - t.amount, 0);
+      const currentMonthTxs = txResult.data ?? [];
+      const lastMonthBalance = Number(balanceResult.data ?? 0);
       const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
       const currentExpenses = currentMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
       balance = lastMonthBalance + currentIncome - currentExpenses;

@@ -33,28 +33,50 @@ export async function GET(request: NextRequest) {
       query = query.eq('username', username);
     }
 
-    const { data, error } = await query.single();
+    // When id is known, fetch profile and auth user email in parallel
+    if (id) {
+      const [profileResult, authResult] = await Promise.all([
+        query.single(),
+        supabase.auth.admin.getUserById(id),
+      ]);
 
-    if (error) {
-      console.error('Error fetching user:', error);
-      response.error = 'User not found';
-      return NextResponse.json(response, { status: 404 });
+      if (profileResult.error) {
+        console.error('Error fetching user:', profileResult.error);
+        response.error = 'User not found';
+        return NextResponse.json(response, { status: 404 });
+      }
+
+      const data = profileResult.data;
+      response.data = {
+        id: data.id,
+        username: data.username,
+        email: authResult.data?.user?.email || '',
+        displayName: data.full_name,
+        phone: data.phone_number,
+        address: data.address,
+        role: data.role,
+      } as User;
+    } else {
+      const { data, error } = await query.single();
+
+      if (error) {
+        console.error('Error fetching user:', error);
+        response.error = 'User not found';
+        return NextResponse.json(response, { status: 404 });
+      }
+
+      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(data.id);
+
+      response.data = {
+        id: data.id,
+        username: data.username,
+        email: authUser?.email || '',
+        displayName: data.full_name,
+        phone: data.phone_number,
+        address: data.address,
+        role: data.role,
+      } as User;
     }
-
-    // Get email from auth user
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.admin.getUserById(data.id);
-
-    response.data = {
-      id: data.id,
-      username: data.username,
-      email: authUser?.email || '',
-      displayName: data.full_name,
-      phone: data.phone_number,
-      address: data.address,
-      role: data.role,
-    } as User;
 
     return NextResponse.json(response);
   } catch (error) {

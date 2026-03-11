@@ -44,39 +44,6 @@ export type Database = {
         }
         Relationships: []
       }
-      expenditures: {
-        Row: {
-          created_at: string
-          created_by: string
-          date: string
-          description: string
-          id: string
-          image_path: string
-          modified_at: string | null
-          modified_by: string | null
-        }
-        Insert: {
-          created_at?: string
-          created_by: string
-          date: string
-          description: string
-          id?: string
-          image_path: string
-          modified_at?: string | null
-          modified_by?: string | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          date?: string
-          description?: string
-          id?: string
-          image_path?: string
-          modified_at?: string | null
-          modified_by?: string | null
-        }
-        Relationships: []
-      }
       post_categories: {
         Row: {
           code: string
@@ -316,6 +283,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_balance_before_date: {
+        Args: { target_date: string }
+        Returns: number
+      }
       get_transaction_date_range: {
         Args: never
         Returns: {

@@ -21,5 +21,6 @@ export const useFetchTransactions = (monthFilter?: string) => {
   return useQuery({
     queryKey: ['transactions', { monthFilter }],
     queryFn: () => fetchTransactions({ monthFilter }),
+    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 };
