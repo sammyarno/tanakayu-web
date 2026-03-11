@@ -19,7 +19,7 @@ const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
   const { signIn, clearError, error, isLoading, user, isInitialized } = useAuth();
-  const { isAdmin, isMember } = useRoleCheck();
+  const { isAdmin } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,14 +49,11 @@ const Login = () => {
     if (isInitialized && !isLoading && user && !error) {
       if (isAdmin()) {
         router.push('/admin');
-      } else if (isMember()) {
-        router.push('/');
       } else {
-        // Fallback for unknown roles or just authenticated
         router.push('/');
       }
     }
-  }, [user, error, router, isAdmin, isMember, isInitialized, isLoading]);
+  }, [user, error, router, isAdmin, isInitialized, isLoading]);
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">

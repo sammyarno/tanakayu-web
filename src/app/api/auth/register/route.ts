@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         full_name,
         phone_number,
         address: `${cluster}, ${address}`,
-        role: 'MEMBER',
+        role: 'MEMBER' as const,
       })
       .eq('id', authData.user.id);
 

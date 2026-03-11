@@ -3,6 +3,8 @@
 import { useState } from 'react';
 
 import { MembershipCard } from '@/components/MembershipCard';
+import PageContent from '@/components/PageContent';
+import { VERIFY_MEMBER_ROLES } from '@/constants/roles';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Scanner } from '@yudiel/react-qr-scanner';
@@ -71,6 +73,7 @@ export default function VerifyMemberPage() {
   };
 
   return (
+    <PageContent allowedRoles={VERIFY_MEMBER_ROLES}>
     <div className="container mx-auto flex flex-col items-center justify-center px-4 pt-6">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
@@ -168,5 +171,6 @@ export default function VerifyMemberPage() {
         </Card>
       </div>
     </div>
+    </PageContent>
   );
 }

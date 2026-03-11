@@ -1,9 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
-import { Banknote, Megaphone, ReceiptText } from 'lucide-react';
+import { ADMIN_ROLES, ROLES } from '@/constants/roles';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { Megaphone, ReceiptText } from 'lucide-react';
 
-const ADMIN_MENU_ITEMS = [
+const SUPERADMIN_MENU_ITEMS = [
   {
     href: '/admin/post',
     icon: Megaphone,
@@ -11,6 +15,9 @@ const ADMIN_MENU_ITEMS = [
     iconColor: 'text-orange-500',
     title: 'Pengumuman & Acara',
   },
+];
+
+const SHARED_MENU_ITEMS = [
   {
     href: '/admin/transaction-report',
     icon: ReceiptText,
@@ -18,20 +25,19 @@ const ADMIN_MENU_ITEMS = [
     iconColor: 'text-green-500',
     title: 'Laporan Transaksi',
   },
-  {
-    href: '/admin/expenditure-report',
-    icon: Banknote,
-    iconBaseColor: 'bg-purple-50',
-    iconColor: 'text-purple-500',
-    title: 'Laporan Keuangan',
-  },
 ];
 
 const Dashboard = () => {
+  const { role } = useAuth();
+
+  const menuItems = role === ROLES.SUPERADMIN
+    ? [...SUPERADMIN_MENU_ITEMS, ...SHARED_MENU_ITEMS]
+    : SHARED_MENU_ITEMS;
+
   return (
-    <PageContent allowedRoles={['SUPERADMIN', 'ADMINISTRATOR']}>
+    <PageContent allowedRoles={ADMIN_ROLES}>
       <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">
-        {ADMIN_MENU_ITEMS.map(item => {
+        {menuItems.map(item => {
           const IconComponent = item.icon;
           return (
             <Link

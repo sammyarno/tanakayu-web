@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { ADMIN_ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
+import type { UserRole } from '@/types/auth';
 import { Home, LayoutDashboard, User } from 'lucide-react';
 
 import { Footer } from './Footer';
@@ -35,7 +37,7 @@ const BottomNav = () => {
     });
   }
 
-  if ((role === 'SUPERADMIN' || role === 'ADMINISTRATOR') && pathname !== '/verify-member') {
+  if (ADMIN_ROLES.includes(role as UserRole) && pathname !== '/verify-member') {
     navItems.push({
       label: 'Dashboard',
       href: '/admin',

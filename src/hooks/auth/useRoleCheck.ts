@@ -1,3 +1,4 @@
+import { ADMIN_ROLES, ROLES } from '@/constants/roles';
 import type { UserRole } from '@/types/auth';
 
 import { useAuth } from './useAuth';
@@ -14,15 +15,19 @@ export const useRoleCheck = () => {
   };
 
   const isSuperAdmin = (): boolean => {
-    return role === 'SUPERADMIN';
+    return role === ROLES.SUPERADMIN;
   };
 
   const isAdmin = (): boolean => {
-    return role === 'SUPERADMIN' || role === 'ADMINISTRATOR';
+    return ADMIN_ROLES.includes(role as UserRole);
   };
 
   const isMember = (): boolean => {
-    return role === 'MEMBER';
+    return role === ROLES.MEMBER;
+  };
+
+  const isMerchant = (): boolean => {
+    return role === ROLES.MERCHANT;
   };
 
   const isAuthenticated = (): boolean => {
@@ -36,6 +41,7 @@ export const useRoleCheck = () => {
     isSuperAdmin,
     isAdmin,
     isMember,
+    isMerchant,
     isAuthenticated,
   };
 };

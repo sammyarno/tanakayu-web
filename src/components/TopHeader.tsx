@@ -4,12 +4,12 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ADMIN_ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
+import type { UserRole } from '@/types/auth';
 
 const TopHeader = () => {
-  const { username, isLoading, user, error } = useAuth();
-  const { isAdmin } = useRoleCheck();
+  const { username, isLoading, user, error, role } = useAuth();
 
   const displayText = username;
 
@@ -20,7 +20,7 @@ const TopHeader = () => {
   if (!error && user) {
     return (
       <div className="flex w-full items-center justify-end gap-2">
-        <Link href={`/${isAdmin() ? 'admin' : 'member'}`}>
+        <Link href={ADMIN_ROLES.includes(role as UserRole) ? '/admin' : '/'}>
           <p className="flex text-center font-bold">Welcome, {displayText}!</p>
         </Link>
       </div>

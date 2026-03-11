@@ -4,6 +4,8 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { ROLES } from '@/constants/roles';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useNearestEvents } from '@/hooks/useNearestEvents';
 import { formatDateRange } from '@/utils/date';
 import { CalendarDays } from 'lucide-react';
@@ -11,8 +13,10 @@ import { CalendarDays } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 const NearestEvents = () => {
+  const { user } = useAuth();
   const { data: fetchedEvents, isFetching } = useNearestEvents();
 
+  if (user?.role === ROLES.MERCHANT) return null;
   if (isFetching) return <Skeleton className="h-[200px] w-full" />;
 
   return (

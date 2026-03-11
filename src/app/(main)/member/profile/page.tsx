@@ -3,6 +3,7 @@
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import { ALL_ROLES } from '@/constants/roles';
 import { ChangePasswordSection } from '@/components/profile/ChangePasswordSection';
 import { PersonalInfoSection } from '@/components/profile/PersonalInfoSection';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -15,7 +16,7 @@ const ProfilePage = () => {
   const { data: profile, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
 
   return (
-    <PageContent allowedRoles={['MEMBER', 'ADMINISTRATOR', 'SUPERADMIN']} fallbackPath="/member">
+    <PageContent allowedRoles={ALL_ROLES} fallbackPath="/member">
       <div className="space-y-2">
         <Breadcrumb
           items={[

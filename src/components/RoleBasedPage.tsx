@@ -4,6 +4,7 @@ import { type ReactNode, useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { ADMIN_ROLES, ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 import type { UserRole } from '@/hooks/auth/useRoleCheck';
 
@@ -27,9 +28,11 @@ const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: Role
 
       // Authenticated but wrong role - redirect to appropriate page based on actual role
       if (role && !allowedRoles.includes(role as UserRole)) {
-        if (role === 'SUPERADMIN' || role === 'ADMINISTRATOR') {
+        if (ADMIN_ROLES.includes(role as UserRole)) {
           router.push('/admin');
-        } else if (role === 'MEMBER') {
+        } else if (role === ROLES.MERCHANT) {
+          router.push('/verify-member');
+        } else if (role === ROLES.MEMBER) {
           router.push('/member');
         } else {
           router.push(fallbackPath);

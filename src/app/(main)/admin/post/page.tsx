@@ -8,6 +8,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import { SUPERADMIN_ONLY } from '@/constants/roles';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
 import { usePosts } from '@/hooks/useFetchPosts';
@@ -60,7 +61,7 @@ const PostAdminContent = () => {
   }, []);
 
   return (
-    <PageContent allowedRoles={['SUPERADMIN', 'ADMINISTRATOR']}>
+    <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <Breadcrumb
         items={[
           { label: 'Home', link: '/admin' },

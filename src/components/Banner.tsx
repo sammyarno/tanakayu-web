@@ -3,13 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { ADMIN_ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
+import type { UserRole } from '@/types/auth';
 
 const Banner = () => {
   const { role } = useAuth();
 
   return (
-    <Link href={role === 'SUPERADMIN' || role === 'ADMINISTRATOR' ? '/admin' : '/'}>
+    <Link href={ADMIN_ROLES.includes(role as UserRole) ? '/admin' : '/'}>
       <section
         id="bannner"
         className="bg-tanakayu-dark text-tanakayu-accent border-tanakayu-highlight border-4 bg-[url('/leaf.png')] bg-cover bg-center p-2 text-center"

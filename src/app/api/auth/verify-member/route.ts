@@ -1,10 +1,18 @@
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { VERIFY_MEMBER_ROLES } from '@/constants/roles';
+import { verifyAuth } from '@/lib/auth';
+import { cookies } from 'next/headers';
 import { createServerClient } from '@/plugins/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
+    const { user, error: authError } = await verifyAuth(req);
+    if (authError) return authError;
+    if (!user || !VERIFY_MEMBER_ROLES.includes(user.role as any)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { user_id } = await req.json();
 
     if (!user_id) {
@@ -14,13 +22,13 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
-    const { data: profile, error } = await supabase
+    const { data: profile, error: queryError } = await supabase
       .from('profiles')
       .select('full_name, phone_number, address, role, created_at')
       .eq('id', user_id)
       .single();
 
-    if (error || !profile) {
+    if (queryError || !profile) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 

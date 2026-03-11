@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 
+import { ADMIN_ROLES, ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Banknote, Megaphone, PhoneCall, ReceiptText } from 'lucide-react';
+import type { UserRole } from '@/types/auth';
+import { Megaphone, PhoneCall, ReceiptText, ShieldCheck } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
@@ -24,21 +26,24 @@ const MENU_ITEMS = [
   },
 ];
 
-const ADMIN_MENU_ITEMS = [
+const MERCHANT_MENU_ITEMS = [
   {
-    href: '/expenditure-report',
-    icon: Banknote,
-    iconBaseColor: 'bg-purple-50',
-    iconColor: 'text-purple-500',
-    alt: 'Laporan Keuangan',
-    title: 'Laporan Keuangan',
+    href: '/verify-member',
+    icon: ShieldCheck,
+    iconBaseColor: 'bg-blue-50',
+    iconColor: 'text-blue-500',
+    alt: 'Verifikasi Keanggotaan',
+    title: 'Verifikasi Keanggotaan',
   },
 ];
 
 const HomeMenu = () => {
   const { role } = useAuth();
 
-  const displayItems = role === 'SUPERADMIN' || role === 'ADMINISTRATOR' ? [...MENU_ITEMS, ...ADMIN_MENU_ITEMS] : MENU_ITEMS;
+  const displayItems =
+    role === ROLES.MERCHANT
+      ? MERCHANT_MENU_ITEMS
+      : MENU_ITEMS;
 
   return (
     <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">
@@ -57,15 +62,17 @@ const HomeMenu = () => {
           </Link>
         );
       })}
-      <Link
-        href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
-        className="flex flex-col items-center justify-start rounded-xl border bg-white p-2 text-center shadow-sm transition-shadow hover:shadow-md md:p-3"
-      >
-        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-          <PhoneCall className="h-6 w-6 text-red-500" />
-        </div>
-        <h2 className="text-xs leading-tight font-semibold text-slate-800 md:text-sm">Call Helpdesk</h2>
-      </Link>
+      {role !== ROLES.MERCHANT && (
+        <Link
+          href={`tel:${process.env.NEXT_PUBLIC_CONTACT_PHONE}`}
+          className="flex flex-col items-center justify-start rounded-xl border bg-white p-2 text-center shadow-sm transition-shadow hover:shadow-md md:p-3"
+        >
+          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+            <PhoneCall className="h-6 w-6 text-red-500" />
+          </div>
+          <h2 className="text-xs leading-tight font-semibold text-slate-800 md:text-sm">Call Helpdesk</h2>
+        </Link>
+      )}
     </section>
   );
 };
