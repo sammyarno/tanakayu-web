@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
-
-// import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 import { usePostCategoriesStore } from '@/store/postCategoriesStore';
-
-import { useAuth } from './auth/useAuth';
+import { useUserAuthStore } from '@/store/userAuthStore';
 
 export const useInitializeStores = () => {
-  const fetchPostCategories = usePostCategoriesStore(state => state.fetchCategories);
-  const { initialize } = useAuth();
+  const initialized = useRef(false);
 
   useEffect(() => {
-    fetchPostCategories();
-    initialize();
-  }, [fetchPostCategories, initialize]);
+    if (initialized.current) return;
+    initialized.current = true;
+
+    usePostCategoriesStore.getState().fetchCategories();
+    useUserAuthStore.getState().initialize();
+  }, []);
 
   return null;
 };

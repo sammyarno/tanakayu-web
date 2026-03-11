@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
@@ -20,28 +20,29 @@ interface Props {
   editable?: boolean;
 }
 
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
+};
+
 const ContentWithToggle = ({ content }: { content: string }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const sanitizedContent = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
-  });
+  const { sanitizedContent, truncatedContent, needsTruncation } = useMemo(() => {
+    const sanitized = DOMPurify.sanitize(content, SANITIZE_CONFIG);
 
-  const createTruncatedContent = (htmlContent: string, maxLength: number = 150) => {
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
+    tempDiv.innerHTML = sanitized;
     const textContent = tempDiv.textContent || tempDiv.innerText || '';
 
-    if (textContent.length <= maxLength) {
-      return htmlContent;
-    }
+    const truncated = textContent.length <= 150 ? sanitized : textContent.substring(0, 150) + '...';
 
-    return textContent.substring(0, maxLength) + '...';
-  };
-
-  const truncatedContent = createTruncatedContent(sanitizedContent);
-  const needsTruncation = sanitizedContent.length > 150;
+    return {
+      sanitizedContent: sanitized,
+      truncatedContent: truncated,
+      needsTruncation: sanitized.length > 150,
+    };
+  }, [content]);
 
   return (
     <div className="w-full space-y-1">

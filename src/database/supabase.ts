@@ -316,7 +316,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_transaction_date_range: {
+        Args: never
+        Returns: {
+          max_date: string
+          min_date: string
+        }[]
+      }
     }
     Enums: {
       user_role: "SUPERADMIN" | "ADMINISTRATOR" | "MEMBER" | "MERCHANT"

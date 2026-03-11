@@ -18,48 +18,49 @@ export async function GET(request: NextRequest) {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     const currentUserId = authUser?.id ?? null;
 
-    // Fetch posts with categories
-    const { data: posts, error: postsError } = await supabase
-      .from('posts')
-      .select(
-        `
-        id,
-        title,
-        content,
-        type,
-        start_date,
-        end_date,
-        created_at,
-        created_by,
-        post_category_map (
-          post_categories (
-            id,
-            label,
-            code
+    // Fetch posts and all votes in parallel
+    const [postsResult, votesResult] = await Promise.all([
+      supabase
+        .from('posts')
+        .select(
+          `
+          id,
+          title,
+          content,
+          type,
+          start_date,
+          end_date,
+          created_at,
+          created_by,
+          post_category_map (
+            post_categories (
+              id,
+              label,
+              code
+            )
           )
+        `
         )
-      `
-      )
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false });
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('post_votes')
+        .select('post_id, vote_type, user_id'),
+    ]);
 
-    if (postsError) {
-      response.error = postsError.message;
+    if (postsResult.error) {
+      response.error = postsResult.error.message;
       return Response.json(response, { status: 500 });
     }
 
-    // Fetch vote counts per post
+    if (votesResult.error) {
+      response.error = votesResult.error.message;
+      return Response.json(response, { status: 500 });
+    }
+
+    const posts = postsResult.data;
+    const votes = votesResult.data;
     const postIds = posts.map(p => p.id);
-
-    const { data: votes, error: votesError } = await supabase
-      .from('post_votes')
-      .select('post_id, vote_type, user_id')
-      .in('post_id', postIds);
-
-    if (votesError) {
-      response.error = votesError.message;
-      return Response.json(response, { status: 500 });
-    }
 
     // Build vote counts map
     const voteCounts = new Map<string, { upvotes: number; downvotes: number; userVote: string | null }>();

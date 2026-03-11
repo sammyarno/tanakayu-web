@@ -17,8 +17,6 @@ export const useNearestEvents = () => {
   return useQuery({
     queryKey: ['nearest-events'],
     queryFn: fetchNearestEvents,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: false,
   });
 };
 

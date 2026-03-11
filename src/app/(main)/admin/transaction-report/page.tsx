@@ -46,9 +46,9 @@ const FinancialReport = () => {
 
   const selectedPeriodLabel = monthOptions.find(o => o.value === selectedPeriod)?.label ?? 'Semua';
 
-  const handleDownloadExcel = () => {
+  const handleDownloadExcel = async () => {
     if (!transactionsData) return;
-    exportTransactionsToExcel(transactionsData, selectedPeriodLabel, selectedPeriod || undefined);
+    await exportTransactionsToExcel(transactionsData, selectedPeriodLabel, selectedPeriod || undefined);
   };
 
   return (

@@ -21,8 +21,6 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
     queryFn: () => fetchPosts(),
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
     enabled: isInitialized,
   });
 };

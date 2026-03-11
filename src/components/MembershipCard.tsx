@@ -87,9 +87,9 @@ export const MembershipCard = ({ user, className }: MembershipCardProps) => {
                 src="/assets/member-card.jpeg"
                 alt="Membership Card Background"
                 fill
+                sizes="(max-width: 512px) 100vw, 512px"
                 className="object-cover"
                 onError={() => setImageError(true)}
-                priority
               />
 
               {/* Content Overlay */}

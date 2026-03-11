@@ -57,15 +57,14 @@ export default function RootLayout({
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
       </head>
       <body>
-        <main className="mx-auto w-full max-w-lg p-2 pb-32 antialiased">
-          <Providers>
+        <Providers>
+          <main className="mx-auto w-full max-w-lg p-2 pb-32 antialiased">
             <Banner />
             {children}
-          </Providers>
-
-          {/* Global Bottom Navigation (includes footer) */}
-          <BottomNav />
-        </main>
+            {/* Global Bottom Navigation (includes footer) */}
+            <BottomNav />
+          </main>
+        </Providers>
         <Toaster richColors />
         <Analytics />
         <SpeedInsights />

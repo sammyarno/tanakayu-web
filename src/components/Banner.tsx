@@ -20,7 +20,7 @@ const Banner = () => {
           Paguyuban Warga
         </p>
         <div className="relative mb-4 h-16 w-full">
-          <Image src="/tanakayu.png" alt="tanakayu" fill objectFit="contain" />
+          <Image src="/tanakayu.png" alt="tanakayu" fill sizes="(max-width: 512px) 100vw, 512px" style={{ objectFit: 'contain' }} />
         </div>
         <p className="text-tanakayu-highlight font-serif font-bold tracking-wider uppercase">
           Nomor AHU 0004548.AH.01.07.Tahun 2025

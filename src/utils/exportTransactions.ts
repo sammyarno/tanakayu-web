@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-
 import type { TransactionsResult } from '@/types/transaction';
 
 const formatAmount = (amount: number, type: string): string => {
@@ -7,7 +5,9 @@ const formatAmount = (amount: number, type: string): string => {
   return type === 'income' ? `${formatted} CR` : `${formatted} DB`;
 };
 
-export const exportTransactionsToExcel = (data: TransactionsResult, periodLabel: string, periodValue?: string) => {
+export const exportTransactionsToExcel = async (data: TransactionsResult, periodLabel: string, periodValue?: string) => {
+  const XLSX = await import('xlsx');
+
   const rows: (string | number)[][] = [];
 
   // Column headers matching the upload format

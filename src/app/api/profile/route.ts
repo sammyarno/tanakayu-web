@@ -42,7 +42,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Get email from auth user
-    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(data.id);
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.admin.getUserById(data.id);
 
     response.data = {
       id: data.id,

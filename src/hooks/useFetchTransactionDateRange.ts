@@ -17,8 +17,7 @@ export const useFetchTransactionDateRange = () => {
   const query = useQuery({
     queryKey: ['transaction-date-range'],
     queryFn: fetchTransactionDateRange,
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 60, // 60 minutes - date range rarely changes
   });
 
   const monthOptions = generateMonthOptions(query.data?.minDate || null, query.data?.maxDate || null);

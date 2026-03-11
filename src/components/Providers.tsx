@@ -1,9 +1,10 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { type ReactNode } from 'react';
 
 import { useInitializeStores } from '@/hooks/useInitializeStores';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { getQueryClient } from '@/plugins/react-query/client';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 function StoreInitializer() {
   useInitializeStores();
@@ -11,7 +12,7 @@ function StoreInitializer() {
 }
 
 export default function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const queryClient = getQueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
