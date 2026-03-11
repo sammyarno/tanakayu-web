@@ -27,10 +27,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Update profile fields
     const profileUpdate: Record<string, string> = {};
-    if (body.display_name) profileUpdate.full_name = body.display_name;
+    if (body.full_name || body.display_name) profileUpdate.full_name = body.full_name || body.display_name;
     if (body.phone) profileUpdate.phone_number = normalizePhone(body.phone);
     if (body.address) profileUpdate.address = body.address;
-    if (body.email) profileUpdate.email = body.email;
 
     // Update password via Supabase Auth if provided
     if (body.password) {
@@ -56,7 +55,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    if (Object.keys(profileUpdate).length === 0 && !body.password) {
+    if (Object.keys(profileUpdate).length === 0 && !body.password && !body.email) {
       response.error = 'No valid fields provided for update';
       return NextResponse.json(response, { status: 400 });
     }

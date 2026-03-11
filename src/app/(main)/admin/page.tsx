@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
 import { SUPERADMIN_ONLY } from '@/constants/roles';
-import { Megaphone, Phone, ReceiptText } from 'lucide-react';
+import { Megaphone, Phone, ReceiptText, Users } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
@@ -20,6 +20,13 @@ const MENU_ITEMS = [
     iconBaseColor: 'bg-green-50',
     iconColor: 'text-green-500',
     title: 'Transaction Report',
+  },
+  {
+    href: '/admin/members',
+    icon: Users,
+    iconBaseColor: 'bg-blue-50',
+    iconColor: 'text-blue-500',
+    title: 'Members',
   },
   {
     href: '/admin/permitted-phones',
