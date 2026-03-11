@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
-import { RefreshCw } from 'lucide-react';
+import { ReceiptText, RefreshCw } from 'lucide-react';
 
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
@@ -46,8 +46,18 @@ const FinancialReport = () => {
           { label: 'Transaction Report', link: '/transaction-report' },
         ]}
       />
-      <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">💰 Transaction Report</h2>
+
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
+          <ReceiptText className="h-5 w-5 text-green-500" />
+        </div>
+        <div>
+          <h2 className="font-sans text-2xl font-bold">Transaction Report</h2>
+          <p className="text-muted-foreground text-sm">View financial transactions for your community.</p>
+        </div>
+      </div>
+
+      <section className="flex flex-col gap-4">
         <div className="flex items-center">
           <div className="relative flex h-full flex-3/5 items-center justify-start gap-2">
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -85,6 +95,7 @@ const FinancialReport = () => {
         </div>
         <hr />
       </section>
+
       <section className="flex flex-col gap-4">
         <LoadingIndicator isLoading={isLoading} />
         {renderTransactions()}

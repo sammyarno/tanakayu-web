@@ -48,14 +48,13 @@ const MembersPage = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [deletingMember, setDeletingMember] = useState<Member | null>(null);
 
   // Debounce search
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(t);
   }, [search]);
-
-  const [deletingMember, setDeletingMember] = useState<Member | null>(null);
 
   const { data: members, isLoading } = useFetchMembers(debouncedSearch || undefined);
   const updateMutation = useAdminUpdateMember();

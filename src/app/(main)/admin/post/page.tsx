@@ -8,11 +8,12 @@ import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
-import { SUPERADMIN_ONLY } from '@/constants/roles';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
+import { SUPERADMIN_ONLY } from '@/constants/roles';
 import { usePosts } from '@/hooks/useFetchPosts';
 import type { Category } from '@/types';
+import { Megaphone } from 'lucide-react';
 
 import dynamic from 'next/dynamic';
 
@@ -64,15 +65,26 @@ const PostAdminContent = () => {
     <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin' },
+          { label: 'Dashboard', link: '/admin' },
           { label: 'Announcements & Events', link: '/admin/post' },
         ]}
       />
-      <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">Announcements & Events</h2>
-        <CreateDialog />
-        <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
-      </section>
+
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-50">
+          <Megaphone className="h-5 w-5 text-orange-500" />
+        </div>
+        <div>
+          <h2 className="font-sans text-2xl font-bold">Announcements & Events</h2>
+          <p className="text-muted-foreground text-sm">
+            {data ? `${data.length} post${data.length !== 1 ? 's' : ''}` : 'Loading...'}
+          </p>
+        </div>
+      </div>
+
+      <CreateDialog />
+      <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
+
       <section className="flex flex-col gap-4">
         <LoadingIndicator isLoading={isLoading} />
 

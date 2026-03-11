@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { SUPERADMIN_ONLY } from '@/constants/roles';
 import { useAddPermittedPhones, useDeletePermittedPhone, useFetchPermittedPhones } from '@/hooks/usePermittedPhones';
-import { AlertCircleIcon, Plus, Trash2, Upload } from 'lucide-react';
+import { AlertCircleIcon, Phone, Plus, Search, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PermittedPhonesPage = () => {
@@ -88,12 +88,21 @@ const PermittedPhonesPage = () => {
         ]}
       />
 
-      <h2 className="font-sans text-3xl font-bold uppercase">Permitted Phone Numbers</h2>
-      <p className="text-muted-foreground text-sm">Only phone numbers registered here can register an account.</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50">
+          <Phone className="h-5 w-5 text-purple-500" />
+        </div>
+        <div>
+          <h2 className="font-sans text-2xl font-bold">Permitted Phones</h2>
+          <p className="text-muted-foreground text-sm">
+            Only phone numbers registered here can register an account.
+          </p>
+        </div>
+      </div>
 
       {/* Add Phone Form */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="gap-4">
+        <CardHeader>
           <div className="grid grid-cols-2 gap-2">
             <Button variant={mode === 'single' ? 'default' : 'outline'} size="lg" onClick={() => setMode('single')}>
               <Plus className="mr-1 h-4 w-4" /> Single
@@ -158,26 +167,34 @@ const PermittedPhonesPage = () => {
         </CardContent>
       </Card>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        <Input
+          placeholder="Search number or name..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+
       {/* Phone List */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Number List ({phones?.length ?? 0})</CardTitle>
-          <Input
-            placeholder="Search number or name..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="mt-2"
-          />
+      <Card className="gap-4">
+        <CardHeader>
+          <CardTitle className="text-base">All Numbers ({phones?.length ?? 0})</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <LoadingIndicator isLoading={isLoading} />
           {!isLoading && phones?.length === 0 && (
-            <p className="text-muted-foreground py-4 text-center text-sm">No registered numbers yet</p>
+            <p className="text-muted-foreground py-8 text-center text-sm">No registered numbers yet</p>
           )}
           <div className="divide-y">
             {phones?.map(phone => (
-              <div key={phone.id} className="flex items-center justify-between py-3">
-                <div>
+              <div
+                key={phone.id}
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50 sm:px-6"
+              >
+                <div className="min-w-0 flex-1">
                   <p className="font-mono text-sm font-medium">{phone.phoneNumber}</p>
                   {phone.fullName && <p className="text-muted-foreground text-xs">{phone.fullName}</p>}
                 </div>

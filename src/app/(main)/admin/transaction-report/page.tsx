@@ -14,7 +14,7 @@ import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRan
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
 import { exportTransactionsToExcel } from '@/utils/exportTransactions';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, ReceiptText, RefreshCw } from 'lucide-react';
 
 const CreateTransactionDialog = dynamic(() => import('./CreateDialog'));
 const UploadDialog = dynamic(() => import('./UploadDialog'));
@@ -55,12 +55,22 @@ const FinancialReport = () => {
     <PageContent>
       <Breadcrumb
         items={[
-          { label: 'Home', link: '/admin' },
+          { label: 'Dashboard', link: '/admin' },
           { label: 'Transaction Report', link: '/admin/transaction-report' },
         ]}
       />
-      <section id="menu" className="flex flex-col gap-4">
-        <h2 className="font-sans text-3xl font-bold uppercase">Transaction Report</h2>
+
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
+          <ReceiptText className="h-5 w-5 text-green-500" />
+        </div>
+        <div>
+          <h2 className="font-sans text-2xl font-bold">Transaction Report</h2>
+          <p className="text-muted-foreground text-sm">Manage and review financial transactions.</p>
+        </div>
+      </div>
+
+      <section className="flex flex-col gap-4">
         <div className="flex items-center">
           <div className="relative flex h-full flex-3/5 items-center justify-start gap-2">
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
