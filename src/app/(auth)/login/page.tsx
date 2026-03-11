@@ -19,7 +19,7 @@ const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
   const { signIn, clearError, error, isLoading, user, isInitialized } = useAuth();
-  const { isAdmin } = useRoleCheck();
+  const { isSuperAdmin } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,13 +47,13 @@ const Login = () => {
 
   useEffect(() => {
     if (isInitialized && !isLoading && user && !error) {
-      if (isAdmin()) {
+      if (isSuperAdmin()) {
         router.push('/admin');
       } else {
         router.push('/');
       }
     }
-  }, [user, error, router, isAdmin, isInitialized, isLoading]);
+  }, [user, error, router, isSuperAdmin, isInitialized, isLoading]);
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">

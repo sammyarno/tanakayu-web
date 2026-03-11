@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 
-import { ADMIN_ROLES, ROLES } from '@/constants/roles';
+import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
-import type { UserRole } from '@/types/auth';
 import { Megaphone, PhoneCall, ReceiptText, ShieldCheck } from 'lucide-react';
 
-const MENU_ITEMS = [
+const PUBLIC_MENU_ITEMS = [
   {
     href: '/post',
     icon: Megaphone,
@@ -16,6 +15,9 @@ const MENU_ITEMS = [
     alt: 'Pengumuman & Acara',
     title: 'Pengumuman & Acara',
   },
+];
+
+const AUTH_MENU_ITEMS = [
   {
     href: '/transaction-report',
     icon: ReceiptText,
@@ -43,7 +45,7 @@ const HomeMenu = () => {
   const displayItems =
     role === ROLES.MERCHANT
       ? MERCHANT_MENU_ITEMS
-      : MENU_ITEMS;
+      : [...PUBLIC_MENU_ITEMS, ...(role ? AUTH_MENU_ITEMS : [])];
 
   return (
     <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">

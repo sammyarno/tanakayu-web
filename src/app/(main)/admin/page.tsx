@@ -3,11 +3,10 @@
 import Link from 'next/link';
 
 import PageContent from '@/components/PageContent';
-import { ADMIN_ROLES, ROLES } from '@/constants/roles';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { SUPERADMIN_ONLY } from '@/constants/roles';
 import { Megaphone, ReceiptText } from 'lucide-react';
 
-const SUPERADMIN_MENU_ITEMS = [
+const MENU_ITEMS = [
   {
     href: '/admin/post',
     icon: Megaphone,
@@ -15,9 +14,6 @@ const SUPERADMIN_MENU_ITEMS = [
     iconColor: 'text-orange-500',
     title: 'Pengumuman & Acara',
   },
-];
-
-const SHARED_MENU_ITEMS = [
   {
     href: '/admin/transaction-report',
     icon: ReceiptText,
@@ -28,14 +24,10 @@ const SHARED_MENU_ITEMS = [
 ];
 
 const Dashboard = () => {
-  const { role } = useAuth();
-
-  const menuItems = role === ROLES.SUPERADMIN
-    ? [...SUPERADMIN_MENU_ITEMS, ...SHARED_MENU_ITEMS]
-    : SHARED_MENU_ITEMS;
+  const menuItems = MENU_ITEMS;
 
   return (
-    <PageContent allowedRoles={ADMIN_ROLES}>
+    <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">
         {menuItems.map(item => {
           const IconComponent = item.icon;

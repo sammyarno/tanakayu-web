@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/plugins/supabase/client';
-import type { User } from '@/types/auth';
+import type { User, UserRole } from '@/types/auth';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -39,7 +39,7 @@ const fetchProfile = async (): Promise<User | null> => {
     displayName: profile.full_name,
     phone: profile.phone_number,
     address: profile.address,
-    role: profile.role,
+    role: profile.role as UserRole,
   };
 };
 

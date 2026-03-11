@@ -1,4 +1,4 @@
-import { ADMIN_ROLES, ROLES } from '@/constants/roles';
+import { ROLES } from '@/constants/roles';
 import type { UserRole } from '@/types/auth';
 
 import { useAuth } from './useAuth';
@@ -18,10 +18,6 @@ export const useRoleCheck = () => {
     return role === ROLES.SUPERADMIN;
   };
 
-  const isAdmin = (): boolean => {
-    return ADMIN_ROLES.includes(role as UserRole);
-  };
-
   const isMember = (): boolean => {
     return role === ROLES.MEMBER;
   };
@@ -39,7 +35,6 @@ export const useRoleCheck = () => {
     hasRole,
     hasAnyRole,
     isSuperAdmin,
-    isAdmin,
     isMember,
     isMerchant,
     isAuthenticated,
