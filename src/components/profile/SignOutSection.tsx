@@ -15,16 +15,19 @@ import { Button } from '@/components/ui/button';
 import { useSignOut } from '@/hooks/auth/useSignOut';
 import { LogOut } from 'lucide-react';
 
+import SignOutButton from '../SignOutButton';
+
 export const SignOutSection = () => {
   const { signOut, isLoading } = useSignOut();
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="w-full text-foreground" disabled={isLoading}>
+        <SignOutButton />
+        {/* <Button variant="outline" className="text-foreground w-full" disabled={isLoading}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign Out
-        </Button>
+        </Button> */}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

@@ -44,14 +44,9 @@ const Login = () => {
     setErrorMessage('Invalid credentials');
   };
 
-
   useEffect(() => {
     if (isInitialized && !isLoading && user && !error) {
-      if (isSuperAdmin()) {
-        router.push('/admin');
-      } else {
-        router.push('/');
-      }
+      router.push('/');
     }
   }, [user, error, router, isSuperAdmin, isInitialized, isLoading]);
 
@@ -59,8 +54,10 @@ const Login = () => {
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md border-none shadow sm:border">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
-          <CardDescription className="text-sm">Enter your credentials to access your account</CardDescription>
+          <CardTitle className="text-tanakayu-dark text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+          <CardDescription className="text-tanakayu-dark text-sm">
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
@@ -105,11 +102,11 @@ const Login = () => {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background text-muted-foreground px-2">Or continue with</span>
+                <span className="bg-tanakayu-dark text-tanakayu-text px-2">Or continue with</span>
               </div>
             </div>
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Don&apos;t have an account? </span>
+              <span className="text-tanakayu-dark">Don&apos;t have an account? </span>
               <Link href="/register" className="hover:text-primary font-medium underline underline-offset-4">
                 Register here
               </Link>

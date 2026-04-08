@@ -28,7 +28,7 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
           </AvatarFallback>
         </Avatar>
         <h3 className="mt-3 text-lg font-semibold">{profile.displayName}</h3>
-        <p className="text-muted-foreground text-sm">@{profile.username}</p>
+        <p className="text-tanakayu-bg text-sm">@{profile.username}</p>
         <Badge variant="default" className="mt-2 font-bold tracking-wider">
           {profile.role}
         </Badge>

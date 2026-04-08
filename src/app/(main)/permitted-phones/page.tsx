@@ -83,8 +83,8 @@ const PermittedPhonesPage = () => {
     <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <Breadcrumb
         items={[
-          { label: 'Dashboard', link: '/admin' },
-          { label: 'Permitted Phones', link: '/admin/permitted-phones' },
+          { label: 'Home', link: '/' },
+          { label: 'Permitted Phones', link: '/permitted-phones' },
         ]}
       />
 

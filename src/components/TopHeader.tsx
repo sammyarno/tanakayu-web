@@ -4,11 +4,10 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 
 const TopHeader = () => {
-  const { username, isLoading, user, error, role } = useAuth();
+  const { username, isLoading, user, error } = useAuth();
 
   const displayText = username;
 
@@ -19,7 +18,7 @@ const TopHeader = () => {
   if (!error && user) {
     return (
       <div className="flex w-full items-center justify-end gap-2">
-        <Link href={role === ROLES.SUPERADMIN ? '/admin' : '/'}>
+        <Link href="/">
           <p className="flex text-center font-bold">Welcome, {displayText}!</p>
         </Link>
       </div>

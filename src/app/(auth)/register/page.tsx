@@ -148,8 +148,8 @@ const Register = () => {
       <Card className="overflow-hidden border-none shadow-lg sm:border">
         <CardHeader className="space-y-3 p-0">
           <div className="px-6 pt-2 pb-0">
-            <h1 className="text-center text-2xl font-bold tracking-tight">Create Account</h1>
-            <p className="text-muted-foreground mt-1 text-center text-sm">Join the Tanakayu community</p>
+            <h1 className="text-tanakayu-dark text-center text-2xl font-bold tracking-tight">Create Account</h1>
+            <p className="text-tanakayu-dark mt-1 text-center text-sm">Join the Tanakayu community</p>
           </div>
         </CardHeader>
 
@@ -416,7 +416,7 @@ const Register = () => {
           </FormSchemaProvider>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
+            <span className="text-tanakayu-dark">Already have an account? </span>
             <Link href="/login" className="hover:text-primary font-medium underline underline-offset-4">
               Sign in
             </Link>

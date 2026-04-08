@@ -223,9 +223,9 @@ export const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
 
 const InfoRow = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-3">
-    <div className="text-muted-foreground mt-1">{icon}</div>
+    <div className="mt-1">{icon}</div>
     <div className="min-w-0">
-      <p className="text-muted-foreground text-sm">{label}</p>
+      <p className="text-tanakayu-bg text-sm">{label}</p>
       <p className="truncate text-base font-medium">{value || '-'}</p>
     </div>
   </div>

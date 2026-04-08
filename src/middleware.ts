@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes that require auth
-  const protectedPrefixes = ['/admin', '/member', '/verify-member'];
+  const protectedPrefixes = ['/member', '/verify-member', '/members', '/permitted-phones'];
   const isProtectedRoute = protectedPrefixes.some(prefix => pathname.startsWith(prefix));
 
   // Redirect unauthenticated users to login (only for protected routes)

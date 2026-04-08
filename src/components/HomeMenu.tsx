@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Megaphone, PhoneCall, ReceiptText, ShieldCheck } from 'lucide-react';
+import { Megaphone, Phone, PhoneCall, ReceiptText, ShieldCheck, Users } from 'lucide-react';
 
 const PUBLIC_MENU_ITEMS = [
   {
@@ -35,6 +35,25 @@ const VERIFY_MEMBER_ITEM = {
   title: 'Membership Verification',
 };
 
+const ADMIN_MENU_ITEMS = [
+  {
+    href: '/members',
+    icon: Users,
+    iconBaseColor: 'bg-blue-50',
+    iconColor: 'text-blue-500',
+    alt: 'Members',
+    title: 'Members',
+  },
+  {
+    href: '/permitted-phones',
+    icon: Phone,
+    iconBaseColor: 'bg-purple-50',
+    iconColor: 'text-purple-500',
+    alt: 'Permitted Phones',
+    title: 'Permitted Phones',
+  },
+];
+
 const HomeMenu = () => {
   const { role } = useAuth();
 
@@ -42,6 +61,7 @@ const HomeMenu = () => {
     ? [
         ...(role !== ROLES.MERCHANT ? [TRANSACTION_REPORT_ITEM] : []),
         VERIFY_MEMBER_ITEM,
+        ...(role === ROLES.SUPERADMIN ? ADMIN_MENU_ITEMS : []),
       ]
     : [];
 

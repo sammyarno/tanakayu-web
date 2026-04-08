@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreatePost } from '@/hooks/useCreatePost';
 import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { createPostSchema } from '@/lib/validations/post';
-import { EVENT_TYPE, ANNOUNCEMENT_TYPE, POST_TYPES } from '@/types/post';
+import { ANNOUNCEMENT_TYPE, EVENT_TYPE, POST_TYPES } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon } from 'lucide-react';
 import { toast } from 'sonner';
@@ -90,7 +90,7 @@ const CreateDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide">
+        <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide" variant="secondary">
           Add Post
         </Button>
       </DialogTrigger>

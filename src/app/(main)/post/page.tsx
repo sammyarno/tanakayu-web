@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
 
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 
 import Breadcrumb from '@/components/Breadcrumb';
@@ -10,15 +11,20 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
+import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { usePosts } from '@/hooks/useFetchPosts';
 import type { Category } from '@/types';
 import { Megaphone } from 'lucide-react';
+
+const CreateDialog = dynamic(() => import('@/components/post/CreateDialog'));
 
 const ITEMS_PER_PAGE = 5;
 
 const PostContent = () => {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get('filter');
+  const { isSuperAdmin } = useRoleCheck();
+  const isAdmin = isSuperAdmin();
 
   const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -56,14 +62,14 @@ const PostContent = () => {
     setCurrentPage(page);
   }, []);
 
+  const breadcrumbItems = [
+    { label: 'Home', link: '/' },
+    { label: 'Announcements & Events', link: '/post' },
+  ];
+
   return (
     <PageContent>
-      <Breadcrumb
-        items={[
-          { label: 'Home', link: '/' },
-          { label: 'Announcements & Events', link: '/post' },
-        ]}
-      />
+      <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-50">
@@ -77,13 +83,15 @@ const PostContent = () => {
         </div>
       </div>
 
+      {isAdmin && <CreateDialog />}
+
       <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
 
       <section className="flex flex-col gap-4">
         <LoadingIndicator isLoading={isLoading} />
 
         {paginatedItems.map(item => (
-          <PostCard key={`post-card-${item.id}`} post={item} />
+          <PostCard key={`post-card-${item.id}`} post={item} editable={isAdmin} />
         ))}
 
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />

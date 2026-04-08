@@ -3,15 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ROLES } from '@/constants/roles';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { Home, LayoutDashboard, User } from 'lucide-react';
+import { Home, User } from 'lucide-react';
 
 import { Footer } from './Footer';
 
 const BottomNav = () => {
   const pathname = usePathname();
-  const { role } = useAuth();
 
   const navItems: {
     label: string;
@@ -33,15 +30,6 @@ const BottomNav = () => {
     icon: User,
     isActive: (path: string) => path.startsWith('/member/profile'),
   });
-
-  if (role === ROLES.SUPERADMIN) {
-    navItems.push({
-      label: 'Dashboard',
-      href: '/admin',
-      icon: LayoutDashboard,
-      isActive: (path: string) => path.startsWith('/admin'),
-    });
-  }
 
   return (
     <div className="fixed right-0 bottom-0 left-0 z-50 flex flex-col justify-center">

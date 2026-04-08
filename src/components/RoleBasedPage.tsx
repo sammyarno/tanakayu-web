@@ -4,7 +4,6 @@ import { type ReactNode, useEffect } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 import type { UserRole } from '@/hooks/auth/useRoleCheck';
 
@@ -26,17 +25,9 @@ const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: Role
         return;
       }
 
-      // Authenticated but wrong role - redirect to appropriate page based on actual role
+      // Authenticated but wrong role - redirect to fallback
       if (role && !allowedRoles.includes(role as UserRole)) {
-        if (role === ROLES.SUPERADMIN) {
-          router.push('/admin');
-        } else if (role === ROLES.MERCHANT) {
-          router.push('/verify-member');
-        } else if (role === ROLES.MEMBER) {
-          router.push('/member');
-        } else {
-          router.push(fallbackPath);
-        }
+        router.push(fallbackPath);
         return;
       }
     }

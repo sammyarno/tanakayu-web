@@ -64,8 +64,8 @@ const MembersPage = () => {
     <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <Breadcrumb
         items={[
-          { label: 'Dashboard', link: '/admin' },
-          { label: 'Members', link: '/admin/members' },
+          { label: 'Home', link: '/' },
+          { label: 'Members', link: '/members' },
         ]}
       />
 
