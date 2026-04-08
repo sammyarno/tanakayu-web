@@ -59,7 +59,7 @@ const BottomNav = () => {
                   scroll={false}
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className={`group hover:text-tanakayu-highlight relative flex w-full flex-col items-center justify-center py-2 transition-all duration-300 ease-in-out ${
-                    active ? 'text-tanakayu-highlight' : 'text-gray-400'
+                    active ? 'text-tanakayu-bg' : 'text-gray-400'
                   }`}
                 >
                   {/* Active Indicator Background */}

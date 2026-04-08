@@ -74,8 +74,8 @@ const MembersPage = () => {
           <Users className="h-5 w-5 text-blue-500" />
         </div>
         <div>
-          <h2 className="font-sans text-2xl font-bold">Members</h2>
-          <p className="text-muted-foreground text-sm">
+          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Members</h2>
+          <p className="text-tanakayu-text text-sm">
             {members ? `${members.length} member${members.length !== 1 ? 's' : ''}` : 'Loading...'}
           </p>
         </div>
