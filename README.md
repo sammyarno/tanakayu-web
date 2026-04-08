@@ -42,14 +42,14 @@ A modern community management platform for neighborhood administration (RW/RT). 
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS 4
 - **UI Components**: Radix UI + shadcn/ui
 - **Database**: Supabase (PostgreSQL)
-- **State Management**: Zustand
-- **Data Fetching**: TanStack Query (React Query)
-- **Forms**: React Hook Form + Zod validation
+- **State Management**: Zustand 5
+- **Data Fetching**: TanStack Query (React Query) 5
+- **Forms**: React Hook Form + Zod 4 validation
 - **Rich Text**: Quill.js (react-quill-new)
 
 ## 📋 Prerequisites
@@ -100,30 +100,33 @@ A modern community management platform for neighborhood administration (RW/RT). 
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── (auth)/            # Authentication pages
-│   ├── (main)/            # Main application pages
-│   └── api/               # API routes
+│   ├── (auth)/            # Authentication pages (login, register)
+│   ├── (main)/            # Main application pages (requires auth)
+│   └── api/               # API routes (server-side only)
 ├── components/            # Reusable UI components
-│   ├── ui/               # shadcn/ui components
-│   ├── announcement/     # Announcement-specific components
-│   └── news-event/       # News & Events components
-├── hooks/                # Custom React hooks
+│   ├── ui/               # shadcn-style UI primitives
+│   ├── post/             # Post/announcement components
+│   ├── profile/          # Profile section components
+│   └── transaction/      # Transaction dialog components
+├── hooks/                # TanStack Query hooks for data fetching
 ├── store/                # Zustand state management
-├── database/             # Supabase types and configuration
-├── types/                # TypeScript type definitions
-├── utils/                # Utility functions
-└── styles/               # Global styles
+├── constants/            # Role constants and role group arrays
+├── lib/                  # Auth verification, fetch utilities, Zod schemas
+├── types/                # Shared TypeScript type definitions
+├── plugins/              # Supabase & React Query client configuration
+├── utils/                # Formatting, date helpers, transformers
+└── database/             # Auto-generated Supabase types
 ```
 
 ## 🗄️ Database Schema
 
 The application uses the following main tables:
 
-- `announcements` - Community announcements
-- `news_events` - Events and news posts
+- `posts` - Community announcements and events (unified)
+- `post_categories` - Category management for posts
 - `transactions` - Financial records
-- `comments` - User comments with moderation
-- `announcement_categories` - Category management
+- `profiles` - User profiles with role assignments
+- `permitted_phones` - Whitelist for member registration
 
 ## 🔧 Available Scripts
 
