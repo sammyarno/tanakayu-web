@@ -1,9 +1,16 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    domains: ['ifticiygfzgydpptysbs.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ifticiygfzgydpptysbs.supabase.co',
+      },
+    ],
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
   },
 };
 

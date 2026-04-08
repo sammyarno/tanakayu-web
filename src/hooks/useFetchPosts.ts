@@ -1,6 +1,5 @@
 import { fetchJson } from '@/lib/fetch';
 import type { PostWithVotes } from '@/types/post';
-import { snakeToCamel } from '@/utils/transformer';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from './auth/useAuth';
@@ -12,7 +11,8 @@ export const fetchPosts = async (): Promise<PostWithVotes[]> => {
     throw new Error(response.error || 'Failed to fetch posts');
   }
 
-  return snakeToCamel<PostWithVotes[]>(response.data) || [];
+  // fetchJson already applies snakeToCamel via the fetch utility
+  return response.data || [];
 };
 
 export const usePosts = () => {

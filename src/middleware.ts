@@ -2,7 +2,22 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
 
+// Routes that require auth verification
+const PROTECTED_PREFIXES = ['/member', '/verify-member', '/members', '/permitted-phones'];
+// Routes that should redirect authenticated users away
+const AUTH_ONLY_PATHS = ['/login', '/register'];
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Skip auth check entirely for routes that don't need it
+  const isProtectedRoute = PROTECTED_PREFIXES.some(prefix => pathname.startsWith(prefix));
+  const isAuthOnlyPath = AUTH_ONLY_PATHS.includes(pathname);
+
+  if (!isProtectedRoute && !isAuthOnlyPath) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -29,17 +44,6 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  // Static assets
-  if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) {
-    return supabaseResponse;
-  }
-
-  // Protected routes that require auth
-  const protectedPrefixes = ['/member', '/verify-member', '/members', '/permitted-phones'];
-  const isProtectedRoute = protectedPrefixes.some(prefix => pathname.startsWith(prefix));
-
   // Redirect unauthenticated users to login (only for protected routes)
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
@@ -48,7 +52,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages
-  if (user && (pathname === '/login' || pathname === '/register')) {
+  if (user && isAuthOnlyPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     return NextResponse.redirect(url);

@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter, Playfair_Display } from 'next/font/google';
 
 import Banner from '@/components/Banner';
 import BottomNav from '@/components/BottomNav';
@@ -10,8 +11,51 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
-  title: 'Tanakayu Community',
-  description: 'Website for beloved community member',
+  title: 'Tanakayu Community Website',
+  description: 'Tanakayu Community Website - From The Origin',
+  keywords: 'tanakayu, bsd, community, website, samuel, arno, samuel arno, samuel arnosaputra, web developer, web developer indonesia, web engineer, freelance web',
+  authors: [{ name: 'sammyarno' }],
+  robots: 'index, follow',
+  alternates: {
+    canonical: 'https://tanakayu.vercel.app',
+  },
+  openGraph: {
+    title: 'Tanakayu Community Website',
+    description: 'Tanakayu Community Website - From The Origin',
+    type: 'website',
+    url: 'https://tanakayu.vercel.app',
+    images: [{ url: 'https://tanakayu.vercel.app/header.jpg' }],
+    siteName: 'Tanakayu Community',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tanakayu Community Website',
+    description: 'Tanakayu Community Website - From The Origin',
+    images: ['https://tanakayu.vercel.app/header.jpg'],
+  },
+  other: {
+    'theme-color': '#1F3D2B',
+    lang: 'id',
+    googlebot: 'index, follow',
+  },
+};
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -20,42 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <title>Tanakayu Community Website</title>
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-        <meta name="lang" content="id" />
-        <meta name="theme-color" content="#1F3D2B" />
-        <meta name="description" content="Tanakayu Community Website" />
-
-        <meta property="og:title" content="Tanakayu Community Website" />
-        <meta property="og:description" content="Tanakayu Community Website - From The Origin" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tanakayu.vercel.app" />
-        <meta property="og:image" content="https://tanakayu.vercel.app/header.jpg" />
-        <meta property="og:site_name" content="Tanakayu Community" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Tanakayu Community Website" />
-        <meta name="twitter:description" content="Tanakayu Community Website - From The Origin" />
-        <meta name="twitter:image" content="https://tanakayu.vercel.app/header.jpg" />
-
-        <meta name="robots" content="index, follow" />
-        <meta name="googlebot" content="index, follow" />
-
-        <meta
-          name="keywords"
-          content="tanakayu, bsd, community, website, samuel, arno, samuel arno, samuel arnosaputra, web developer, web developer indonesia, web engineer, freelance web"
-        />
-        <meta name="author" content="sammyarno" />
-        <meta name="publisher" content="sammyarno" />
-
-        <link rel="canonical" href="https://tanakayu.vercel.app" data-react-helmet="true" />
-
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
-      </head>
+    <html lang="en" className={`${inter.variable} ${playfairDisplay.variable}`}>
       <body>
         <Providers>
           <main className="mx-auto w-full max-w-lg p-2 pb-32 antialiased">
@@ -68,6 +77,7 @@ export default function RootLayout({
         <Toaster richColors />
         <Analytics />
         <SpeedInsights />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
       </body>
     </html>
   );

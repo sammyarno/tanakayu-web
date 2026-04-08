@@ -15,27 +15,21 @@ interface UserAuthState {
   clearError: () => void;
 }
 
-const fetchProfile = async (): Promise<User | null> => {
+const fetchProfile = async (userId: string, email: string): Promise<User | null> => {
   const supabase = getSupabaseClient();
-
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  if (!authUser) return null;
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('username, full_name, phone_number, address, role')
-    .eq('id', authUser.id)
+    .eq('id', userId)
     .single();
 
   if (!profile) return null;
 
   return {
-    id: authUser.id,
+    id: userId,
     username: profile.username,
-    email: authUser.email || '',
+    email,
     displayName: profile.full_name,
     phone: profile.phone_number,
     address: profile.address,
@@ -64,7 +58,7 @@ export const useUserAuthStore = create<UserAuthState>()(
           } = await supabase.auth.getSession();
 
           if (session) {
-            const user = await fetchProfile();
+            const user = await fetchProfile(session.user.id, session.user.email || '');
             set({ userInfo: user });
           } else {
             set({ userInfo: null });
@@ -107,7 +101,7 @@ export const useUserAuthStore = create<UserAuthState>()(
             refresh_token: data.session.refresh_token,
           });
 
-          const user = await fetchProfile();
+          const user = await fetchProfile(data.session.user.id, data.session.user.email || '');
 
           set({ userInfo: user, isLoading: false });
           return user;
