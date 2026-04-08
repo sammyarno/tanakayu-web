@@ -94,9 +94,7 @@ const PermittedPhonesPage = () => {
         </div>
         <div>
           <h2 className="font-sans text-2xl font-bold">Permitted Phones</h2>
-          <p className="text-muted-foreground text-sm">
-            Only phone numbers registered here can register an account.
-          </p>
+          <p className="text-muted-foreground text-sm">Only phone numbers registered here can register an account.</p>
         </div>
       </div>
 
@@ -183,17 +181,14 @@ const PermittedPhonesPage = () => {
         <CardHeader>
           <CardTitle className="text-base">All Numbers ({phones?.length ?? 0})</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent>
           <LoadingIndicator isLoading={isLoading} />
           {!isLoading && phones?.length === 0 && (
             <p className="text-muted-foreground py-8 text-center text-sm">No registered numbers yet</p>
           )}
           <div className="divide-y">
             {phones?.map(phone => (
-              <div
-                key={phone.id}
-                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50 sm:px-6"
-              >
+              <div key={phone.id} className="flex items-center gap-3 py-3 transition-colors hover:bg-gray-50">
                 <div className="min-w-0 flex-1">
                   <p className="font-mono text-sm font-medium">{phone.phoneNumber}</p>
                   {phone.fullName && <p className="text-muted-foreground text-xs">{phone.fullName}</p>}

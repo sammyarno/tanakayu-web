@@ -87,8 +87,8 @@ const FinancialReport = () => {
             </Button>
           </div>
           <div className="flex flex-2/5 flex-col">
-            <p className="text-right text-sm">Balance</p>
-            <p className="text-right font-bold">
+            <p className="text-tanakayu-accent text-right text-sm">Balance</p>
+            <p className="text-tanakayu-accent text-right font-bold">
               {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
             </p>
           </div>
