@@ -71,6 +71,10 @@ export async function POST(request: NextRequest) {
     const { user, error: authError } = await verifyAuth(request);
     if (authError) return authError;
 
+    if (user!.role !== 'SUPERADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const body: BulkTransactionRequest = await request.json();
 
     if (!body.transactions || !Array.isArray(body.transactions)) {

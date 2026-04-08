@@ -25,6 +25,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json(response, { status: 400 });
     }
 
+    if (user!.id !== id && user!.role !== 'SUPERADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     // Update profile fields
     const profileUpdate: Record<string, string> = {};
     if (body.full_name || body.display_name) profileUpdate.full_name = body.full_name || body.display_name;

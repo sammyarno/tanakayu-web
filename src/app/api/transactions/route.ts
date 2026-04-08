@@ -139,6 +139,10 @@ export async function POST(request: NextRequest) {
     const { user, error: authError } = await verifyAuth(request);
     if (authError) return authError;
 
+    if (user!.role !== 'SUPERADMIN') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();

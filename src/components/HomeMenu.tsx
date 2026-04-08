@@ -17,35 +17,35 @@ const PUBLIC_MENU_ITEMS = [
   },
 ];
 
-const AUTH_MENU_ITEMS = [
-  {
-    href: '/transaction-report',
-    icon: ReceiptText,
-    iconBaseColor: 'bg-green-50',
-    iconColor: 'text-green-500',
-    alt: 'Transaction Report',
-    title: 'Transaction Report',
-  },
-];
+const TRANSACTION_REPORT_ITEM = {
+  href: '/transaction-report',
+  icon: ReceiptText,
+  iconBaseColor: 'bg-green-50',
+  iconColor: 'text-green-500',
+  alt: 'Transaction Report',
+  title: 'Transaction Report',
+};
 
-const MERCHANT_MENU_ITEMS = [
-  {
-    href: '/verify-member',
-    icon: ShieldCheck,
-    iconBaseColor: 'bg-blue-50',
-    iconColor: 'text-blue-500',
-    alt: 'Membership Verification',
-    title: 'Membership Verification',
-  },
-];
+const VERIFY_MEMBER_ITEM = {
+  href: '/verify-member',
+  icon: ShieldCheck,
+  iconBaseColor: 'bg-blue-50',
+  iconColor: 'text-blue-500',
+  alt: 'Membership Verification',
+  title: 'Membership Verification',
+};
 
 const HomeMenu = () => {
   const { role } = useAuth();
 
-  const displayItems =
-    role === ROLES.MERCHANT
-      ? MERCHANT_MENU_ITEMS
-      : [...PUBLIC_MENU_ITEMS, ...(role ? AUTH_MENU_ITEMS : [])];
+  const authItems = role
+    ? [
+        ...(role !== ROLES.MERCHANT ? [TRANSACTION_REPORT_ITEM] : []),
+        VERIFY_MEMBER_ITEM,
+      ]
+    : [];
+
+  const displayItems = [...PUBLIC_MENU_ITEMS, ...authItems];
 
   return (
     <section className="grid grid-cols-4 gap-2 md:grid-cols-5 md:gap-4">

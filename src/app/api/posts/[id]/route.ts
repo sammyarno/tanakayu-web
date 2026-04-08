@@ -14,6 +14,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { user, error: authError } = await verifyAuth(request);
     if (authError) return authError;
 
+    if (user!.role !== 'SUPERADMIN') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
@@ -89,6 +93,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const { user, error: authError } = await verifyAuth(request);
     if (authError) return authError;
+
+    if (user!.role !== 'SUPERADMIN') {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);

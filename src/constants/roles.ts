@@ -10,7 +10,7 @@ export const ROLES = {
 export const SUPERADMIN_ONLY: UserRole[] = [ROLES.SUPERADMIN];
 
 /** Roles that can verify members */
-export const VERIFY_MEMBER_ROLES: UserRole[] = [ROLES.SUPERADMIN, ROLES.MERCHANT];
+export const VERIFY_MEMBER_ROLES: UserRole[] = [ROLES.SUPERADMIN, ROLES.MEMBER, ROLES.MERCHANT];
 
 /** All roles (for pages accessible to everyone) */
 export const ALL_ROLES: UserRole[] = [ROLES.SUPERADMIN, ROLES.MEMBER, ROLES.MERCHANT];

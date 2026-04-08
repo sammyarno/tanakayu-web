@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import { SUPERADMIN_ONLY } from '@/constants/roles';
 import TransactionCard from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,7 +53,7 @@ const FinancialReport = () => {
   };
 
   return (
-    <PageContent>
+    <PageContent allowedRoles={SUPERADMIN_ONLY}>
       <Breadcrumb
         items={[
           { label: 'Dashboard', link: '/admin' },
