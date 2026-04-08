@@ -29,7 +29,7 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
         </Avatar>
         <h3 className="mt-3 text-lg font-semibold">{profile.displayName}</h3>
         <p className="text-muted-foreground text-sm">@{profile.username}</p>
-        <Badge variant="secondary" className="mt-2">
+        <Badge variant="default" className="mt-2 font-bold tracking-wider">
           {profile.role}
         </Badge>
       </CardContent>

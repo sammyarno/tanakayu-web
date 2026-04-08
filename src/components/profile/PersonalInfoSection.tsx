@@ -2,10 +2,6 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, MapPin, Pencil, Phone, User as UserIcon } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
 
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Button } from '@/components/ui/button';
@@ -19,6 +15,10 @@ import { CLUSTER_LABELS, CLUSTER_LIST } from '@/data/clusters';
 import { useUpdateProfile } from '@/hooks/useUpdateProfile';
 import { updateProfileSchema } from '@/lib/validations/profile';
 import type { User as UserType } from '@/types/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Mail, MapPin, Pencil, Phone, User as UserIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
 
@@ -108,7 +108,7 @@ export const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
             />
             <InfoRow icon={<MapPin className="h-4 w-4" />} label="Address" value={parsed.address} />
           </div>
-          <Button variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
+          <Button variant="secondary" className="w-full" onClick={() => setIsEditing(true)}>
             <Pencil className="mr-2 h-4 w-4" />
             Edit Profile
           </Button>
@@ -146,7 +146,13 @@ export const PersonalInfoSection = ({ profile }: PersonalInfoSectionProps) => {
                   name="email"
                   renderInput={field => (
                     <div className="relative">
-                      <Input {...field} type="email" placeholder="Enter your email" disabled={isPending} className="pl-9" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="Enter your email"
+                        disabled={isPending}
+                        className="pl-9"
+                      />
                       <Mail className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
                     </div>
                   )}

@@ -1,10 +1,6 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
 
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
 import { Button } from '@/components/ui/button';
@@ -14,6 +10,10 @@ import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useUpdateProfile } from '@/hooks/useUpdateProfile';
 import { changePasswordSchema } from '@/lib/validations/profile';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Lock } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
@@ -89,7 +89,7 @@ export const ChangePasswordSection = ({ userId }: ChangePasswordSectionProps) =>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full" disabled={isPending} variant="secondary">
               Change Password
             </Button>
           </form>

@@ -12,11 +12,11 @@ interface BreadcrumbProps {
 const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return (
     <nav aria-label="breadcrumb">
-      <ol className="bg-tanakayu-accent/15 flex w-fit gap-1 rounded-md p-1 text-xs">
+      <ol className="bg-tanakayu-accent text-tanakayu-dark flex w-fit gap-1 rounded-md p-1 text-xs">
         {items.map((item, index) => (
           <li key={item.link} className="flex items-center gap-1">
             <Link href={item.link}>
-              <p className="tracking-wide hover:underline">{item.label}</p>
+              <p className="tracking-wider hover:underline">{item.label}</p>
             </Link>
             {index < items.length - 1 && <span>/</span>}
           </li>

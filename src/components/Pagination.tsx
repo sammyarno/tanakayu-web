@@ -14,7 +14,7 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
       <button
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className="rounded bg-gray-200 px-3 py-1 disabled:opacity-50"
+        className="rounded bg-gray-200 text-gray-800 px-3 py-1 disabled:opacity-50"
       >
         &laquo;
       </button>
@@ -23,7 +23,7 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
         <button
           key={`page-${page}`}
           onClick={() => onPageChange(page)}
-          className={`rounded px-3 py-1 ${currentPage === page ? 'bg-tanakayu-highlight text-white' : 'bg-gray-200'}`}
+          className={`rounded px-3 py-1 ${currentPage === page ? 'bg-tanakayu-highlight text-white' : 'bg-gray-200 text-gray-800'}`}
         >
           {page}
         </button>
@@ -32,7 +32,7 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
       <button
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className="rounded bg-gray-200 px-3 py-1 disabled:opacity-50"
+        className="rounded bg-gray-200 text-gray-800 px-3 py-1 disabled:opacity-50"
       >
         &raquo;
       </button>

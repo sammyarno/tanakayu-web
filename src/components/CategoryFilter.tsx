@@ -23,7 +23,7 @@ const CategoryFilter = ({ categories, selectedCategory, onSelect }: Props) => {
         <Badge
           key={`${cat.code}-${index}`}
           onClick={() => onSelect(cat.code)}
-          variant={selectedCategory === cat.code ? 'default' : 'secondary'}
+          variant={selectedCategory === cat.code ? 'default' : 'outline'}
           className="text-sm tracking-wide"
         >
           {cat.label}

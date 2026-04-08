@@ -70,8 +70,8 @@ const PostContent = () => {
           <Megaphone className="h-5 w-5 text-orange-500" />
         </div>
         <div>
-          <h2 className="font-sans text-2xl font-bold">Announcements & Events</h2>
-          <p className="text-muted-foreground text-sm">
+          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Announcements & Events</h2>
+          <p className="text-tanakayu-text text-sm">
             {data ? `${data.length} post${data.length !== 1 ? 's' : ''}` : 'Loading...'}
           </p>
         </div>

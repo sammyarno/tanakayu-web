@@ -27,16 +27,14 @@ const BottomNav = () => {
     },
   ];
 
-  if (pathname !== '/verify-member') {
-    navItems.push({
-      label: 'Profile',
-      href: '/member/profile',
-      icon: User,
-      isActive: (path: string) => path.startsWith('/member/profile'),
-    });
-  }
+  navItems.push({
+    label: 'Profile',
+    href: '/member/profile',
+    icon: User,
+    isActive: (path: string) => path.startsWith('/member/profile'),
+  });
 
-  if (role === ROLES.SUPERADMIN && pathname !== '/verify-member') {
+  if (role === ROLES.SUPERADMIN) {
     navItems.push({
       label: 'Dashboard',
       href: '/admin',
@@ -47,7 +45,7 @@ const BottomNav = () => {
 
   return (
     <div className="fixed right-0 bottom-0 left-0 z-50 flex flex-col justify-center">
-      <nav className="border-tanakayu-accent/20 text-tanakayu-text mx-auto w-full max-w-lg border-t bg-white backdrop-blur-md">
+      <nav className="border-tanakayu-accent/20 mx-auto w-full max-w-lg border-t bg-white backdrop-blur-md">
         <div className="flex h-16 items-center justify-around">
           {navItems.map((item, index) => {
             const active = item.isActive(pathname);
@@ -60,8 +58,8 @@ const BottomNav = () => {
                   href={item.href}
                   scroll={false}
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className={`group hover:text-tanakayu-card relative flex w-full flex-col items-center justify-center py-2 transition-all duration-300 ease-in-out ${
-                    active ? 'text-tanakayu-card' : 'text-gray-400'
+                  className={`group hover:text-tanakayu-highlight relative flex w-full flex-col items-center justify-center py-2 transition-all duration-300 ease-in-out ${
+                    active ? 'text-tanakayu-highlight' : 'text-gray-400'
                   }`}
                 >
                   {/* Active Indicator Background */}

@@ -11,7 +11,7 @@
   --color-tanakayu-dark: #1f3d2b;
   --color-tanakayu-accent: #e7cbb1;
   --color-tanakayu-highlight: #d69c3f;
-  --color-tanakayu-card: #355e3b;
+  --color-tanakayu-card: #f9fafb;
   --color-tanakayu-text: #f9fafb;
 }
 
@@ -38,19 +38,35 @@ body {
   }
 }
 
+/* Inputs default to a darker shade so they stand out on the green background */
+input,
+[data-slot='select-trigger'] {
+  background-color: var(--color-tanakayu-dark) !important;
+}
+
+/* Inputs inside cards and dialogs get a subtle light background instead */
+[data-slot='card'] input,
+[data-slot='card'] [data-slot='select-trigger'],
+[data-slot='dialog-content'] input,
+[data-slot='dialog-content'] [data-slot='select-trigger'],
+[data-slot='alert-dialog-content'] input,
+[data-slot='alert-dialog-content'] [data-slot='select-trigger'] {
+  background-color: #f1f5f9 !important;
+}
+
 :root {
   --background: var(--color-tanakayu-bg);
   --foreground: var(--color-tanakayu-text);
   --card: var(--color-tanakayu-card);
-  --card-foreground: var(--color-tanakayu-text);
+  --card-foreground: var(--color-tanakayu-dark);
   --popover: var(--color-tanakayu-card);
-  --popover-foreground: var(--color-tanakayu-text);
+  --popover-foreground: var(--color-tanakayu-dark);
   --primary: var(--color-tanakayu-highlight);
   --primary-foreground: var(--color-tanakayu-dark);
   --secondary: var(--color-tanakayu-dark);
   --secondary-foreground: var(--color-tanakayu-text);
   --muted: var(--color-tanakayu-dark);
-  --muted-foreground: var(--color-tanakayu-accent);
+  --muted-foreground: #a3b8ab;
   --accent: var(--color-tanakayu-accent);
   --accent-foreground: var(--color-tanakayu-dark);
   --destructive: oklch(0.58 0.24 28.48);
@@ -59,14 +75,14 @@ body {
   --ring: var(--color-tanakayu-highlight);
   --chart-1: var(--color-tanakayu-highlight);
   --chart-2: var(--color-tanakayu-accent);
-  --chart-3: var(--color-tanakayu-card);
+  --chart-3: #51755f;
   --chart-4: var(--color-tanakayu-dark);
   --chart-5: oklch(0.77 0.17 65.36);
   --sidebar: var(--color-tanakayu-dark);
   --sidebar-foreground: var(--color-tanakayu-text);
   --sidebar-primary: var(--color-tanakayu-highlight);
   --sidebar-primary-foreground: var(--color-tanakayu-dark);
-  --sidebar-accent: var(--color-tanakayu-card);
+  --sidebar-accent: #355e3b;
   --sidebar-accent-foreground: var(--color-tanakayu-text);
   --sidebar-border: var(--color-tanakayu-dark);
   --sidebar-ring: var(--color-tanakayu-highlight);

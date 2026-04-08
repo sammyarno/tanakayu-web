@@ -20,7 +20,7 @@ const LoadingIndicator = ({ isLoading, fullPage = false }: LoadingIndicatorProps
   return (
     <div className="flex items-center justify-center py-2">
       <div className="animate-spin h-4 w-4 border-2 border-tanakayu-highlight rounded-full border-t-transparent"></div>
-      <span className="ml-2 text-sm text-gray-600">Memuat...</span>
+      <span className="ml-2 text-sm text-foreground">Memuat...</span>
     </div>
   );
 };

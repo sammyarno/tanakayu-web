@@ -21,7 +21,7 @@ export const SignOutSection = () => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="w-full" disabled={isLoading}>
+        <Button variant="outline" className="w-full text-foreground" disabled={isLoading}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </Button>
