@@ -1,0 +1,18 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 3 */6 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit healthcheck endpoint
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://tanakayu-web.vercel.app/api/health)
+          echo "Healthcheck responded with $status"
+          if [ "$status" -ge 400 ]; then
+            exit 1
+          fi
