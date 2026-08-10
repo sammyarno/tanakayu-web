@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Hit healthcheck endpoint
         run: |
-          status=$(curl -s -o /dev/null -w "%{http_code}" https://tanakayu-web.vercel.app/api/health)
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://tanakayu.org/api/health)
           echo "Healthcheck responded with $status"
           if [ "$status" -ge 400 ]; then
             exit 1
