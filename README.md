@@ -55,7 +55,7 @@ A modern community management platform for neighborhood administration (RW/RT). 
 ## 📋 Prerequisites
 
 - **Node.js**: 20.15 or higher
-- **Yarn**: 1.22.22
+- **pnpm**: 10.x
 - **Supabase Account**: For database and authentication
 
 ## 🚀 Getting Started
@@ -70,7 +70,7 @@ A modern community management platform for neighborhood administration (RW/RT). 
 2. **Install dependencies**
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **Environment Setup**
@@ -89,7 +89,7 @@ A modern community management platform for neighborhood administration (RW/RT). 
 5. **Run the development server**
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 6. **Open your browser**
@@ -131,10 +131,10 @@ The application uses the following main tables:
 ## 🔧 Available Scripts
 
 ```bash
-yarn dev          # Start development server with Turbopack
-yarn build        # Build for production
-yarn start        # Start production server
-yarn lint         # Run ESLint
+pnpm dev          # Start development server with Turbopack
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
 ```
 
 ## 🚀 Deployment
