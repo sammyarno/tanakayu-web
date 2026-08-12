@@ -16,12 +16,13 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
     <div className="mt-4 flex items-center justify-center gap-3">
       <Button
         variant="outline"
-        size="icon-sm"
+        size="icon-lg"
         aria-label="Previous page"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
+        className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 h-11 w-11"
       >
-        <ChevronLeft />
+        <ChevronLeft className="h-5 w-5" />
       </Button>
 
       <span className="text-tanakayu-text text-sm">
@@ -30,12 +31,13 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
 
       <Button
         variant="outline"
-        size="icon-sm"
+        size="icon-lg"
         aria-label="Next page"
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
+        className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 h-11 w-11"
       >
-        <ChevronRight />
+        <ChevronRight className="h-5 w-5" />
       </Button>
     </div>
   );
