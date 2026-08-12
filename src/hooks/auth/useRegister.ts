@@ -8,9 +8,15 @@ export interface RegisterRequest {
   password: string;
   email: string;
   phone_number: string;
+  invite_token?: string;
 }
 
-const registerMember = async (payload: RegisterRequest) => {
+export interface RegisterResponse {
+  approved: boolean;
+  id?: string;
+}
+
+const registerMember = async (payload: RegisterRequest): Promise<RegisterResponse> => {
   const response = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

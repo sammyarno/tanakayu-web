@@ -1,16 +1,28 @@
+import { randomBytes } from 'crypto';
+
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 
-import { logAudit } from '@/lib/audit';
 import { verifyAuth } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import { createServerClient } from '@/plugins/supabase/server';
-import type { FetchResponse, SimpleResponse } from '@/types/fetch';
+import type { FetchResponse } from '@/types/fetch';
 import { normalizePhone } from '@/utils/phone';
 
-const PHONE_REGEX = /^(\+62|62|0)8[1-9][0-9]{6,10}$/;
+export interface InviteItem {
+  id: string;
+  token: string;
+  full_name: string;
+  phone_number: string | null;
+  created_by: string;
+  expires_at: string | null;
+  used_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+}
 
 export async function GET(request: NextRequest) {
-  const response: FetchResponse<any> = {};
+  const response: FetchResponse<InviteItem[]> = {};
 
   try {
     const { user, error: authError } = await verifyAuth(request);
@@ -23,19 +35,10 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore, true);
 
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search');
-
-    let query = supabase
-      .from('permitted_phones')
-      .select('id, phone_number, full_name, registered_by, created_at')
+    const { data, error } = await supabase
+      .from('member_invites')
+      .select('id, token, full_name, phone_number, created_by, expires_at, used_at, revoked_at, created_at')
       .order('created_at', { ascending: false });
-
-    if (search) {
-      query = query.or(`phone_number.ilike.%${search}%,full_name.ilike.%${search}%`);
-    }
-
-    const { data, error } = await query;
 
     if (error) {
       response.error = error.message;
@@ -45,14 +48,14 @@ export async function GET(request: NextRequest) {
     response.data = data;
     return Response.json(response);
   } catch (error) {
-    console.error('Error fetching permitted phones:', error);
+    console.error('Error fetching invites:', error);
     response.error = 'Internal server error';
     return Response.json(response, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  const response: FetchResponse<any> = {};
+  const response: FetchResponse<InviteItem> = {};
 
   try {
     const { user, error: authError } = await verifyAuth(request);
@@ -66,43 +69,19 @@ export async function POST(request: NextRequest) {
     const supabase = createServerClient(cookieStore, true);
     const body = await request.json();
 
-    // Support single { phone_number, full_name } or bulk { phones: [{ phone_number, full_name }] }
-    const entries: { phone_number: string; full_name: string }[] = body.phones
-      ? body.phones
-      : [{ phone_number: body.phone_number, full_name: body.full_name || '' }];
-
-    // Validate all phone numbers
-    const invalid = entries.filter(e => !PHONE_REGEX.test(e.phone_number.trim()));
-    if (invalid.length > 0) {
-      response.error = `Nomor tidak valid: ${invalid.map(e => e.phone_number).join(', ')}`;
-      return Response.json(response, { status: 400 });
-    }
-
-    const rows = entries.map(e => ({
-      phone_number: normalizePhone(e.phone_number),
-      full_name: e.full_name?.trim() || '',
-      registered_by: user!.username,
-    }));
-
-    // Check for existing numbers
-    const phoneNumbers = rows.map(r => r.phone_number);
-    const { data: existing } = await supabase
-      .from('permitted_phones')
-      .select('phone_number')
-      .in('phone_number', phoneNumbers);
-
-    const existingSet = new Set((existing ?? []).map(e => e.phone_number));
-    const duplicates = phoneNumbers.filter(p => existingSet.has(p));
-
-    if (duplicates.length > 0) {
-      response.error = `Number already registered: ${duplicates.join(', ')}`;
-      return Response.json(response, { status: 409 });
-    }
+    const token = randomBytes(32).toString('base64url');
 
     const { data, error } = await supabase
-      .from('permitted_phones')
-      .insert(rows)
-      .select('id, phone_number, full_name');
+      .from('member_invites')
+      .insert({
+        token,
+        full_name: body.full_name?.trim() || '',
+        phone_number: body.phone_number ? normalizePhone(body.phone_number) : null,
+        created_by: user!.username,
+        expires_at: body.expires_at || null,
+      })
+      .select('id, token, full_name, phone_number, created_by, expires_at, used_at, revoked_at, created_at')
+      .single();
 
     if (error) {
       response.error = error.message;
@@ -110,23 +89,23 @@ export async function POST(request: NextRequest) {
     }
 
     await logAudit(supabase, {
-      action: 'create',
-      entityType: 'permitted_phone',
+      action: 'create_invite',
+      entityType: 'member_invite',
+      entityId: data.id,
       actor: user!.username,
-      metadata: { count: rows.length },
     });
 
     response.data = data;
     return Response.json(response, { status: 200 });
   } catch (error) {
-    console.error('Error adding permitted phone:', error);
+    console.error('Error creating invite:', error);
     response.error = 'Internal server error';
     return Response.json(response, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
-  const response: FetchResponse<SimpleResponse> = {};
+  const response: FetchResponse<{ id: string }> = {};
 
   try {
     const { user, error: authError } = await verifyAuth(request);
@@ -147,8 +126,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { error } = await supabase
-      .from('permitted_phones')
-      .delete()
+      .from('member_invites')
+      .update({ revoked_at: new Date().toISOString() })
       .eq('id', id);
 
     if (error) {
@@ -157,8 +136,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     await logAudit(supabase, {
-      action: 'delete',
-      entityType: 'permitted_phone',
+      action: 'revoke_invite',
+      entityType: 'member_invite',
       entityId: id,
       actor: user!.username,
     });
@@ -166,7 +145,7 @@ export async function DELETE(request: NextRequest) {
     response.data = { id };
     return Response.json(response);
   } catch (error) {
-    console.error('Error deleting permitted phone:', error);
+    console.error('Error revoking invite:', error);
     response.error = 'Internal server error';
     return Response.json(response, { status: 500 });
   }

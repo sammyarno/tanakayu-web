@@ -22,6 +22,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, 'Phone Number is required')
     .regex(/^(\+62|62|0)8[1-9][0-9]{6,10}$/, 'Invalid Indonesian phone number'),
+  invite_token: z.string().optional(),
 });
 
 export type LoginRequest = z.infer<typeof loginSchema>;

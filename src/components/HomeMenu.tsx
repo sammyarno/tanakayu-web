@@ -4,7 +4,9 @@ import Link from 'next/link';
 
 import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { Megaphone, Phone, PhoneCall, ReceiptText, ShieldCheck, Users } from 'lucide-react';
+import { useFetchWaitlist } from '@/hooks/useWaitlist';
+import { useWaitlistRealtime } from '@/hooks/useWaitlistRealtime';
+import { Megaphone, PhoneCall, ReceiptText, ShieldCheck, UserCheck, Users } from 'lucide-react';
 
 const PUBLIC_MENU_ITEMS = [
   {
@@ -45,23 +47,28 @@ const ADMIN_MENU_ITEMS = [
     title: 'Members',
   },
   {
-    href: '/permitted-phones',
-    icon: Phone,
+    href: '/waitlist',
+    icon: UserCheck,
     iconBaseColor: 'bg-purple-50',
     iconColor: 'text-purple-500',
-    alt: 'Permitted Phones',
-    title: 'Permitted Phones',
+    alt: 'Member Approvals',
+    title: 'Member Approvals',
   },
 ];
 
 const HomeMenu = () => {
   const { role } = useAuth();
+  const isSuperAdmin = role === ROLES.SUPERADMIN;
+
+  useWaitlistRealtime();
+  const { data: pendingWaitlist } = useFetchWaitlist('PENDING', undefined, isSuperAdmin);
+  const pendingCount = pendingWaitlist?.length ?? 0;
 
   const authItems = role
     ? [
         ...(role !== ROLES.MERCHANT ? [TRANSACTION_REPORT_ITEM] : []),
         VERIFY_MEMBER_ITEM,
-        ...(role === ROLES.SUPERADMIN ? ADMIN_MENU_ITEMS : []),
+        ...(isSuperAdmin ? ADMIN_MENU_ITEMS : []),
       ]
     : [];
 
@@ -77,8 +84,13 @@ const HomeMenu = () => {
             href={item.href}
             className="flex flex-col items-center justify-start rounded-xl border bg-white p-2 text-center shadow-sm transition-shadow hover:shadow-md md:p-3"
           >
-            <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-full ${item.iconBaseColor}`}>
+            <div className={`relative mb-2 flex h-12 w-12 items-center justify-center rounded-full ${item.iconBaseColor}`}>
               <IconComponent className={`h-6 w-6 ${item.iconColor}`} />
+              {item.href === '/waitlist' && pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {pendingCount > 99 ? '99+' : pendingCount}
+                </span>
+              )}
             </div>
             <h2 className="text-xs leading-tight font-semibold text-slate-800 md:text-sm">{item.title}</h2>
           </Link>

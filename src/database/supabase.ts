@@ -44,29 +44,126 @@ export type Database = {
         }
         Relationships: []
       }
-      permitted_phones: {
+      member_invites: {
         Row: {
-          id: string
-          phone_number: string
-          full_name: string
-          registered_by: string
           created_at: string
+          created_by: string
+          expires_at: string | null
+          full_name: string
+          id: string
+          phone_number: string | null
+          revoked_at: string | null
+          token: string
+          used_at: string | null
+          used_by: string | null
         }
         Insert: {
-          id?: string
-          phone_number: string
-          full_name?: string
-          registered_by: string
           created_at?: string
+          created_by: string
+          expires_at?: string | null
+          full_name?: string
+          id?: string
+          phone_number?: string | null
+          revoked_at?: string | null
+          token: string
+          used_at?: string | null
+          used_by?: string | null
         }
         Update: {
-          id?: string
-          phone_number?: string
-          full_name?: string
-          registered_by?: string
           created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          full_name?: string
+          id?: string
+          phone_number?: string | null
+          revoked_at?: string | null
+          token?: string
+          used_at?: string | null
+          used_by?: string | null
         }
         Relationships: []
+      }
+      member_waitlist: {
+        Row: {
+          address: string
+          approved_user_id: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          invite_id: string | null
+          phone_number: string
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["waitlist_status"]
+          username: string
+        }
+        Insert: {
+          address?: string
+          approved_user_id?: string | null
+          created_at?: string
+          email: string
+          full_name?: string
+          id?: string
+          invite_id?: string | null
+          phone_number: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["waitlist_status"]
+          username: string
+        }
+        Update: {
+          address?: string
+          approved_user_id?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          invite_id?: string | null
+          phone_number?: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["waitlist_status"]
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_waitlist_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "member_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_waitlist_secrets: {
+        Row: {
+          created_at: string
+          password_hash: string
+          waitlist_id: string
+        }
+        Insert: {
+          created_at?: string
+          password_hash: string
+          waitlist_id: string
+        }
+        Update: {
+          created_at?: string
+          password_hash?: string
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_waitlist_secrets_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: true
+            referencedRelation: "member_waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_categories: {
         Row: {
@@ -318,9 +415,26 @@ export type Database = {
           min_date: string
         }[]
       }
+      set_user_password_hash: {
+        Args: { p_hash: string; p_user_id: string }
+        Returns: undefined
+      }
+      submit_waitlist: {
+        Args: {
+          p_address: string
+          p_email: string
+          p_full_name: string
+          p_invite_id?: string
+          p_password: string
+          p_phone_number: string
+          p_username: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       user_role: "SUPERADMIN" | "ADMINISTRATOR" | "MEMBER" | "MERCHANT"
+      waitlist_status: "PENDING" | "APPROVED" | "REJECTED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -449,6 +563,7 @@ export const Constants = {
   public: {
     Enums: {
       user_role: ["SUPERADMIN", "ADMINISTRATOR", "MEMBER", "MERCHANT"],
+      waitlist_status: ["PENDING", "APPROVED", "REJECTED"],
     },
   },
 } as const

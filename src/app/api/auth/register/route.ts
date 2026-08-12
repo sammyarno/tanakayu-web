@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 import { logAudit } from '@/lib/audit';
 import { registerSchema } from '@/lib/validations/auth';
+import { approveWaitlistEntry } from '@/lib/waitlist';
 import { createServerClient } from '@/plugins/supabase/server';
 import { normalizePhone } from '@/utils/phone';
 
@@ -18,67 +19,87 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'Invalid input', details: validationResult.error.issues }, { status: 400 });
     }
 
-    const { username, full_name, email, password, phone_number, address, cluster } = validationResult.data;
+    const { username, full_name, email, password, phone_number, address, cluster, invite_token } =
+      validationResult.data;
 
     const normalizedPhone = normalizePhone(phone_number);
+    const fullAddress = `${cluster}, ${address}`;
 
-    // Check phone permission and username uniqueness in parallel
-    const [phoneResult, usernameResult] = await Promise.all([
-      supabase.from('permitted_phones').select('id').eq('phone_number', normalizedPhone).single(),
+    const [usernameResult, waitlistResult] = await Promise.all([
       supabase.from('profiles').select('id').eq('username', username).single(),
+      supabase
+        .from('member_waitlist')
+        .select('id, status')
+        .or(`username.ilike.${username},email.ilike.${email},phone_number.eq.${normalizedPhone}`)
+        .maybeSingle(),
     ]);
-
-    if (!phoneResult.data) {
-      return Response.json(
-        { error: 'Phone number is not registered. Please contact the administrator to register your phone number.' },
-        { status: 403 }
-      );
-    }
 
     if (usernameResult.data) {
       return Response.json({ error: 'Username already taken' }, { status: 409 });
     }
 
-    // Create auth user via Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { username, full_name },
+    if (waitlistResult.data) {
+      if (waitlistResult.data.status === 'REJECTED') {
+        return Response.json(
+          { error: 'This registration was declined. Please contact the administrator.' },
+          { status: 403 }
+        );
+      }
+      return Response.json({ error: 'A registration with these details is already pending review.' }, { status: 409 });
+    }
+
+    let inviteId: string | null = null;
+    if (invite_token) {
+      const nowIso = new Date().toISOString();
+      const { data: invite } = await supabase
+        .from('member_invites')
+        .select('id, phone_number')
+        .eq('token', invite_token)
+        .is('used_at', null)
+        .is('revoked_at', null)
+        .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+        .maybeSingle();
+
+      if (invite && (!invite.phone_number || invite.phone_number === normalizedPhone)) {
+        inviteId = invite.id;
+      }
+    }
+
+    const { data: waitlistId, error: submitError } = await supabase.rpc('submit_waitlist', {
+      p_username: username,
+      p_full_name: full_name,
+      p_email: email,
+      p_phone_number: normalizedPhone,
+      p_address: fullAddress,
+      p_password: password,
+      p_invite_id: inviteId ?? undefined,
     });
 
-    if (authError || !authData.user) {
-      return Response.json({ error: authError?.message || 'Failed to create user' }, { status: 500 });
+    if (submitError || !waitlistId) {
+      console.error('Error submitting waitlist entry:', submitError);
+      return Response.json({ error: 'Failed to submit registration' }, { status: 500 });
     }
 
-    // Update profile with additional fields (trigger should have created the row)
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        username,
-        full_name,
-        phone_number: normalizedPhone,
-        address: `${cluster}, ${address}`,
-        role: 'MEMBER' as const,
-      })
-      .eq('id', authData.user.id);
-
-    if (profileError) {
-      console.error('Error updating profile:', profileError);
-      // Clean up: delete the auth user if profile update fails
-      await supabase.auth.admin.deleteUser(authData.user.id);
-      return Response.json({ error: 'Failed to create profile' }, { status: 500 });
-    }
-
-    // Fire-and-forget audit log — don't block the response
     logAudit(supabase, {
       action: 'register',
-      entityType: 'user',
-      entityId: authData.user.id,
+      entityType: 'member_waitlist',
+      entityId: waitlistId,
       actor: username,
     });
 
-    return Response.json({ id: authData.user.id }, { status: 200 });
+    if (inviteId) {
+      const approval = await approveWaitlistEntry(supabase, waitlistId, `invite:${invite_token}`);
+      if (!approval.success) {
+        console.error('Error auto-approving invited registration:', approval.error);
+        return Response.json({ approved: false }, { status: 200 });
+      }
+
+      await supabase.from('member_invites').update({ used_at: new Date().toISOString() }).eq('id', inviteId);
+
+      return Response.json({ approved: true, id: approval.userId }, { status: 200 });
+    }
+
+    return Response.json({ approved: false, id: waitlistId }, { status: 200 });
   } catch (error) {
     console.error('Error registering user:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
