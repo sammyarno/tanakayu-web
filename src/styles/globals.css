@@ -103,9 +103,7 @@ input,
 
   --font-sans: Inter, sans-serif;
   --font-serif: Playfair Display, serif;
-  --font-mono:
-    'Geist Mono', 'Geist Mono Fallback', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   --radius: 0.75rem;
 

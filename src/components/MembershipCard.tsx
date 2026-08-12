@@ -94,7 +94,7 @@ export const MembershipCard = ({ user, className }: MembershipCardProps) => {
 
               {/* Content Overlay */}
               <div className="relative z-10 flex h-full flex-col justify-end p-6 pb-8">
-                <p className="font-sans text-lg font-bold tracking-wider text-amber-100/90 uppercase drop-shadow-md">
+                <p className="font-mono text-lg font-bold tracking-wider text-amber-100/90 uppercase drop-shadow-md">
                   {username}
                 </p>
                 {displayAddress && (
