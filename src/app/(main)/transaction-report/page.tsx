@@ -10,6 +10,7 @@ import PageContent from '@/components/PageContent';
 import TransactionCard from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ALL_ROLES } from '@/constants/roles';
 import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
@@ -60,7 +61,7 @@ const FinancialReport = () => {
   ];
 
   return (
-    <PageContent>
+    <PageContent allowedRoles={ALL_ROLES}>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex items-center gap-3">

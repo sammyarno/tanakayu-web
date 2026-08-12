@@ -319,6 +319,7 @@ export type Database = {
         Row: {
           address: string
           created_at: string
+          email: string | null
           failed_login_attempts: number
           full_name: string
           id: string
@@ -332,6 +333,7 @@ export type Database = {
         Insert: {
           address?: string
           created_at?: string
+          email?: string | null
           failed_login_attempts?: number
           full_name?: string
           id: string
@@ -345,6 +347,7 @@ export type Database = {
         Update: {
           address?: string
           created_at?: string
+          email?: string | null
           failed_login_attempts?: number
           full_name?: string
           id?: string

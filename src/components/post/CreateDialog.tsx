@@ -12,8 +12,8 @@ import { Input } from '@/components/ui/input';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreatePost } from '@/hooks/useCreatePost';
-import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { createPostSchema } from '@/lib/validations/post';
+import { usePostCategoriesStore } from '@/store/postCategoriesStore';
 import { ANNOUNCEMENT_TYPE, EVENT_TYPE, POST_TYPES } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon } from 'lucide-react';
@@ -35,7 +35,7 @@ const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const { mutate, isPending, isSuccess, isError } = useCreatePost();
-  const { data: categories } = usePostCategories();
+  const categories = usePostCategoriesStore(state => state.categories);
 
   const methods = useForm<CreatePostForm>({
     resolver: zodResolver(createPostSchema),

@@ -18,32 +18,27 @@ const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: Role
   const router = useRouter();
 
   useEffect(() => {
-    if (isInitialized && !isLoading) {
-      // Not authenticated - redirect to login
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+    // Only redirect once we've actually confirmed there's no session (persisted
+    // `user` from localStorage is not proof enough - isInitialized is).
+    if (!isInitialized || isLoading) return;
 
-      // Authenticated but wrong role - redirect to fallback
-      if (role && !allowedRoles.includes(role as UserRole)) {
-        router.push(fallbackPath);
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (role && !allowedRoles.includes(role as UserRole)) {
+      router.push(fallbackPath);
+      return;
     }
   }, [user, role, isLoading, isInitialized, router, allowedRoles, fallbackPath]);
 
-  // Show loading state
-  if (!isInitialized || isLoading) {
-    return <></>;
-  }
-
-  // Show nothing if not authenticated
+  // Render optimistically off the persisted user (available synchronously from
+  // localStorage) instead of blanking the page until initialize() round-trips.
   if (!user) {
     return <></>;
   }
 
-  // Show nothing if wrong role
   if (role && !allowedRoles.includes(role as UserRole)) {
     return <></>;
   }

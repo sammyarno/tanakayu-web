@@ -12,8 +12,8 @@ import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEditPost } from '@/hooks/useEditPost';
-import { usePostCategories } from '@/hooks/useFetchPostCategories';
 import { editPostSchema } from '@/lib/validations/post';
+import { usePostCategoriesStore } from '@/store/postCategoriesStore';
 import { EVENT_TYPE, ANNOUNCEMENT_TYPE, POST_TYPES, type PostType, type PostWithVotes } from '@/types/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircleIcon, Edit2Icon } from 'lucide-react';
@@ -38,7 +38,7 @@ const defaultFormValues: EditPostFormData = {
 const EditDialog = ({ post }: EditDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: editPost, isPending } = useEditPost();
-  const { data: categories } = usePostCategories();
+  const categories = usePostCategoriesStore(state => state.categories);
 
   const methods = useForm<EditPostFormData>({
     resolver: zodResolver(editPostSchema),

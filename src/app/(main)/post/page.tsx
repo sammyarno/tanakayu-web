@@ -11,6 +11,7 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
+import { ALL_ROLES } from '@/constants/roles';
 import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { usePosts } from '@/hooks/useFetchPosts';
 import type { Category } from '@/types';
@@ -68,7 +69,7 @@ const PostContent = () => {
   ];
 
   return (
-    <PageContent>
+    <PageContent allowedRoles={ALL_ROLES}>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex items-center gap-3">

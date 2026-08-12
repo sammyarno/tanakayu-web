@@ -5,3 +5,7 @@ const idrFormatter = new Intl.NumberFormat('id-ID', {
 });
 
 export const formatCurrencyToIDR = (amount: number) => idrFormatter.format(amount);
+
+const numberFormatterID = new Intl.NumberFormat('id-ID');
+
+export const formatNumberID = (amount: number) => numberFormatterID.format(amount);

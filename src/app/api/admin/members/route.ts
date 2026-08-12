@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('profiles')
-      .select('id, username, full_name, phone_number, address, role, created_at')
+      .select('id, username, full_name, phone_number, address, role, created_at, email')
       .neq('id', user!.id)
       .order('created_at', { ascending: false });
 
@@ -52,22 +52,9 @@ export async function GET(request: NextRequest) {
       return Response.json(response, { status: 500 });
     }
 
-    // Fetch emails in parallel for all members
-    const memberIds = (data ?? []).map(m => m.id);
-    const emailMap = new Map<string, string>();
-
-    if (memberIds.length > 0) {
-      const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      if (authData?.users) {
-        for (const u of authData.users) {
-          if (u.email) emailMap.set(u.id, u.email);
-        }
-      }
-    }
-
     const members: MemberListItem[] = (data ?? []).map(m => ({
       ...m,
-      email: emailMap.get(m.id) || '',
+      email: m.email || '',
     }));
 
     response.data = members;

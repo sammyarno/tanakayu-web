@@ -27,7 +27,21 @@ export async function verifyAuth(request: Request): Promise<{ user?: AuthUser; e
       return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
     }
 
-    // Fetch profile for username and role
+    // custom_access_token_hook (see supabase/migrations) carries role/username in the
+    // JWT once enabled in the dashboard, skipping the profiles round trip below.
+    const claimedRole = user.app_metadata?.role as string | undefined;
+    const claimedUsername = user.app_metadata?.username as string | undefined;
+
+    if (claimedRole && claimedUsername) {
+      return {
+        user: {
+          id: user.id,
+          username: claimedUsername,
+          role: claimedRole,
+        },
+      };
+    }
+
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('username, role')

@@ -1,6 +1,7 @@
 'use client';
 
 import type { TransactionsByDate } from '@/types/transaction';
+import { formatNumberID } from '@/utils/currency';
 import { formatDateForTransaction } from '@/utils/date';
 
 interface TransactionCardProps {
@@ -26,7 +27,7 @@ const TransactionCard = ({ dayGroup }: TransactionCardProps) => {
         </div>
         <div className="flex flex-[25%] items-center justify-end">
           <p className={`tracking-wider ${dayTotal >= 0 ? 'text-tanakayu-moss' : 'text-red-600'}`}>
-            {Math.abs(dayTotal).toLocaleString('id-ID')}
+            {formatNumberID(Math.abs(dayTotal))}
           </p>
         </div>
       </div>
@@ -41,7 +42,7 @@ const TransactionCard = ({ dayGroup }: TransactionCardProps) => {
             </div>
             <div className="flex flex-[25%] items-start justify-end">
               <p className={`text-sm ${transaction.type === 'income' ? 'text-tanakayu-moss' : 'text-red-600'}`}>
-                {transaction.amount.toLocaleString('id-ID')}
+                {formatNumberID(transaction.amount)}
               </p>
             </div>
           </div>
