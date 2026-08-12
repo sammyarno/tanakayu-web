@@ -101,7 +101,15 @@ export const useUserAuthStore = create<UserAuthState>()(
             refresh_token: data.session.refresh_token,
           });
 
-          const user = await fetchProfile(data.session.user.id, data.session.user.email || '');
+          const user: User = {
+            id: data.profile.id,
+            username: data.profile.username,
+            email: data.session.user.email || '',
+            displayName: data.profile.full_name,
+            phone: data.profile.phone_number,
+            address: data.profile.address,
+            role: data.profile.role,
+          };
 
           set({ userInfo: user, isLoading: false });
           return user;
