@@ -1,5 +1,8 @@
 import { FC, memo } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -10,32 +13,30 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
   if (totalPages <= 1) return null;
 
   return (
-    <div className="mt-4 flex justify-center gap-2">
-      <button
+    <div className="mt-4 flex items-center justify-center gap-3">
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label="Previous page"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className="rounded bg-tanakayu-dark/10 text-tanakayu-dark px-3 py-1 disabled:opacity-50"
       >
-        &laquo;
-      </button>
+        <ChevronLeft />
+      </Button>
 
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-        <button
-          key={`page-${page}`}
-          onClick={() => onPageChange(page)}
-          className={`rounded px-3 py-1 ${currentPage === page ? 'bg-tanakayu-highlight text-white' : 'bg-tanakayu-dark/10 text-tanakayu-dark'}`}
-        >
-          {page}
-        </button>
-      ))}
+      <span className="text-tanakayu-text text-sm">
+        Page {currentPage} of {totalPages}
+      </span>
 
-      <button
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label="Next page"
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className="rounded bg-tanakayu-dark/10 text-tanakayu-dark px-3 py-1 disabled:opacity-50"
       >
-        &raquo;
-      </button>
+        <ChevronRight />
+      </Button>
     </div>
   );
 });
