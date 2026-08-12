@@ -9,6 +9,7 @@ import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import PageHeader from '@/components/PageHeader';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
 import { ALL_ROLES, ROLES } from '@/constants/roles';
@@ -72,17 +73,11 @@ const PostContent = () => {
     <PageContent allowedRoles={ALL_ROLES}>
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-50">
-          <Megaphone className="h-5 w-5 text-orange-500" />
-        </div>
-        <div>
-          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Announcements & Events</h2>
-          <p className="text-tanakayu-text text-sm">
-            {data ? `${data.length} post${data.length !== 1 ? 's' : ''}` : 'Loading...'}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={Megaphone}
+        title="Announcements & Events"
+        description={data ? `${data.length} post${data.length !== 1 ? 's' : ''}` : 'Loading...'}
+      />
 
       {isAdmin && <CreateDialog />}
 

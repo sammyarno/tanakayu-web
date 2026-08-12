@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import PageHeader from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -121,15 +122,11 @@ const WaitlistPage = () => {
         ]}
       />
 
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-50">
-          <UserCheck className="h-5 w-5 text-purple-500" />
-        </div>
-        <div>
-          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Member Approvals</h2>
-          <p className="text-tanakayu-text text-sm">Review self-registrations and manage invitation links</p>
-        </div>
-      </div>
+      <PageHeader
+        icon={UserCheck}
+        title="Member Approvals"
+        description="Review self-registrations and manage invitation links"
+      />
 
       {/* Pending approvals */}
       <Card className="gap-4">

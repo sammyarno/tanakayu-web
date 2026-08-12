@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import PageHeader from '@/components/PageHeader';
 import TransactionCard from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -64,17 +65,13 @@ const FinancialReport = () => {
     <PageContent allowedRoles={ALL_ROLES}>
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex items-center gap-3">
-        <div className="bg-tanakayu-sage/15 flex h-10 w-10 items-center justify-center rounded-full">
-          <ReceiptText className="text-tanakayu-moss h-5 w-5" />
-        </div>
-        <div>
-          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Transaction Report</h2>
-          <p className="text-tanakayu-text text-sm">
-            {isAdmin ? 'Manage and review financial transactions.' : 'View financial transactions for your community.'}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={ReceiptText}
+        title="Transaction Report"
+        description={
+          isAdmin ? 'Manage and review financial transactions.' : 'View financial transactions for your community.'
+        }
+      />
 
       <section className="flex flex-col gap-4">
         <div className="flex items-center">

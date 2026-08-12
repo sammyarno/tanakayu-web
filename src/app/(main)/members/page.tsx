@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumb';
 import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
+import PageHeader from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,17 +70,11 @@ const MembersPage = () => {
         ]}
       />
 
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-          <Users className="h-5 w-5 text-blue-500" />
-        </div>
-        <div>
-          <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Members</h2>
-          <p className="text-tanakayu-text text-sm">
-            {members ? `${members.length} member${members.length !== 1 ? 's' : ''}` : 'Loading...'}
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        icon={Users}
+        title="Members"
+        description={members ? `${members.length} member${members.length !== 1 ? 's' : ''}` : 'Loading...'}
+      />
 
       {/* Search */}
       <div className="relative">
