@@ -24,19 +24,30 @@ import {
   AlertCircleIcon,
   ArrowLeft,
   ArrowRight,
+  Check,
   CheckCircle2,
   Clock,
   Home,
   Loader2,
+  Lock,
   Mail,
-  Phone,
+  Pencil,
   Sparkles,
   User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+// Local-only schema: adds a confirm-password field the server never sees.
+// Kept separate from `registerSchema` (used by the API route) so the two stay in sync deliberately.
+const registerFormObjectSchema = registerSchema.extend({
+  confirm_password: z.string().min(1, 'Please confirm your password'),
+});
+const registerFormSchema = registerFormObjectSchema.refine(data => data.password === data.confirm_password, {
+  path: ['confirm_password'],
+  message: 'Passwords do not match',
+});
+type RegisterFormData = z.infer<typeof registerFormObjectSchema>;
 
 const defaultFormValues: RegisterFormData = {
   username: '',
@@ -44,9 +55,16 @@ const defaultFormValues: RegisterFormData = {
   cluster: 'others',
   address: '',
   password: '',
+  confirm_password: '',
   email: '',
   phone_number: '',
 };
+
+const PASSWORD_RULES = [
+  { test: (v: string) => v.length >= 8, label: 'At least 8 characters' },
+  { test: (v: string) => /[A-Z]/.test(v), label: 'One uppercase letter' },
+  { test: (v: string) => /[0-9]/.test(v), label: 'One number' },
+] as const;
 
 const STEPS = [
   {
@@ -70,8 +88,8 @@ const STEPS = [
   {
     id: 'security',
     label: 'Security',
-    icon: Phone,
-    fields: ['password'] as const,
+    icon: Lock,
+    fields: ['password', 'confirm_password'] as const,
   },
 ] as const;
 
@@ -85,11 +103,12 @@ const RegisterForm = () => {
   const { mutate, isPending, isSuccess, data, error, isError } = useRegister();
 
   const methods = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
     defaultValues: defaultFormValues,
     mode: 'onTouched',
   });
-  const { handleSubmit, reset, trigger, formState, setValue } = methods;
+  const { handleSubmit, reset, trigger, formState, setValue, watch } = methods;
+  const passwordValue = watch('password') || '';
 
   useEffect(() => {
     if (!inviteToken) return;
@@ -184,30 +203,43 @@ const RegisterForm = () => {
               )}
 
               {/* Step Indicator */}
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex items-start" role="tablist" aria-label="Registration steps">
                 {STEPS.map((s, i) => {
                   const Icon = s.icon;
                   const isActive = i === step;
                   const isCompleted = i < step;
                   return (
-                    <div key={s.id} className="flex flex-1 items-center">
-                      <button
-                        type="button"
-                        onClick={() => i < step && setStep(i)}
-                        disabled={i > step}
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all ${
-                          isActive
-                            ? 'bg-tanakayu-dark text-white shadow-md'
-                            : isCompleted
-                              ? 'bg-tanakayu-sage/25 text-tanakayu-moss hover:bg-tanakayu-sage/40'
-                              : 'bg-tanakayu-dark/10 text-tanakayu-dark/40'
-                        }`}
-                      >
-                        {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                      </button>
+                    // "contents" keeps this key holder out of the flex layout, so the icon column
+                    // and connector line below are direct, equally-sized flex siblings.
+                    <div key={s.id} className="contents">
+                      <div className="flex w-14 shrink-0 flex-col items-center gap-1">
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={isActive}
+                          aria-current={isActive ? 'step' : undefined}
+                          aria-label={`${s.label} step${isCompleted ? ', completed' : isActive ? ', current' : ', upcoming'}`}
+                          onClick={() => i < step && setStep(i)}
+                          disabled={i > step}
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all ${
+                            isActive
+                              ? 'bg-tanakayu-dark text-white shadow-md'
+                              : isCompleted
+                                ? 'bg-tanakayu-sage/25 text-tanakayu-moss hover:bg-tanakayu-sage/40'
+                                : 'bg-tanakayu-dark/10 text-tanakayu-dark/40'
+                          }`}
+                        >
+                          {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                        </button>
+                        <span
+                          className={`w-full truncate text-center text-[10px] font-medium ${isActive ? 'text-tanakayu-dark' : 'text-tanakayu-dark/40'}`}
+                        >
+                          {s.label}
+                        </span>
+                      </div>
                       {i < STEPS.length - 1 && (
                         <div
-                          className={`mx-1 h-0.5 flex-1 rounded transition-colors ${
+                          className={`mt-5 h-0.5 flex-1 rounded transition-colors ${
                             i < step ? 'bg-tanakayu-sage/60' : 'bg-tanakayu-dark/15'
                           }`}
                         />
@@ -217,10 +249,6 @@ const RegisterForm = () => {
                 })}
               </div>
 
-              <p className="mb-4 text-sm font-semibold tracking-wide">
-                Step {step + 1}: {STEPS[step].label}
-              </p>
-
               {/* Error Alert */}
               {isError && (
                 <Alert variant="destructive" className="mb-4 border-red-200 bg-red-50 text-red-900">
@@ -229,7 +257,7 @@ const RegisterForm = () => {
                 </Alert>
               )}
 
-              <FormSchemaProvider methods={methods} schema={registerSchema}>
+              <FormSchemaProvider methods={methods} schema={registerFormObjectSchema}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   {/* Step 1: Personal Info */}
                   <div className={step === 0 ? 'grid gap-4' : 'hidden'}>
@@ -353,35 +381,56 @@ const RegisterForm = () => {
                       <FormController
                         name="password"
                         renderInput={field => (
-                          <PasswordInput
-                            {...field}
-                            id="password"
-                            placeholder="Min 8 characters, 1 uppercase, 1 number"
-                            disabled={isPending}
-                            className="h-11"
-                            autoFocus
-                          />
+                          <PasswordInput {...field} id="password" disabled={isPending} className="h-11" autoFocus />
+                        )}
+                      />
+                      <ul className="mt-1 grid gap-1">
+                        {PASSWORD_RULES.map(rule => {
+                          const met = rule.test(passwordValue);
+                          return (
+                            <li
+                              key={rule.label}
+                              className={`flex items-center gap-1.5 text-xs ${met ? 'text-tanakayu-moss' : 'text-muted-foreground'}`}
+                            >
+                              {met ? (
+                                <Check className="h-3 w-3 shrink-0" />
+                              ) : (
+                                <span className="h-1 w-1 shrink-0 rounded-full bg-current" />
+                              )}
+                              {rule.label}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="confirm_password">Confirm Password</Label>
+                      <FormController
+                        name="confirm_password"
+                        renderInput={field => (
+                          <PasswordInput {...field} id="confirm_password" disabled={isPending} className="h-11" />
                         )}
                       />
                     </div>
 
                     {/* Summary */}
-                    <div className="bg-tanakayu-dark/5 mt-2 rounded-lg p-3">
-                      <p className="text-tanakayu-dark/60 mb-2 text-xs font-semibold uppercase">Review</p>
-                      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-                        <dt className="text-muted-foreground">Name</dt>
-                        <dd className="truncate font-medium">{methods.getValues('full_name') || '-'}</dd>
-                        <dt className="text-muted-foreground">Username</dt>
-                        <dd className="truncate font-medium">{methods.getValues('username') || '-'}</dd>
-                        <dt className="text-muted-foreground">Email</dt>
-                        <dd className="truncate font-medium">{methods.getValues('email') || '-'}</dd>
-                        <dt className="text-muted-foreground">Phone</dt>
-                        <dd className="truncate font-medium">{methods.getValues('phone_number') || '-'}</dd>
-                        <dt className="text-muted-foreground">Address</dt>
-                        <dd className="truncate font-medium">
-                          {CLUSTER_LABELS[methods.getValues('cluster')] || ''}, {methods.getValues('address') || '-'}
-                        </dd>
-                      </dl>
+                    <div className="bg-tanakayu-dark/5 mt-2 grid gap-3 rounded-lg p-3">
+                      <p className="text-tanakayu-dark/60 text-xs font-semibold uppercase">Review</p>
+                      <ReviewGroup label="Personal" onEdit={() => setStep(0)}>
+                        <ReviewRow label="Name" value={methods.getValues('full_name')} />
+                        <ReviewRow label="Username" value={methods.getValues('username')} />
+                      </ReviewGroup>
+                      <ReviewGroup label="Contact" onEdit={() => setStep(1)}>
+                        <ReviewRow label="Email" value={methods.getValues('email')} />
+                        <ReviewRow label="Phone" value={methods.getValues('phone_number')} />
+                      </ReviewGroup>
+                      <ReviewGroup label="Address" onEdit={() => setStep(2)}>
+                        <ReviewRow
+                          label="Location"
+                          value={`${CLUSTER_LABELS[methods.getValues('cluster')] || ''}, ${methods.getValues('address') || '-'}`}
+                        />
+                      </ReviewGroup>
                     </div>
                   </div>
 
@@ -437,6 +486,40 @@ const RegisterForm = () => {
     </div>
   );
 };
+
+interface ReviewGroupProps {
+  label: string;
+  onEdit: () => void;
+  children: React.ReactNode;
+}
+
+function ReviewGroup({ label, onEdit, children }: ReviewGroupProps) {
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between">
+        <p className="text-tanakayu-dark/50 text-[10px] font-semibold uppercase">{label}</p>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="text-tanakayu-moss flex items-center gap-1 text-xs font-medium hover:underline"
+        >
+          <Pencil className="h-3 w-3" />
+          Edit
+        </button>
+      </div>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">{children}</dl>
+    </div>
+  );
+}
+
+function ReviewRow({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="truncate font-medium">{value || '-'}</dd>
+    </>
+  );
+}
 
 const Register = () => (
   <Suspense fallback={null}>
