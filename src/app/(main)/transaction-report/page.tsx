@@ -46,7 +46,7 @@ const FinancialReport = () => {
     if (transactionsData.transactions.length === 0) {
       return (
         <div className="flex justify-center py-8">
-          <p className="text-gray-500">No transactions found for the selected period</p>
+          <p className="text-tanakayu-text/60">No transactions found for the selected period</p>
         </div>
       );
     }
@@ -64,8 +64,8 @@ const FinancialReport = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
-          <ReceiptText className="h-5 w-5 text-green-500" />
+        <div className="bg-tanakayu-sage/15 flex h-10 w-10 items-center justify-center rounded-full">
+          <ReceiptText className="text-tanakayu-moss h-5 w-5" />
         </div>
         <div>
           <h2 className="text-tanakayu-text font-sans text-2xl font-bold">Transaction Report</h2>

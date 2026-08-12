@@ -47,7 +47,7 @@ const ContentWithToggle = ({ content }: { content: string }) => {
   return (
     <div className="w-full space-y-1">
       <div
-        className="max-w-none cursor-pointer text-sm text-gray-700 [&_a]:text-blue-500 [&_a]:underline"
+        className="text-tanakayu-dark/80 max-w-none cursor-pointer text-sm [&_a]:text-blue-500 [&_a]:underline"
         dangerouslySetInnerHTML={{
           __html:
             typeof window !== 'undefined'
@@ -90,8 +90,8 @@ const VoteButtons = ({ post }: { post: PostWithVotes }) => {
         disabled={isPending}
         className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-colors ${
           post.userVote === 'upvote'
-            ? 'bg-green-100 text-green-700'
-            : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600'
+            ? 'bg-tanakayu-sage/25 text-tanakayu-moss'
+            : 'bg-tanakayu-dark/10 text-tanakayu-dark/70 hover:bg-tanakayu-sage/15 hover:text-tanakayu-moss'
         } disabled:opacity-50`}
       >
         <ThumbsUp className="h-4 w-4" />
@@ -103,7 +103,7 @@ const VoteButtons = ({ post }: { post: PostWithVotes }) => {
         className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-colors ${
           post.userVote === 'downvote'
             ? 'bg-red-100 text-red-700'
-            : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
+            : 'bg-tanakayu-dark/10 text-tanakayu-dark/70 hover:bg-red-50 hover:text-red-600'
         } disabled:opacity-50`}
       >
         <ThumbsDown className="h-4 w-4" />
@@ -151,7 +151,7 @@ const PostCard = memo(function PostCard({ post, editable = false }: Props) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h2 className="text-lg font-semibold">{post.title}</h2>
-          <p className="text-xs text-gray-700">
+          <p className="text-tanakayu-dark/70 text-xs">
             {post.createdBy} | {formatDate(post.createdAt)}
           </p>
         </div>

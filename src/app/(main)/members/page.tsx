@@ -108,7 +108,7 @@ const MembersPage = () => {
             {members?.map(member => (
               <div
                 key={member.id}
-                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gray-50 sm:px-6"
+                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tanakayu-dark/5 sm:px-6"
               >
                 {/* Avatar */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-bold text-white uppercase">

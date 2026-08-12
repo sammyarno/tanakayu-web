@@ -20,8 +20,8 @@ const PUBLIC_MENU_ITEMS = [
 const TRANSACTION_REPORT_ITEM = {
   href: '/transaction-report',
   icon: ReceiptText,
-  iconBaseColor: 'bg-green-50',
-  iconColor: 'text-green-500',
+  iconBaseColor: 'bg-tanakayu-sage/15',
+  iconColor: 'text-tanakayu-moss',
   alt: 'Transaction Report',
   title: 'Transaction Report',
 };

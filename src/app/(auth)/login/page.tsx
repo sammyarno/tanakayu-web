@@ -52,11 +52,13 @@ const Login = () => {
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-md border-none shadow sm:border">
+      <Card className="border-tanakayu-accent/30 w-full max-w-md border-none shadow-lg sm:border">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-tanakayu-dark text-3xl font-bold tracking-tight">Welcome back</CardTitle>
-          <CardDescription className="text-tanakayu-dark text-sm">
-            Enter your credentials to access your account
+          <CardTitle className="text-tanakayu-dark font-serif text-3xl font-bold tracking-tight">
+            Welcome back
+          </CardTitle>
+          <CardDescription className="text-tanakayu-dark/70 text-sm">
+            Sign in to your Tanakayu account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -97,17 +99,12 @@ const Login = () => {
                 </Button>
               </div>
             </form>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-tanakayu-dark text-tanakayu-text px-2">Or continue with</span>
-              </div>
-            </div>
             <div className="text-center text-sm">
-              <span className="text-tanakayu-dark">Don&apos;t have an account? </span>
-              <Link href="/register" className="hover:text-primary font-medium underline underline-offset-4">
+              <span className="text-tanakayu-dark/70">Don&apos;t have an account? </span>
+              <Link
+                href="/register"
+                className="text-tanakayu-dark hover:text-tanakayu-highlight font-medium underline underline-offset-4"
+              >
                 Register here
               </Link>
             </div>

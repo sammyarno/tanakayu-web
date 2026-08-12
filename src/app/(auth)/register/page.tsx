@@ -148,8 +148,10 @@ const Register = () => {
       <Card className="overflow-hidden border-none shadow-lg sm:border">
         <CardHeader className="space-y-3 p-0">
           <div className="px-6 pt-2 pb-0">
-            <h1 className="text-tanakayu-dark text-center text-2xl font-bold tracking-tight">Create Account</h1>
-            <p className="text-tanakayu-dark mt-1 text-center text-sm">Join the Tanakayu community</p>
+            <h1 className="text-tanakayu-dark text-center font-serif text-2xl font-bold tracking-tight">
+              Create Account
+            </h1>
+            <p className="text-tanakayu-dark/70 mt-1 text-center text-sm">Join the Tanakayu community</p>
           </div>
         </CardHeader>
 
@@ -170,8 +172,8 @@ const Register = () => {
                       isActive
                         ? 'bg-tanakayu-dark text-white shadow-md'
                         : isCompleted
-                          ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-400'
+                          ? 'bg-tanakayu-sage/25 text-tanakayu-moss hover:bg-tanakayu-sage/40'
+                          : 'bg-tanakayu-dark/10 text-tanakayu-dark/40'
                     }`}
                   >
                     {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
@@ -179,7 +181,7 @@ const Register = () => {
                   {i < STEPS.length - 1 && (
                     <div
                       className={`mx-1 h-0.5 flex-1 rounded transition-colors ${
-                        i < step ? 'bg-green-300' : 'bg-gray-200'
+                        i < step ? 'bg-tanakayu-sage/60' : 'bg-tanakayu-dark/15'
                       }`}
                     />
                   )}
@@ -349,8 +351,8 @@ const Register = () => {
                 </div>
 
                 {/* Summary */}
-                <div className="mt-2 rounded-lg bg-gray-50 p-3">
-                  <p className="mb-2 text-xs font-semibold text-gray-500 uppercase">Review</p>
+                <div className="bg-tanakayu-dark/5 mt-2 rounded-lg p-3">
+                  <p className="text-tanakayu-dark/60 mb-2 text-xs font-semibold uppercase">Review</p>
                   <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
                     <dt className="text-muted-foreground">Name</dt>
                     <dd className="truncate font-medium">{methods.getValues('full_name') || '-'}</dd>

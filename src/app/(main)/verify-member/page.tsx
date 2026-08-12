@@ -99,10 +99,10 @@ export default function VerifyMemberPage() {
                 />
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                   <div className="relative h-64 w-64 rounded-lg border-2 border-white/50">
-                    <div className="absolute top-0 left-0 -mt-1 -ml-1 h-4 w-4 border-t-4 border-l-4 border-green-500"></div>
-                    <div className="absolute top-0 right-0 -mt-1 -mr-1 h-4 w-4 border-t-4 border-r-4 border-green-500"></div>
-                    <div className="absolute bottom-0 left-0 -mb-1 -ml-1 h-4 w-4 border-b-4 border-l-4 border-green-500"></div>
-                    <div className="absolute right-0 bottom-0 -mr-1 -mb-1 h-4 w-4 border-r-4 border-b-4 border-green-500"></div>
+                    <div className="absolute top-0 left-0 -mt-1 -ml-1 h-4 w-4 border-t-4 border-l-4 border-tanakayu-moss"></div>
+                    <div className="absolute top-0 right-0 -mt-1 -mr-1 h-4 w-4 border-t-4 border-r-4 border-tanakayu-moss"></div>
+                    <div className="absolute bottom-0 left-0 -mb-1 -ml-1 h-4 w-4 border-b-4 border-l-4 border-tanakayu-moss"></div>
+                    <div className="absolute right-0 bottom-0 -mr-1 -mb-1 h-4 w-4 border-r-4 border-b-4 border-tanakayu-moss"></div>
                   </div>
                 </div>
                 <div className="absolute right-0 bottom-4 left-0 text-center text-sm font-medium text-white/80">
@@ -131,11 +131,11 @@ export default function VerifyMemberPage() {
                 ) : memberData ? (
                   <div className="space-y-6">
                     <div className="flex flex-col items-center justify-center text-center">
-                      <div className="mb-4 rounded-full bg-green-100 p-4 text-green-600">
+                      <div className="bg-tanakayu-sage/25 text-tanakayu-moss mb-4 rounded-full p-4">
                         <CheckCircle2 className="size-12" />
                       </div>
-                      <h3 className="text-xl font-bold text-green-700">Verified Member</h3>
-                      <p className="text-sm text-green-600">Valid Membership Detected</p>
+                      <h3 className="text-tanakayu-moss text-xl font-bold">Verified Member</h3>
+                      <p className="text-tanakayu-moss text-sm">Valid Membership Detected</p>
                     </div>
 
                     {/* Digital Card Preview */}

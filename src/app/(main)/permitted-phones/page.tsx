@@ -188,7 +188,7 @@ const PermittedPhonesPage = () => {
           )}
           <div className="divide-y">
             {phones?.map(phone => (
-              <div key={phone.id} className="flex items-center gap-3 py-3 transition-colors hover:bg-gray-50">
+              <div key={phone.id} className="flex items-center gap-3 py-3 transition-colors hover:bg-tanakayu-dark/5">
                 <div className="min-w-0 flex-1">
                   <p className="font-mono text-sm font-medium">{phone.phoneNumber}</p>
                   {phone.fullName && <p className="text-muted-foreground text-xs">{phone.fullName}</p>}

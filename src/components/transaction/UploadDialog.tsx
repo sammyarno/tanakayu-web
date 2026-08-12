@@ -192,7 +192,7 @@ const UploadDialog = () => {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Total Income</p>
-                      <p className="font-medium text-green-600">{uploadResult.summary.totalIncome}</p>
+                      <p className="text-tanakayu-moss font-medium">{uploadResult.summary.totalIncome}</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Total Expense</p>

@@ -8,9 +8,9 @@ export const categoryDisplayMap: Record<string, CategoryDisplay> = {
     textColor: 'text-blue-800',
   },
   komunitas: {
-    icon: <Users className="size-5 text-green-500" />,
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-800',
+    icon: <Users className="text-tanakayu-moss size-5" />,
+    bgColor: 'bg-tanakayu-sage/25',
+    textColor: 'text-tanakayu-moss',
   },
   listrik: {
     icon: <Zap className="size-5 text-yellow-500" />,

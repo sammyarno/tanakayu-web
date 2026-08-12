@@ -47,7 +47,7 @@ const BottomNav = () => {
                   scroll={false}
                   onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className={`group hover:text-tanakayu-highlight relative flex w-full flex-col items-center justify-center py-2 transition-all duration-300 ease-in-out ${
-                    active ? 'text-tanakayu-bg' : 'text-gray-400'
+                    active ? 'text-tanakayu-bg' : 'text-tanakayu-dark/40'
                   }`}
                 >
                   {/* Active Indicator Background */}
@@ -71,7 +71,7 @@ const BottomNav = () => {
                 </Link>
 
                 {/* Vertical Divider */}
-                {!isLast && <div className="h-8 w-[1px] bg-gray-200 dark:bg-gray-700" />}
+                {!isLast && <div className="bg-tanakayu-dark/15 h-8 w-[1px]" />}
               </div>
             );
           })}

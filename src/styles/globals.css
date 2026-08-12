@@ -8,6 +8,8 @@
 
   --color-tanakayu-bg: #51755f;
   --color-tanakayu-dark: #1f3d2b;
+  --color-tanakayu-moss: #355e3b;
+  --color-tanakayu-sage: #8fae95;
   --color-tanakayu-accent: #e7cbb1;
   --color-tanakayu-highlight: #d69c3f;
   --color-tanakayu-card: #f9fafb;
@@ -20,7 +22,20 @@ html {
 }
 
 body {
-  @apply bg-tanakayu-bg !min-w-full;
+  @apply bg-tanakayu-bg !min-w-full relative;
+}
+
+/* Ambient canopy-light glows, fixed so they never repaint on scroll */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% -10%, rgb(214 156 63 / 0.16), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 110% 15%, rgb(143 174 149 / 0.18), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 120%, rgb(31 61 43 / 0.4), transparent 65%);
 }
 
 *:focus,
@@ -81,7 +96,7 @@ input,
   --sidebar-foreground: var(--color-tanakayu-text);
   --sidebar-primary: var(--color-tanakayu-highlight);
   --sidebar-primary-foreground: var(--color-tanakayu-dark);
-  --sidebar-accent: #355e3b;
+  --sidebar-accent: var(--color-tanakayu-moss);
   --sidebar-accent-foreground: var(--color-tanakayu-text);
   --sidebar-border: var(--color-tanakayu-dark);
   --sidebar-ring: var(--color-tanakayu-highlight);
@@ -92,16 +107,16 @@ input,
     'Geist Mono', 'Geist Mono Fallback', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
-  --radius: 0.25rem;
+  --radius: 0.75rem;
 
-  --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-  --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-  --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
-  --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
-  --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
-  --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+  --shadow-2xs: 0 1px 3px 0px rgb(31 61 43 / 0.06);
+  --shadow-xs: 0 1px 3px 0px rgb(31 61 43 / 0.06);
+  --shadow-sm: 0 1px 3px 0px rgb(31 61 43 / 0.12), 0 1px 2px -1px rgb(31 61 43 / 0.12);
+  --shadow: 0 1px 3px 0px rgb(31 61 43 / 0.12), 0 1px 2px -1px rgb(31 61 43 / 0.12);
+  --shadow-md: 0 2px 4px -1px rgb(31 61 43 / 0.14), 0 4px 6px -1px rgb(31 61 43 / 0.12);
+  --shadow-lg: 0 4px 6px -2px rgb(31 61 43 / 0.14), 0 10px 15px -3px rgb(31 61 43 / 0.14);
+  --shadow-xl: 0 8px 10px -4px rgb(31 61 43 / 0.16), 0 20px 25px -5px rgb(31 61 43 / 0.16);
+  --shadow-2xl: 0 25px 50px -12px rgb(31 61 43 / 0.35);
 }
 
 @theme inline {
