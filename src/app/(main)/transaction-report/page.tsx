@@ -90,16 +90,16 @@ const FinancialReport = () => {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            size="icon"
+            size="icon-lg"
             aria-label="Previous month"
             onClick={() => canGoToOlderMonth && goToMonth(monthOptions[currentMonthIndex + 1].value)}
             disabled={!canGoToOlderMonth}
-            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 shrink-0"
+            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark h-11 w-11 shrink-0 hover:opacity-90"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
           <Select value={selectedPeriod} onValueChange={goToMonth}>
-            <SelectTrigger className="flex-1">
+            <SelectTrigger className="bg-tanakayu-dark border-tanakayu-dark text-tanakayu-highlight h-11 flex-1">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
@@ -122,20 +122,14 @@ const FinancialReport = () => {
           </Select>
           <Button
             variant="outline"
-            size="icon"
+            size="icon-lg"
             aria-label="Next month"
             onClick={() => canGoToNewerMonth && goToMonth(monthOptions[currentMonthIndex - 1].value)}
             disabled={!canGoToNewerMonth}
-            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 shrink-0"
+            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark h-11 w-11 shrink-0 hover:opacity-90"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
-        </div>
-        <div className="flex flex-col">
-          <p className="text-tanakayu-accent text-right text-sm tracking-wider">Balance</p>
-          <p className="text-tanakayu-accent text-right font-bold tracking-wide">
-            {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
-          </p>
         </div>
         <hr />
 
@@ -156,6 +150,21 @@ const FinancialReport = () => {
             <hr />
           </>
         )}
+
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <p className="text-tanakayu-accent text-xs tracking-wider">Balance Start</p>
+            <p className="text-tanakayu-accent font-bold tracking-wide">
+              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balanceStart) : 'IDR 0'}
+            </p>
+          </div>
+          <div className="flex flex-col items-end">
+            <p className="text-tanakayu-accent text-right text-xs tracking-wider">Balance End</p>
+            <p className="text-tanakayu-accent text-right font-bold tracking-wide">
+              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">

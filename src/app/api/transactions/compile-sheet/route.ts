@@ -151,6 +151,7 @@ export async function POST(request: NextRequest) {
     }));
 
     response.data = {
+      balanceStart: 0,
       balance,
       transactions: transactionsByDate,
       summary: {

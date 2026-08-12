@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       createdAt: string;
       createdBy: string;
     }[];
+    let balanceStart = 0;
     let balance = 0;
 
     if (monthFilter && monthFilter.length === 6) {
@@ -56,10 +57,10 @@ export async function GET(request: NextRequest) {
       }
 
       const currentMonthTxs = txResult.data ?? [];
-      const lastMonthBalance = Number(balanceResult.data ?? 0);
       const currentIncome = currentMonthTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
       const currentExpenses = currentMonthTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-      balance = lastMonthBalance + currentIncome - currentExpenses;
+      balanceStart = Number(balanceResult.data ?? 0);
+      balance = balanceStart + currentIncome - currentExpenses;
 
       transformedTransactions = currentMonthTxs.map(t => ({
         id: t.id,
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (transformedTransactions.length === 0) {
-      response.data = { balance: 0, transactions: [] };
+      response.data = { balanceStart, balance, transactions: [] };
       return Response.json(response, { status: 200 });
     }
 
@@ -118,6 +119,7 @@ export async function GET(request: NextRequest) {
     );
 
     response.data = {
+      balanceStart,
       balance,
       transactions: Object.entries(transactionsByDate).map(([date, details]) => ({
         date,

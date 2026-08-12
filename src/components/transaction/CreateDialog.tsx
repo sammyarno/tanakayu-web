@@ -90,7 +90,7 @@ const CreateDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-tanakayu-dark flex-1" size="lg">
+        <Button className="bg-tanakayu-dark text-tanakayu-highlight flex-1" size="lg">
           <PlusIcon className="size-4" />
           <p className="leading-none">Create</p>
         </Button>

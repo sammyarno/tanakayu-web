@@ -16,6 +16,7 @@ export interface TransactionsByDate {
 }
 
 export interface TransactionsResult {
+  balanceStart: number;
   balance: number;
   transactions: TransactionsByDate[];
 }
