@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
@@ -17,20 +17,33 @@ import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRan
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
 import { exportTransactionsToExcel } from '@/utils/exportTransactions';
-import { Download, ReceiptText, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, ReceiptText } from 'lucide-react';
 
 const CreateTransactionDialog = dynamic(() => import('@/components/transaction/CreateDialog'));
 const UploadDialog = dynamic(() => import('@/components/transaction/UploadDialog'));
 
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
-  const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod);
   const { monthOptions, isLoading: isLoadingDateRange, hasTransactions } = useFetchTransactionDateRange();
+  const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod, !!selectedPeriod);
   const { role } = useAuth();
   const isAdmin = role === ROLES.SUPERADMIN;
 
-  const handleResetFilter = () => {
-    setSelectedPeriod('');
+  // Default to the most recent month once the available date range loads
+  useEffect(() => {
+    if (!selectedPeriod && monthOptions.length > 0) {
+      setSelectedPeriod(monthOptions[0].value);
+    }
+  }, [selectedPeriod, monthOptions]);
+
+  // monthOptions is sorted newest-first, so an older month is a higher index
+  const currentMonthIndex = monthOptions.findIndex(o => o.value === selectedPeriod);
+  const canGoToOlderMonth = currentMonthIndex !== -1 && currentMonthIndex < monthOptions.length - 1;
+  const canGoToNewerMonth = currentMonthIndex > 0;
+
+  const goToMonth = (value: string) => {
+    setSelectedPeriod(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const selectedPeriodLabel = monthOptions.find(o => o.value === selectedPeriod)?.label ?? 'All';
@@ -74,40 +87,55 @@ const FinancialReport = () => {
       />
 
       <section className="flex flex-col gap-4">
-        <div className="flex items-center">
-          <div className="relative flex h-full flex-3/5 items-center justify-start gap-2">
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="h-full flex-3/5">
-                <SelectValue placeholder="Select period" />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoadingDateRange ? (
-                  <SelectItem value="loading" disabled>
-                    Loading periods...
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Previous month"
+            onClick={() => canGoToOlderMonth && goToMonth(monthOptions[currentMonthIndex + 1].value)}
+            disabled={!canGoToOlderMonth}
+            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 shrink-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Select value={selectedPeriod} onValueChange={goToMonth}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              {isLoadingDateRange ? (
+                <SelectItem value="loading" disabled>
+                  Loading periods...
+                </SelectItem>
+              ) : !hasTransactions ? (
+                <SelectItem value="no-data" disabled>
+                  No transactions found
+                </SelectItem>
+              ) : (
+                monthOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
-                ) : !hasTransactions ? (
-                  <SelectItem value="no-data" disabled>
-                    No transactions found
-                  </SelectItem>
-                ) : (
-                  monthOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-            <Button variant="secondary" onClick={handleResetFilter}>
-              <RefreshCw />
-            </Button>
-          </div>
-          <div className="flex flex-2/5 flex-col">
-            <p className="text-tanakayu-accent text-right text-sm tracking-wider">Balance</p>
-            <p className="text-tanakayu-accent text-right font-bold tracking-wide">
-              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
-            </p>
-          </div>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Next month"
+            onClick={() => canGoToNewerMonth && goToMonth(monthOptions[currentMonthIndex - 1].value)}
+            disabled={!canGoToNewerMonth}
+            className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 shrink-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex flex-col">
+          <p className="text-tanakayu-accent text-right text-sm tracking-wider">Balance</p>
+          <p className="text-tanakayu-accent text-right font-bold tracking-wide">
+            {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
+          </p>
         </div>
         <hr />
 

@@ -12,13 +12,18 @@ interface PaginationProps {
 const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
+  const goToPage = (page: number) => {
+    onPageChange(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="mt-4 flex items-center justify-center gap-3">
       <Button
         variant="outline"
         size="icon-lg"
         aria-label="Previous page"
-        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+        onClick={() => goToPage(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 h-11 w-11"
       >
@@ -33,7 +38,7 @@ const Pagination: FC<PaginationProps> = memo(({ currentPage, totalPages, onPageC
         variant="outline"
         size="icon-lg"
         aria-label="Next page"
-        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         className="bg-tanakayu-dark text-tanakayu-highlight border-tanakayu-dark hover:bg-tanakayu-dark hover:opacity-90 h-11 w-11"
       >

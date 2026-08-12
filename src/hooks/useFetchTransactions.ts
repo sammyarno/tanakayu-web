@@ -17,10 +17,11 @@ export const fetchTransactions = async ({ monthFilter }: FetchTransactionsParams
   return response.data;
 };
 
-export const useFetchTransactions = (monthFilter?: string) => {
+export const useFetchTransactions = (monthFilter?: string, enabled = true) => {
   return useQuery({
     queryKey: ['transactions', { monthFilter }],
     queryFn: () => fetchTransactions({ monthFilter }),
     staleTime: 1000 * 60 * 2, // 2 minutes
+    enabled,
   });
 };
