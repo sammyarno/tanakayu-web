@@ -8,88 +8,33 @@ export const authenticatedFetch = async (url: string, options: RequestInit = {})
   });
 };
 
-export const authenticatedFetchJson = async <T = any>(
+const requestJson = async <T = any>(
+  fetcher: (url: string, options: RequestInit) => Promise<Response>,
   url: string,
-  options: RequestInit = {}
+  options: RequestInit,
+  forceJsonHeader: boolean
 ): Promise<FetchResponse<T>> => {
-  const response = await authenticatedFetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      'Content-Type': 'application/json',
-    },
-  });
+  const response = await fetcher(
+    url,
+    forceJsonHeader ? { ...options, headers: { ...options.headers, 'Content-Type': 'application/json' } } : options
+  );
 
   const jsonResponse: FetchResponse<T> = await response.json();
 
-  if (!response.ok) {
-    if (!jsonResponse.error) {
-      return {
-        error: `HTTP ${response.status}: Request failed`,
-      };
-    }
+  if (!response.ok && !jsonResponse.error) {
+    return { error: `HTTP ${response.status}: Request failed` };
   }
 
   return snakeToCamel(jsonResponse);
 };
 
-export const fetchJson = async <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> => {
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      'Content-Type': 'application/json',
-    },
-  });
+export const fetchJson = <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> =>
+  requestJson<T>(fetch, url, options, true);
 
-  const jsonResponse: FetchResponse<T> = await response.json();
+export const authenticatedFetchJson = <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> =>
+  requestJson<T>(authenticatedFetch, url, options, true);
 
-  if (!response.ok) {
-    if (!jsonResponse.error) {
-      return {
-        error: `HTTP ${response.status}: Request failed`,
-      };
-    }
-  }
-
-  return snakeToCamel(jsonResponse);
-};
-
-export const customFetch = async <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> => {
-  const response = await fetch(url, {
-    ...options,
-  });
-
-  const jsonResponse: FetchResponse<T> = await response.json();
-
-  if (!response.ok) {
-    if (!jsonResponse.error) {
-      return {
-        error: `HTTP ${response.status}: Request failed`,
-      };
-    }
-  }
-
-  return snakeToCamel(jsonResponse);
-};
-
-export const authenticatedCustomFetch = async <T = any>(
-  url: string,
-  options: RequestInit = {}
-): Promise<FetchResponse<T>> => {
-  const response = await authenticatedFetch(url, {
-    ...options,
-  });
-
-  const jsonResponse: FetchResponse<T> = await response.json();
-
-  if (!response.ok) {
-    if (!jsonResponse.error) {
-      return {
-        error: `HTTP ${response.status}: Request failed`,
-      };
-    }
-  }
-
-  return snakeToCamel(jsonResponse);
-};
+// No forced JSON header - for requests like file uploads (FormData) where the
+// browser must set its own Content-Type (multipart boundary).
+export const authenticatedCustomFetch = <T = any>(url: string, options: RequestInit = {}): Promise<FetchResponse<T>> =>
+  requestJson<T>(authenticatedFetch, url, options, false);

@@ -1,9 +1,9 @@
 import HomeMenu from '@/components/HomeMenu';
-import HydrateClient from '@/components/HydrateClient';
 import NearestEvents from '@/components/NearestEvents';
 import PageContent from '@/components/PageContent';
 import UserMembershipDisplay from '@/components/UserMembershipDisplay';
 import { prefetchNearestEvents } from '@/hooks/useNearestEvents';
+import { HydrationBoundary } from '@tanstack/react-query';
 
 const Home = async () => {
   let dehydratedState;
@@ -24,9 +24,9 @@ const Home = async () => {
       <HomeMenu />
 
       {/* events */}
-      <HydrateClient state={dehydratedState}>
+      <HydrationBoundary state={dehydratedState}>
         <NearestEvents />
-      </HydrateClient>
+      </HydrationBoundary>
     </PageContent>
   );
 };

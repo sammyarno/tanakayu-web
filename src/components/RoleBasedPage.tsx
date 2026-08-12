@@ -5,7 +5,7 @@ import { type ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/auth/useAuth';
-import type { UserRole } from '@/hooks/auth/useRoleCheck';
+import type { UserRole } from '@/types/auth';
 
 interface RoleBasedPageProps {
   children: ReactNode;
@@ -47,4 +47,3 @@ const RoleBasedPage = ({ children, allowedRoles, fallbackPath = '/login' }: Role
 };
 
 export default RoleBasedPage;
-export type { UserRole };

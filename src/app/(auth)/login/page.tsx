@@ -12,14 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
 import { AlertCircleIcon } from 'lucide-react';
 
 const Login = () => {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string>();
   const { signIn, clearError, error, isLoading, user, isInitialized } = useAuth();
-  const { isSuperAdmin } = useRoleCheck();
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +46,7 @@ const Login = () => {
     if (isInitialized && !isLoading && user && !error) {
       router.push('/');
     }
-  }, [user, error, router, isSuperAdmin, isInitialized, isLoading]);
+  }, [user, error, router, isInitialized, isLoading]);
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-4">

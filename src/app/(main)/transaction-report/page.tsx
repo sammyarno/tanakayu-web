@@ -10,8 +10,8 @@ import PageContent from '@/components/PageContent';
 import TransactionCard from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ALL_ROLES } from '@/constants/roles';
-import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
+import { ALL_ROLES, ROLES } from '@/constants/roles';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useFetchTransactionDateRange } from '@/hooks/useFetchTransactionDateRange';
 import { useFetchTransactions } from '@/hooks/useFetchTransactions';
 import { formatCurrencyToIDR } from '@/utils/currency';
@@ -25,8 +25,8 @@ const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
   const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod);
   const { monthOptions, isLoading: isLoadingDateRange, hasTransactions } = useFetchTransactionDateRange();
-  const { isSuperAdmin } = useRoleCheck();
-  const isAdmin = isSuperAdmin();
+  const { role } = useAuth();
+  const isAdmin = role === ROLES.SUPERADMIN;
 
   const handleResetFilter = () => {
     setSelectedPeriod('');

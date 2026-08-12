@@ -69,15 +69,3 @@ export const usePostCategoriesStore = create<PostCategoriesState>()(
     }
   )
 );
-
-export const usePostCategories = () => {
-  const store = usePostCategoriesStore();
-
-  return {
-    categories: store.categories,
-    isLoading: store.isLoading,
-    error: store.error,
-    fetchCategories: store.fetchCategories,
-    getCategoryOptions: store.getCategoryOptions,
-  };
-};

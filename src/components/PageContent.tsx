@@ -1,6 +1,8 @@
 import type { PropsWithChildren } from 'react';
 
-import RoleBasedPage, { type UserRole } from './RoleBasedPage';
+import type { UserRole } from '@/types/auth';
+
+import RoleBasedPage from './RoleBasedPage';
 
 interface PageContentProps extends PropsWithChildren {
   allowedRoles?: UserRole[];

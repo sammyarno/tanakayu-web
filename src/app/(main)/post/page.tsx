@@ -11,8 +11,8 @@ import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
-import { ALL_ROLES } from '@/constants/roles';
-import { useRoleCheck } from '@/hooks/auth/useRoleCheck';
+import { ALL_ROLES, ROLES } from '@/constants/roles';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { usePosts } from '@/hooks/useFetchPosts';
 import type { Category } from '@/types';
 import { Megaphone } from 'lucide-react';
@@ -24,8 +24,8 @@ const ITEMS_PER_PAGE = 5;
 const PostContent = () => {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get('filter');
-  const { isSuperAdmin } = useRoleCheck();
-  const isAdmin = isSuperAdmin();
+  const { role } = useAuth();
+  const isAdmin = role === ROLES.SUPERADMIN;
 
   const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
   const [currentPage, setCurrentPage] = useState<number>(1);
