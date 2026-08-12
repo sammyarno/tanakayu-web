@@ -31,7 +31,7 @@ import {
   useReviewWaitlist,
 } from '@/hooks/useWaitlist';
 import { useWaitlistRealtime } from '@/hooks/useWaitlistRealtime';
-import { Copy, Link2, Loader2, Trash2, UserCheck, X } from 'lucide-react';
+import { ClipboardList, Copy, Link2, Loader2, Trash2, UserCheck, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const STATUS_COLORS: Record<WaitlistStatus, string> = {
@@ -131,22 +131,23 @@ const WaitlistPage = () => {
       {/* Pending approvals */}
       <Card className="gap-4">
         <CardHeader className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Registrations</CardTitle>
-            <div className="flex gap-1 rounded-md bg-tanakayu-dark/5 p-1">
-              {STATUS_TABS.map(s => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => changeStatusFilter(s)}
-                  className={`rounded px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
-                    statusFilter === s ? 'bg-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {s.toLowerCase()}
-                </button>
-              ))}
-            </div>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ClipboardList className="h-4 w-4" />
+            Registrations
+          </CardTitle>
+          <div className="flex w-full gap-1 rounded-md bg-tanakayu-dark/5 p-1">
+            {STATUS_TABS.map(s => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => changeStatusFilter(s)}
+                className={`flex-1 rounded px-3 py-2 text-sm font-medium capitalize transition-colors ${
+                  statusFilter === s ? 'bg-white shadow-sm' : 'text-tanakayu-dark/60 hover:text-tanakayu-dark'
+                }`}
+              >
+                {s.toLowerCase()}
+              </button>
+            ))}
           </div>
           <Input placeholder="Search by name, username, email, or phone..." value={search} onChange={e => setSearch(e.target.value)} />
 
