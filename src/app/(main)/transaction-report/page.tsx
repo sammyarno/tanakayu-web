@@ -99,7 +99,7 @@ const FinancialReport = () => {
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <Select value={selectedPeriod} onValueChange={goToMonth}>
-            <SelectTrigger className="bg-tanakayu-dark border-tanakayu-dark text-tanakayu-highlight h-11 flex-1">
+            <SelectTrigger className="bg-tanakayu-dark border-tanakayu-dark text-tanakayu-highlight !h-11 flex-1">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
             <SelectContent>
