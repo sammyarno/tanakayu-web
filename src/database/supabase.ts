@@ -407,6 +407,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       get_balance_before_date: {
         Args: { target_date: string }
         Returns: number

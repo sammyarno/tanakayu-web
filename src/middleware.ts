@@ -39,10 +39,20 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session - important for Server Components
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh session (still handled here via getSession) and read the claims.
+  //
+  // getClaims() verifies the JWT signature locally with WebCrypto when the
+  // project uses asymmetric signing keys, avoiding a network round trip to the
+  // Auth server on every single navigation. On projects still using the legacy
+  // HS256 symmetric secret it transparently falls back to getUser(), so this is
+  // safe either way - it just gets faster once the project migrates its keys.
+  //
+  // Local verification is authentic (real signature check) but not
+  // revocation-aware until the token expires. That's fine here: middleware is
+  // only a routing gate. Actual data access stays gated by verifyAuth(), which
+  // uses getUser(), plus RLS.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims ?? null;
 
   // Redirect unauthenticated users to login (only for protected routes)
   if (!user && isProtectedRoute) {
