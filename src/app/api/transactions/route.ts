@@ -14,7 +14,23 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies();
     const supabase = createServerClient(cookieStore);
     const { searchParams } = new URL(request.url);
-    const monthFilter = searchParams.get('month');
+    const requestedMonth = searchParams.get('month');
+
+    // `month=latest` lets the client fetch the newest month immediately instead
+    // of waiting on /date-range to resolve first (that was a request waterfall).
+    let monthFilter = requestedMonth;
+    if (requestedMonth === 'latest') {
+      const { data: newest } = await supabase
+        .from('transactions')
+        .select('date')
+        .order('date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Parse the YYYY-MM-DD string directly; `new Date(...)` would treat it as
+      // UTC midnight and shift the month in negative-offset timezones.
+      monthFilter = newest?.date ? `${newest.date.slice(5, 7)}${newest.date.slice(0, 4)}` : null;
+    }
 
     let transformedTransactions: {
       id: string;
@@ -101,7 +117,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (transformedTransactions.length === 0) {
-      response.data = { balanceStart, balance, transactions: [] };
+      response.data = { month: monthFilter, balanceStart, balance, transactions: [] };
       return Response.json(response, { status: 200 });
     }
 
@@ -119,6 +135,7 @@ export async function GET(request: NextRequest) {
     );
 
     response.data = {
+      month: monthFilter,
       balanceStart,
       balance,
       transactions: Object.entries(transactionsByDate).map(([date, details]) => ({

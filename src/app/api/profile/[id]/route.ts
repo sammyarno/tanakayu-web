@@ -77,10 +77,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    // Fetch updated profile
+    // Fetch updated profile (email is denormalized here, so no Auth API call)
     const { data, error: fetchError } = await supabase
       .from('profiles')
-      .select('id, username, full_name, address, phone_number, role')
+      .select('id, username, full_name, address, phone_number, role, email')
       .eq('id', id)
       .single();
 
@@ -89,9 +89,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       response.error = 'Failed to fetch updated profile';
       return NextResponse.json(response, { status: 500 });
     }
-
-    // Get email from auth user
-    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(id);
 
     await logAudit(supabase, {
       action: 'update',
@@ -104,7 +101,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     response.data = {
       id: data.id,
       username: data.username,
-      email: authUser?.email || '',
+      email: data.email || '',
       displayName: data.full_name,
       phone: data.phone_number,
       address: data.address,

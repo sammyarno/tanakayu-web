@@ -7,8 +7,7 @@ interface FetchTransactionsParams {
 }
 
 export const fetchTransactions = async ({ monthFilter }: FetchTransactionsParams = {}): Promise<TransactionsResult> => {
-  const url = monthFilter ? `/api/transactions?month=${monthFilter}` : '/api/transactions';
-  const response = await fetchJson(url);
+  const response = await fetchJson(`/api/transactions?month=${monthFilter ?? 'latest'}`);
 
   if (response.error || !response.data) {
     throw new Error(response.error || 'Failed to fetch transactions');
@@ -17,11 +16,14 @@ export const fetchTransactions = async ({ monthFilter }: FetchTransactionsParams
   return response.data;
 };
 
-export const useFetchTransactions = (monthFilter?: string, enabled = true) => {
+/**
+ * Pass no month to get the newest one. The server resolves it, so this fires
+ * immediately on mount rather than waiting on the date-range request.
+ */
+export const useFetchTransactions = (monthFilter?: string) => {
   return useQuery({
-    queryKey: ['transactions', { monthFilter }],
+    queryKey: ['transactions', { monthFilter: monthFilter ?? 'latest' }],
     queryFn: () => fetchTransactions({ monthFilter }),
     staleTime: 1000 * 60 * 2, // 2 minutes
-    enabled,
   });
 };

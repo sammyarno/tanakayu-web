@@ -16,6 +16,8 @@ export interface TransactionsByDate {
 }
 
 export interface TransactionsResult {
+  /** The month this result covers, as MMYYYY. Null when no transactions exist. */
+  month: string | null;
   balanceStart: number;
   balance: number;
   transactions: TransactionsByDate[];

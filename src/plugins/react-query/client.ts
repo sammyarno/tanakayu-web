@@ -1,19 +1,27 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, isServer } from '@tanstack/react-query';
 
-let client: QueryClient | null = null;
+const makeQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 30, // 30 minutes
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  });
+
+let browserClient: QueryClient | null = null;
 
 export const getQueryClient = () => {
-  if (!client) {
-    client = new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 1000 * 60 * 5, // 5 minutes
-          gcTime: 1000 * 60 * 30, // 30 minutes
-          refetchOnWindowFocus: false,
-          retry: 1,
-        },
-      },
-    });
+  // On the server, always hand back a fresh client. A module-level singleton is
+  // shared across concurrent requests during SSR, which leaks one user's cached
+  // query data into another user's render.
+  if (isServer) return makeQueryClient();
+
+  if (!browserClient) {
+    browserClient = makeQueryClient();
   }
-  return client;
+  return browserClient;
 };

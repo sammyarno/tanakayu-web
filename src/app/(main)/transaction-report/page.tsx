@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
@@ -25,19 +25,16 @@ const UploadDialog = dynamic(() => import('@/components/transaction/UploadDialog
 const FinancialReport = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>();
   const { monthOptions, isLoading: isLoadingDateRange, hasTransactions } = useFetchTransactionDateRange();
-  const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod, !!selectedPeriod);
+  // Both requests fire together on mount; the server resolves "latest" for us.
+  const { data: transactionsData, isLoading } = useFetchTransactions(selectedPeriod);
   const { role } = useAuth();
   const isAdmin = role === ROLES.SUPERADMIN;
 
-  // Default to the most recent month once the available date range loads
-  useEffect(() => {
-    if (!selectedPeriod && monthOptions.length > 0) {
-      setSelectedPeriod(monthOptions[0].value);
-    }
-  }, [selectedPeriod, monthOptions]);
+  // Until the user picks a month, show whichever one the server resolved.
+  const activeMonth = selectedPeriod ?? transactionsData?.month ?? undefined;
 
   // monthOptions is sorted newest-first, so an older month is a higher index
-  const currentMonthIndex = monthOptions.findIndex(o => o.value === selectedPeriod);
+  const currentMonthIndex = monthOptions.findIndex(o => o.value === activeMonth);
   const canGoToOlderMonth = currentMonthIndex !== -1 && currentMonthIndex < monthOptions.length - 1;
   const canGoToNewerMonth = currentMonthIndex > 0;
 
@@ -46,11 +43,11 @@ const FinancialReport = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const selectedPeriodLabel = monthOptions.find(o => o.value === selectedPeriod)?.label ?? 'All';
+  const selectedPeriodLabel = monthOptions.find(o => o.value === activeMonth)?.label ?? 'All';
 
   const handleDownloadExcel = async () => {
     if (!transactionsData) return;
-    await exportTransactionsToExcel(transactionsData, selectedPeriodLabel, selectedPeriod || undefined);
+    await exportTransactionsToExcel(transactionsData, selectedPeriodLabel, activeMonth);
   };
 
   const renderTransactions = () => {
@@ -98,7 +95,7 @@ const FinancialReport = () => {
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <Select value={selectedPeriod} onValueChange={goToMonth}>
+          <Select value={activeMonth} onValueChange={goToMonth}>
             <SelectTrigger className="bg-tanakayu-dark border-tanakayu-dark text-tanakayu-highlight !h-11 flex-1">
               <SelectValue placeholder="Select period" />
             </SelectTrigger>
