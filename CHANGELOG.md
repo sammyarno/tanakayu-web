@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- perf: navigating to a protected page now paints a skeleton immediately instead of waiting on the server auth check
+- perf: home page render cut from ~1030ms to ~25ms by dropping a server-side prefetch that round-tripped to the app's own API and was refetched client-side anyway
+- perf: profile requests no longer make a second Auth API call just to read an email already stored on `profiles`
+- perf: transaction report fetches its month list and its transactions in parallel instead of one after the other
+- fix: first click after login no longer silently does nothing (stale pre-auth route prefetch)
+- fix: the TanStack QueryClient is no longer a module-level singleton shared across concurrent SSR requests
 - perf: login no longer waits on a redundant profile fetch after establishing the session
 - perf: members list no longer downloads the entire auth user table to resolve emails; `profiles.email` is now denormalized
 - perf: protected pages (`members`, `waitlist`, `verify-member`, `member/profile`, `post`, `transaction-report`) render immediately from the persisted session instead of blanking until re-verified
