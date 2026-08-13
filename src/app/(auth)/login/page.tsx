@@ -44,6 +44,10 @@ const Login = () => {
 
   useEffect(() => {
     if (isInitialized && !isLoading && user && !error) {
+      // Invalidate the Router Cache - without this, <Link> prefetches for
+      // protected routes issued before the auth cookie was set can serve a
+      // stale "unauthenticated" response on the first click after login.
+      router.refresh();
       router.push('/');
     }
   }, [user, error, router, isInitialized, isLoading]);
