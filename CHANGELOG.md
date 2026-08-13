@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- perf: pinned Vercel functions to `sin1` (Singapore); they were executing in `iad1` while Supabase runs in `ap-southeast-1`, so every DB round trip crossed the Pacific twice — `/api/posts` measured 2849ms, `/api/health` 1266ms, against 28ms browser-to-Supabase directly
+- perf: `/post` no longer holds its posts request behind the client-side auth store initialization (~490ms of serial wait)
 - perf: navigating to a protected page now paints a skeleton immediately instead of waiting on the server auth check
 - perf: home page render cut from ~1030ms to ~25ms by dropping a server-side prefetch that round-tripped to the app's own API and was refetched client-side anyway
 - perf: profile requests no longer make a second Auth API call just to read an email already stored on `profiles`

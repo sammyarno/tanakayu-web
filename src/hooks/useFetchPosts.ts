@@ -2,8 +2,6 @@ import { fetchJson } from '@/lib/fetch';
 import type { PostWithVotes } from '@/types/post';
 import { useQuery } from '@tanstack/react-query';
 
-import { useAuth } from './auth/useAuth';
-
 export const fetchPosts = async (): Promise<PostWithVotes[]> => {
   const response = await fetchJson(`/api/posts`);
 
@@ -15,12 +13,12 @@ export const fetchPosts = async (): Promise<PostWithVotes[]> => {
   return response.data || [];
 };
 
-export const usePosts = () => {
-  const { isInitialized } = useAuth();
-
-  return useQuery({
+// Deliberately not gated on the auth store: /api/posts reads the user from the
+// session cookie server-side (for vote status), which the browser sends whether
+// or not the store has finished initializing. Waiting on it only serialised the
+// client-side profile fetch in front of this request.
+export const usePosts = () =>
+  useQuery({
     queryKey: ['posts'],
     queryFn: () => fetchPosts(),
-    enabled: isInitialized,
   });
-};
