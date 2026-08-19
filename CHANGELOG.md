@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- fix: form controls no longer render mismatched fills; shadcn's leftover `dark:` utilities were firing on dark-mode machines even though the app defines no dark theme, painting translucent overlays over inputs and selects. The `dark` variant is now bound to an opt-in `.dark` ancestor, and the contextual field fill moved from ancestor-scoped `!important` rules (which a `FormControl` wrapper silently defeated by replacing the child's `data-slot`) to a `--field-bg` variable the controls consume
+- fix: the create-post type select was 132px wide against 348px fields, with a near-white placeholder and chevron on a light fill; it now matches the other controls
 - fix: registration stores usernames lowercase, and login lowercases the username before the lookup; both the uniqueness check and the login lookup are exact matches, so casing could previously produce a duplicate-looking username or a login that failed against the stored one
 - fix: admin-only lazy dialogs (post create/edit/delete, transaction upload/create) each get their own Suspense boundary; they were suspending the page-level boundary as their chunk loaded, hiding the whole page back to its skeleton and making the Add Post button flash show/hide/show
 - fix: navigating to a page no longer flashes two different skeleton shapes; each route's `loading.tsx` now renders its real static shell (breadcrumb, header, filters) plus the same content skeleton the page itself uses, so only the data area transitions, once

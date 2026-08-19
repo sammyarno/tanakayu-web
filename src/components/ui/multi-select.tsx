@@ -178,7 +178,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             {...props}
             onClick={handleTogglePopover}
             className={cn(
-              'flex h-auto min-h-10 w-full items-center justify-between rounded-md border bg-inherit p-1 hover:bg-inherit [&_svg]:pointer-events-auto',
+              'flex h-auto min-h-9 w-full items-center justify-between rounded-md border bg-[var(--field-bg)] p-1 hover:bg-[var(--field-bg)] [&_svg]:pointer-events-auto',
               className
             )}
           >
@@ -233,7 +233,7 @@ export const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
               </div>
             ) : (
               <div className="mx-auto flex w-full items-center justify-between">
-                <span className="text-muted-foreground mx-3 text-sm">{placeholder}</span>
+                <span className="mx-3 text-sm text-slate-400">{placeholder}</span>
                 <ChevronDown className="text-muted-foreground mx-2 h-4 cursor-pointer" />
               </div>
             )}

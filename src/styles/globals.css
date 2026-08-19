@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* This app ships a single brand theme, but shadcn's components still carry
+   `dark:` utilities. Tailwind resolves `dark:` from prefers-color-scheme by
+   default, so on a dark-mode OS those utilities fired and painted translucent
+   overlays over inputs and selects that no token here accounts for. Bind the
+   variant to an opt-in `.dark` ancestor instead, which nothing sets, so they
+   stay inert until a real dark theme exists. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Playfair Display', serif;
@@ -19,6 +27,8 @@
 html {
   @apply overflow-x-hidden scroll-smooth;
   font-size: 14px;
+  /* Single light theme: keep native controls and scrollbars from going dark. */
+  color-scheme: light;
 }
 
 body {
@@ -52,20 +62,19 @@ body::before {
   }
 }
 
-/* Inputs default to a darker shade so they stand out on the green background */
-input,
-[data-slot='select-trigger'] {
-  background-color: var(--color-tanakayu-dark) !important;
+/* Form controls take their fill from context: dark so they stand out on the
+   green page, light inside cards and dialogs. Controls opt in by consuming the
+   variable (`bg-[var(--field-bg)]`) rather than being painted by an ancestor
+   selector, because wrappers like FormControl replace a child's `data-slot`
+   and would silently drop such a rule. */
+:root {
+  --field-bg: var(--color-tanakayu-dark);
 }
 
-/* Inputs inside cards and dialogs get a subtle light background instead */
-[data-slot='card'] input,
-[data-slot='card'] [data-slot='select-trigger'],
-[data-slot='dialog-content'] input,
-[data-slot='dialog-content'] [data-slot='select-trigger'],
-[data-slot='alert-dialog-content'] input,
-[data-slot='alert-dialog-content'] [data-slot='select-trigger'] {
-  background-color: #f1f5f9 !important;
+[data-slot='card'],
+[data-slot='dialog-content'],
+[data-slot='alert-dialog-content'] {
+  --field-bg: #f1f5f9;
 }
 
 :root {
