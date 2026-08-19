@@ -14,10 +14,10 @@ import { Skeleton } from './ui/skeleton';
 
 const NearestEvents = () => {
   const { user } = useAuth();
-  const { data: fetchedEvents, isFetching } = useNearestEvents();
+  const { data: fetchedEvents } = useNearestEvents();
 
   if (user?.role === ROLES.MERCHANT) return null;
-  if (isFetching) return <Skeleton className="h-[200px] w-full" />;
+  if (!fetchedEvents) return <Skeleton className="h-[200px] w-full" />;
 
   return (
     <section className="relative rounded-xl border bg-white p-5 shadow-sm">
