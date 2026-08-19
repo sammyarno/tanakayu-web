@@ -9,9 +9,10 @@ import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
-import PageSkeleton from '@/components/PageSkeleton';
 import Pagination from '@/components/Pagination';
-import PostCard, { PostCardSkeleton } from '@/components/post/Card';
+import PostCard from '@/components/post/Card';
+import PostCardSkeleton from '@/components/post/CardSkeleton';
+import PostPageSkeleton from '@/components/post/PostPageSkeleton';
 import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { usePosts } from '@/hooks/useFetchPosts';
@@ -96,7 +97,7 @@ const PostContent = () => {
 
 const PostPage = () => {
   return (
-    <Suspense fallback={<PageSkeleton />}>
+    <Suspense fallback={<PostPageSkeleton />}>
       <PostContent />
     </Suspense>
   );

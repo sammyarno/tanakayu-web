@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- fix: navigating to a page no longer flashes two different skeleton shapes; each route's `loading.tsx` now renders its real static shell (breadcrumb, header, filters) plus the same content skeleton the page itself uses, so only the data area transitions, once
 - polish: list/card loading states (members, waitlist entries + invites, posts, transaction report, profile) now show skeletons shaped like the real row/card instead of a generic centered spinner; removed the now-unused `LoadingIndicator` spinner component
 - perf: pinned Vercel functions to `sin1` (Singapore); they were executing in `iad1` while Supabase runs in `ap-southeast-1`, so every DB round trip crossed the Pacific twice — `/api/posts` measured 2849ms, `/api/health` 1266ms, against 28ms browser-to-Supabase directly
 - perf: `/post` no longer holds its posts request behind the client-side auth store initialization (~490ms of serial wait)
