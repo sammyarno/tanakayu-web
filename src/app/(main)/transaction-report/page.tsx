@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
@@ -134,8 +134,12 @@ const FinancialReport = () => {
         {isAdmin && (
           <>
             <div className="flex w-full items-center gap-2">
-              <UploadDialog />
-              <CreateTransactionDialog />
+              {/* Own boundary so these lazy dialogs suspend in place rather than
+                  taking the surrounding page down to a skeleton with them. */}
+              <Suspense fallback={null}>
+                <UploadDialog />
+                <CreateTransactionDialog />
+              </Suspense>
               <Button
                 variant="outline"
                 onClick={handleDownloadExcel}

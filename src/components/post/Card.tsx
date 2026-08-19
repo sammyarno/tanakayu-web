@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { Suspense, memo, useMemo, useState } from 'react';
 
 import dynamic from 'next/dynamic';
 
@@ -143,8 +143,12 @@ const PostCard = memo(function PostCard({ post, editable = false }: Props) {
         </div>
         {editable && (
           <div className="ml-2 flex items-center gap-1">
-            <EditDialog post={post} />
-            <DeleteConfirmationAlert post={post} />
+            {/* Own boundary: these lazy dialogs suspend while their chunk loads,
+                which would otherwise blank the whole post list behind them. */}
+            <Suspense fallback={null}>
+              <EditDialog post={post} />
+              <DeleteConfirmationAlert post={post} />
+            </Suspense>
           </div>
         )}
       </div>

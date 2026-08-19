@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- fix: admin-only lazy dialogs (post create/edit/delete, transaction upload/create) each get their own Suspense boundary; they were suspending the page-level boundary as their chunk loaded, hiding the whole page back to its skeleton and making the Add Post button flash show/hide/show
 - fix: navigating to a page no longer flashes two different skeleton shapes; each route's `loading.tsx` now renders its real static shell (breadcrumb, header, filters) plus the same content skeleton the page itself uses, so only the data area transitions, once
 - polish: list/card loading states (members, waitlist entries + invites, posts, transaction report, profile) now show skeletons shaped like the real row/card instead of a generic centered spinner; removed the now-unused `LoadingIndicator` spinner component
 - perf: pinned Vercel functions to `sin1` (Singapore); they were executing in `iad1` while Supabase runs in `ap-southeast-1`, so every DB round trip crossed the Pacific twice — `/api/posts` measured 2849ms, `/api/health` 1266ms, against 28ms browser-to-Supabase directly

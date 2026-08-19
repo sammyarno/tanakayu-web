@@ -80,7 +80,13 @@ const PostContent = () => {
         description={data ? `${data.length} post${data.length !== 1 ? 's' : ''}` : 'Loading...'}
       />
 
-      {isAdmin && <CreateDialog />}
+      {/* Own boundary: a lazy dialog suspends as its chunk loads, and without
+          this the page-level Suspense below would blank the whole page for it. */}
+      {isAdmin && (
+        <Suspense fallback={null}>
+          <CreateDialog />
+        </Suspense>
+      )}
 
       <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
 
