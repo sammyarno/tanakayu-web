@@ -85,7 +85,9 @@ export const useUserAuthStore = create<UserAuthState>()(
               'Content-Type': 'application/json',
               Authorization: `Bearer ${supabaseAnonKey}`,
             },
-            body: JSON.stringify({ username, password }),
+            // Usernames are stored lowercase; the edge function looks them up
+            // with an exact match, so normalize here too.
+            body: JSON.stringify({ username: username.toLowerCase(), password }),
           });
 
           const data = await response.json();

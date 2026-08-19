@@ -7,7 +7,9 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  username: z.string().min(1, 'Username is required').min(6, 'Username must be at least 6 characters'),
+  // Stored lowercase so the uniqueness check and the login lookup, both exact
+  // matches, cannot be sidestepped by casing.
+  username: z.string().min(1, 'Username is required').min(6, 'Username must be at least 6 characters').toLowerCase(),
   full_name: z.string().min(1, 'Full Name is required').min(6, 'Full Name must be at least 6 characters'),
   cluster: z.enum(CLUSTER_LIST, { message: 'Cluster must be selected' }),
   address: z.string().min(1, 'Address is required'),

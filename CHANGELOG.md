@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- fix: registration stores usernames lowercase, and login lowercases the username before the lookup; both the uniqueness check and the login lookup are exact matches, so casing could previously produce a duplicate-looking username or a login that failed against the stored one
 - fix: admin-only lazy dialogs (post create/edit/delete, transaction upload/create) each get their own Suspense boundary; they were suspending the page-level boundary as their chunk loaded, hiding the whole page back to its skeleton and making the Add Post button flash show/hide/show
 - fix: navigating to a page no longer flashes two different skeleton shapes; each route's `loading.tsx` now renders its real static shell (breadcrumb, header, filters) plus the same content skeleton the page itself uses, so only the data area transitions, once
 - polish: list/card loading states (members, waitlist entries + invites, posts, transaction report, profile) now show skeletons shaped like the real row/card instead of a generic centered spinner; removed the now-unused `LoadingIndicator` spinner component
