@@ -12,7 +12,7 @@ import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
 import Pagination from '@/components/Pagination';
 import PostCard from '@/components/post/Card';
-import { ALL_ROLES, ROLES } from '@/constants/roles';
+import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { usePosts } from '@/hooks/useFetchPosts';
 import type { Category } from '@/types';
@@ -70,7 +70,7 @@ const PostContent = () => {
   ];
 
   return (
-    <PageContent allowedRoles={ALL_ROLES}>
+    <PageContent>
       <Breadcrumb items={breadcrumbItems} />
 
       <PageHeader

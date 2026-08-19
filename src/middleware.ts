@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 // Routes that require auth verification
-const PROTECTED_PREFIXES = ['/member', '/verify-member', '/members', '/waitlist', '/post', '/transaction-report'];
+const PROTECTED_PREFIXES = ['/member', '/verify-member', '/members', '/waitlist', '/transaction-report'];
 // Routes that should redirect authenticated users away
 const AUTH_ONLY_PATHS = ['/login', '/register'];
 
