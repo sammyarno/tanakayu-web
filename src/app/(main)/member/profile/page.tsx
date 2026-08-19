@@ -15,7 +15,7 @@ import { Settings } from 'lucide-react';
 
 const ProfilePage = () => {
   const { userId, username } = useAuth();
-  const { data: profile, isFetching } = useFetchProfile({ id: userId || '', username: username || '' });
+  const { data: profile } = useFetchProfile({ id: userId || '', username: username || '' });
 
   return (
     <PageContent allowedRoles={ALL_ROLES} fallbackPath="/member">
@@ -29,7 +29,7 @@ const ProfilePage = () => {
         <PageHeader icon={Settings} title="Account Settings" description="Manage your account settings and preferences." />
       </div>
 
-      {isFetching || !profile ? (
+      {!profile ? (
         <ProfileSkeleton />
       ) : (
         <div className="space-y-6">

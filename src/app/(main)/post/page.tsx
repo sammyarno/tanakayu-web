@@ -30,7 +30,7 @@ const PostContent = () => {
 
   const [selectedType, setSelectedType] = useState<string>(filterParams ?? '');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { data, isFetching: isLoading } = usePosts();
+  const { data } = usePosts();
 
   const filterCategories: Category[] = useMemo(
     () => [
@@ -84,7 +84,7 @@ const PostContent = () => {
       <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
 
       <section className="flex flex-col gap-4">
-        {isLoading
+        {!data
           ? Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
           : paginatedItems.map(item => <PostCard key={`post-card-${item.id}`} post={item} editable={isAdmin} />)}
 
