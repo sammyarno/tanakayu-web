@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -107,8 +107,10 @@ const RegisterForm = () => {
     defaultValues: defaultFormValues,
     mode: 'onTouched',
   });
-  const { handleSubmit, reset, trigger, formState, setValue, watch } = methods;
-  const passwordValue = watch('password') || '';
+  const { handleSubmit, reset, trigger, formState, setValue } = methods;
+  // useWatch rather than methods.watch: the latter can't be memoized, so React
+  // Compiler skips optimizing the whole component.
+  const passwordValue = useWatch({ control: methods.control, name: 'password' }) || '';
 
   useEffect(() => {
     if (!inviteToken) return;

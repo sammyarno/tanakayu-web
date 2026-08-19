@@ -1,12 +1,12 @@
 'use client';
 
 import Breadcrumb from '@/components/Breadcrumb';
-import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
 import { ChangePasswordSection } from '@/components/profile/ChangePasswordSection';
 import { PersonalInfoSection } from '@/components/profile/PersonalInfoSection';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import ProfileSkeleton from '@/components/profile/ProfileSkeleton';
 import { SignOutSection } from '@/components/profile/SignOutSection';
 import { ALL_ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -30,9 +30,7 @@ const ProfilePage = () => {
       </div>
 
       {isFetching || !profile ? (
-        <div className="flex justify-center py-12">
-          <LoadingIndicator isLoading />
-        </div>
+        <ProfileSkeleton />
       ) : (
         <div className="space-y-6">
           <ProfileHeader profile={profile} />

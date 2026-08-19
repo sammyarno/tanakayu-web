@@ -31,7 +31,6 @@ interface RichTextEditorProps {
   disabled?: boolean;
   className?: string;
   storageFolder?: string; // e.g., 'posts' or 'uploads'
-  fileNamePrefix?: string; // optional prefix for uploaded files
 }
 
 function RichTextEditor({
@@ -41,7 +40,6 @@ function RichTextEditor({
   disabled = false,
   className,
   storageFolder = 'uploads',
-  fileNamePrefix = 'tanakayu',
 }: RichTextEditorProps) {
   const quillRef = useRef<ReactQuillComponent | null>(null);
 
@@ -99,7 +97,7 @@ function RichTextEditor({
         alert('Failed to upload image. Please try again.');
       }
     };
-  }, [storageFolder, fileNamePrefix]);
+  }, [storageFolder]);
 
   // Quill modules configuration
   const modules = useMemo(

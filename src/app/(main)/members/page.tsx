@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import Breadcrumb from '@/components/Breadcrumb';
-import LoadingIndicator from '@/components/LoadingIndicator';
+import ListSkeleton from '@/components/ListSkeleton';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -93,42 +93,43 @@ const MembersPage = () => {
           <CardTitle className="text-base">All Members</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <LoadingIndicator isLoading={isLoading} />
+          {isLoading && <ListSkeleton />}
 
           {!isLoading && members?.length === 0 && (
             <p className="text-muted-foreground py-8 text-center text-sm">No members found</p>
           )}
 
           <div className="divide-y">
-            {members?.map(member => (
-              <div
-                key={member.id}
-                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tanakayu-dark/5 sm:px-6"
-              >
-                {/* Avatar */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-bold text-white uppercase">
-                  {member.fullName?.charAt(0) || member.username?.charAt(0) || '?'}
-                </div>
-
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-semibold">{member.fullName || '-'}</p>
-                    <Badge variant="secondary" className={`text-[10px] ${ROLE_COLORS[member.role] || ''}`}>
-                      {member.role}
-                    </Badge>
+            {!isLoading &&
+              members?.map(member => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-tanakayu-dark/5 sm:px-6"
+                >
+                  {/* Avatar */}
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-sm font-bold text-white uppercase">
+                    {member.fullName?.charAt(0) || member.username?.charAt(0) || '?'}
                   </div>
-                  <p className="text-muted-foreground truncate text-xs">
-                    @{member.username} &middot; {member.phoneNumber || 'No phone'}
-                  </p>
-                </div>
 
-                {/* Edit Button */}
-                <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setEditingMember(member)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+                  {/* Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-semibold">{member.fullName || '-'}</p>
+                      <Badge variant="secondary" className={`text-[10px] ${ROLE_COLORS[member.role] || ''}`}>
+                        {member.role}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground truncate text-xs">
+                      @{member.username} &middot; {member.phoneNumber || 'No phone'}
+                    </p>
+                  </div>
+
+                  {/* Edit Button */}
+                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setEditingMember(member)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -136,6 +137,9 @@ const MembersPage = () => {
       {/* Edit Dialog */}
       {editingMember && (
         <EditMemberDialog
+          // Remount on a different member so the form state re-initializes from
+          // its useState defaults, instead of resetting via an effect.
+          key={editingMember.id}
           member={editingMember}
           open={!!editingMember}
           onOpenChange={open => !open && setEditingMember(null)}
@@ -226,17 +230,6 @@ function EditMemberDialog({ member, open, onOpenChange, onSave, onDelete, isPend
   const [cluster, setCluster] = useState(parsed.cluster);
   const [houseNumber, setHouseNumber] = useState(parsed.houseNumber);
   const [password, setPassword] = useState('');
-
-  // Reset form when member changes
-  useEffect(() => {
-    const p = parseAddress(member.address || '');
-    setDisplayName(member.fullName || '');
-    setEmail(member.email || '');
-    setPhone(member.phoneNumber || '');
-    setCluster(p.cluster);
-    setHouseNumber(p.houseNumber);
-    setPassword('');
-  }, [member]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

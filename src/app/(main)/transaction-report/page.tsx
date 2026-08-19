@@ -5,11 +5,11 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 import Breadcrumb from '@/components/Breadcrumb';
-import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
-import TransactionCard from '@/components/TransactionCard';
+import TransactionCard, { TransactionCardSkeleton } from '@/components/TransactionCard';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ALL_ROLES, ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
@@ -149,24 +149,33 @@ const FinancialReport = () => {
         )}
 
         <div className="flex items-center justify-between">
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             <p className="text-tanakayu-accent text-xs tracking-wider">Balance Start</p>
-            <p className="text-tanakayu-accent font-bold tracking-wide">
-              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balanceStart) : 'IDR 0'}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-5 w-28" />
+            ) : (
+              <p className="text-tanakayu-accent font-bold tracking-wide">
+                {transactionsData ? formatCurrencyToIDR(transactionsData.balanceStart) : 'IDR 0'}
+              </p>
+            )}
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end gap-1">
             <p className="text-tanakayu-accent text-right text-xs tracking-wider">Balance End</p>
-            <p className="text-tanakayu-accent text-right font-bold tracking-wide">
-              {isLoading ? 'Loading...' : transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
-            </p>
+            {isLoading ? (
+              <Skeleton className="h-5 w-28" />
+            ) : (
+              <p className="text-tanakayu-accent text-right font-bold tracking-wide">
+                {transactionsData ? formatCurrencyToIDR(transactionsData.balance) : 'IDR 0'}
+              </p>
+            )}
           </div>
         </div>
       </section>
 
       <section className="flex flex-col gap-4">
-        <LoadingIndicator isLoading={isLoading} />
-        {renderTransactions()}
+        {isLoading
+          ? Array.from({ length: 2 }).map((_, i) => <TransactionCardSkeleton key={i} />)
+          : renderTransactions()}
       </section>
     </PageContent>
   );

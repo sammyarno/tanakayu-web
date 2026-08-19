@@ -2,8 +2,14 @@
 
 ## [Unreleased]
 
+- polish: list/card loading states (members, waitlist entries + invites, posts, transaction report, profile) now show skeletons shaped like the real row/card instead of a generic centered spinner; removed the now-unused `LoadingIndicator` spinner component
 - perf: pinned Vercel functions to `sin1` (Singapore); they were executing in `iad1` while Supabase runs in `ap-southeast-1`, so every DB round trip crossed the Pacific twice — `/api/posts` measured 2849ms, `/api/health` 1266ms, against 28ms browser-to-Supabase directly
 - perf: `/post` no longer holds its posts request behind the client-side auth store initialization (~490ms of serial wait)
+- fix: the member edit dialog re-initializes via a `key` remount instead of a `setState`-in-effect cascade
+- fix: the create-post dialog resets and closes from its own event handlers instead of effects watching mutation state
+- refactor: form fields subscribe with `useWatch` instead of `methods.watch`, so React Compiler can memoize the register page and both post dialogs
+- chore: removed the `fileNamePrefix` prop from the rich text editor — it was threaded through two call sites and never used; `/api/upload` names files itself
+- chore: `pnpm lint` is clean (was 1 error, 5 warnings)
 - perf: navigating to a protected page now paints a skeleton immediately instead of waiting on the server auth check
 - perf: home page render cut from ~1030ms to ~25ms by dropping a server-side prefetch that round-tripped to the app's own API and was refetched client-side anyway
 - perf: profile requests no longer make a second Auth API call just to read an email already stored on `profiles`

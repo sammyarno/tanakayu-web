@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import CategorySelector from '@/components/CategorySelector';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
@@ -34,7 +34,7 @@ const defaultFormValues: CreatePostForm = {
 const CreateDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const { mutate, isPending, isSuccess, isError } = useCreatePost();
+  const { mutate, isPending } = useCreatePost();
   const categories = usePostCategoriesStore(state => state.categories);
 
   const methods = useForm<CreatePostForm>({
@@ -42,8 +42,19 @@ const CreateDialog = () => {
     defaultValues: defaultFormValues,
   });
 
-  const { reset, handleSubmit, watch, setValue } = methods;
-  const selectedType = watch('type');
+  const { reset, handleSubmit, setValue } = methods;
+  const selectedType = useWatch({ control: methods.control, name: 'type' });
+  const startDate = useWatch({ control: methods.control, name: 'startDate' });
+
+  // Closing the dialog clears the form. Doing it here rather than in an effect
+  // on `isOpen` avoids a second render pass every time the dialog toggles.
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      reset(defaultFormValues);
+      setErrorMessage(undefined);
+    }
+  };
 
   const handleCreateSubmission = (data: CreatePostForm) => {
     setErrorMessage(undefined);
@@ -56,39 +67,30 @@ const CreateDialog = () => {
 
     const categoryIds = data.categories?.map(code => categories?.find(c => c.code === code)?.id || '') ?? [];
 
-    mutate({
-      title: data.title,
-      content: data.content,
-      type: data.type,
-      categoryIds,
-      startDate: data.startDate || undefined,
-      endDate: data.endDate || undefined,
-    });
+    mutate(
+      {
+        title: data.title,
+        content: data.content,
+        type: data.type,
+        categoryIds,
+        startDate: data.startDate || undefined,
+        endDate: data.endDate || undefined,
+      },
+      {
+        onSuccess: () => {
+          handleOpenChange(false);
+          toast.success('Post created successfully!', {
+            duration: 3000,
+            position: 'top-center',
+          });
+        },
+        onError: () => setErrorMessage('Failed to create post'),
+      }
+    );
   };
 
-  useEffect(() => {
-    if (!isOpen) {
-      reset(defaultFormValues);
-      setErrorMessage(undefined);
-    }
-  }, [isOpen, reset]);
-
-  useEffect(() => {
-    if (isSuccess && !isError) {
-      setIsOpen(false);
-      setErrorMessage(undefined);
-      reset(defaultFormValues);
-      toast.success('Post created successfully!', {
-        duration: 3000,
-        position: 'top-center',
-      });
-    } else if (isError) {
-      setErrorMessage('Failed to create post');
-    }
-  }, [isSuccess, isError, reset]);
-
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button onClick={() => setIsOpen(true)} size="lg" className="tracking-wide" variant="secondary">
           Add Post
@@ -186,7 +188,7 @@ const CreateDialog = () => {
                       <FormItem>
                         <FormLabel>End Date (Optional)</FormLabel>
                         <FormControl>
-                          <Input {...field} type="date" min={watch('startDate')} disabled={isPending} />
+                          <Input {...field} type="date" min={startDate} disabled={isPending} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -207,7 +209,6 @@ const CreateDialog = () => {
                         disabled={isPending}
                         className="min-h-[200px]"
                         storageFolder="posts"
-                        fileNamePrefix="post"
                       />
                     </FormControl>
                     <FormMessage />
@@ -216,7 +217,7 @@ const CreateDialog = () => {
               />
             </div>
             <DialogFooter className="mt-4">
-              <Button variant="outline" disabled={isPending} onClick={() => setIsOpen(false)} type="button">
+              <Button variant="outline" disabled={isPending} onClick={() => handleOpenChange(false)} type="button">
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>

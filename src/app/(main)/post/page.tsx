@@ -7,11 +7,11 @@ import { useSearchParams } from 'next/navigation';
 
 import Breadcrumb from '@/components/Breadcrumb';
 import CategoryFilter from '@/components/CategoryFilter';
-import LoadingIndicator from '@/components/LoadingIndicator';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
+import PageSkeleton from '@/components/PageSkeleton';
 import Pagination from '@/components/Pagination';
-import PostCard from '@/components/post/Card';
+import PostCard, { PostCardSkeleton } from '@/components/post/Card';
 import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { usePosts } from '@/hooks/useFetchPosts';
@@ -84,11 +84,9 @@ const PostContent = () => {
       <CategoryFilter categories={filterCategories} selectedCategory={selectedType} onSelect={handleFilterChange} />
 
       <section className="flex flex-col gap-4">
-        <LoadingIndicator isLoading={isLoading} />
-
-        {paginatedItems.map(item => (
-          <PostCard key={`post-card-${item.id}`} post={item} editable={isAdmin} />
-        ))}
+        {isLoading
+          ? Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
+          : paginatedItems.map(item => <PostCard key={`post-card-${item.id}`} post={item} editable={isAdmin} />)}
 
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </section>
@@ -98,7 +96,7 @@ const PostContent = () => {
 
 const PostPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<PageSkeleton />}>
       <PostContent />
     </Suspense>
   );

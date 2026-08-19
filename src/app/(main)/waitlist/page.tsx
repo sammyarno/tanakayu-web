@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import Breadcrumb from '@/components/Breadcrumb';
-import LoadingIndicator from '@/components/LoadingIndicator';
+import ListSkeleton from '@/components/ListSkeleton';
 import PageContent from '@/components/PageContent';
 import PageHeader from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
@@ -172,7 +172,7 @@ const WaitlistPage = () => {
           )}
         </CardHeader>
         <CardContent className="p-0">
-          <LoadingIndicator isLoading={isLoading} />
+          {isLoading && <ListSkeleton leading="checkbox" actions={2} />}
 
           {!isLoading && entries?.length === 0 && (
             <p className="text-muted-foreground py-8 text-center text-sm">No {statusFilter.toLowerCase()} registrations</p>
@@ -191,23 +191,24 @@ const WaitlistPage = () => {
           )}
 
           <div className="divide-y">
-            {entries?.map(entry => (
-              <WaitlistRow
-                key={entry.id}
-                entry={entry}
-                selected={selectedIds.has(entry.id)}
-                onToggle={() => toggleSelected(entry.id)}
-                onApprove={() => handleApprove([entry.id])}
-                onReject={() => setRejectTarget([entry.id])}
-                onDelete={() =>
-                  deleteMutation.mutate(entry.id, {
-                    onSuccess: () => toast.success('Entry removed'),
-                    onError: err => toast.error(err.message),
-                  })
-                }
-                isPending={reviewMutation.isPending || deleteMutation.isPending}
-              />
-            ))}
+            {!isLoading &&
+              entries?.map(entry => (
+                <WaitlistRow
+                  key={entry.id}
+                  entry={entry}
+                  selected={selectedIds.has(entry.id)}
+                  onToggle={() => toggleSelected(entry.id)}
+                  onApprove={() => handleApprove([entry.id])}
+                  onReject={() => setRejectTarget([entry.id])}
+                  onDelete={() =>
+                    deleteMutation.mutate(entry.id, {
+                      onSuccess: () => toast.success('Entry removed'),
+                      onError: err => toast.error(err.message),
+                    })
+                  }
+                  isPending={reviewMutation.isPending || deleteMutation.isPending}
+                />
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -351,16 +352,17 @@ function InvitesCard() {
           </Button>
         </div>
 
-        <LoadingIndicator isLoading={isLoading} />
+        {isLoading && <ListSkeleton leading="none" actions={2} rows={2} padded={false} />}
 
         {!isLoading && activeInvites.length === 0 && (
           <p className="text-muted-foreground py-4 text-center text-sm">No active invitation links</p>
         )}
 
         <div className="divide-y">
-          {activeInvites.map(invite => (
-            <InviteRow key={invite.id} invite={invite} onCopy={() => copyLink(invite.token)} onRevoke={() => revokeMutation.mutate(invite.id, { onError: err => toast.error(err.message) })} isPending={revokeMutation.isPending} />
-          ))}
+          {!isLoading &&
+            activeInvites.map(invite => (
+              <InviteRow key={invite.id} invite={invite} onCopy={() => copyLink(invite.token)} onRevoke={() => revokeMutation.mutate(invite.id, { onError: err => toast.error(err.message) })} isPending={revokeMutation.isPending} />
+            ))}
         </div>
       </CardContent>
     </Card>

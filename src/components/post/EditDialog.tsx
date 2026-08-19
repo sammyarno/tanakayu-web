@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import CategorySelector from '@/components/CategorySelector';
 import { FormSchemaProvider } from '@/components/FormSchemaProvider';
@@ -48,11 +48,10 @@ const EditDialog = ({ post }: EditDialogProps) => {
   const {
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = methods;
-  const selectedType = watch('type');
+  const selectedType = useWatch({ control: methods.control, name: 'type' });
 
   const onSubmit = async (data: EditPostFormData) => {
     try {
@@ -205,7 +204,6 @@ const EditDialog = ({ post }: EditDialogProps) => {
                       disabled={isPending}
                       className="min-h-[200px]"
                       storageFolder="posts"
-                      fileNamePrefix="post"
                     />
                   </div>
                 )}
